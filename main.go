@@ -6,9 +6,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -40,6 +42,42 @@ func main() {
 	err_handler(err)
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	_ = deploymentsClient //compiler
+
+	fmt.Println(benis())
+
+	for {
+		fmt.Println("--------------------")
+		fmt.Println("Ohøj i skuret! Velkommen til haaukins")
+		fmt.Println("--------------------")
+		fmt.Println("Du har nu følgende valgmuligheder")
+		fmt.Println("Skriv 'l' for at se deployments")
+		fmt.Println("Skriv 'c' for at oprette deployments")
+		fmt.Println("Skriv 'd' for at slette deployments")
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		input := scanner.Text()
+		switch input {
+		case "l":
+			list_deployments(deploymentsClient)
+		case "c":
+			create_deployment(deploymentsClient, logon())
+		case "d":
+			delete_deployment(deploymentsClient, "user-a-logon")
+		}
+	}
+
+}
+
+func old_main() {
+	home := homedir.HomeDir()
+	kubeconfig := filepath.Join(home, ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	err_handler(err)
+	clientset, err := kubernetes.NewForConfig(config)
+	err_handler(err)
+
+	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 	//deploymentsClient := clientset.AppsV1().Deployments("user-a")
 	list_deployments(deploymentsClient)
 
@@ -54,6 +92,7 @@ func main() {
 
 }
 
+//demo namespace
 func namespace_test() *apiv1.Namespace {
 	namespace := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
@@ -97,8 +136,9 @@ func logon() appsv1.Deployment {
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "logon",
-							Image: "logon",
+							Name:            "logon",
+							Image:           "logon",
+							ImagePullPolicy: apiv1.PullNever,
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
@@ -124,12 +164,14 @@ func create_deployment(deploymentsClient v1.DeploymentInterface, deployment apps
 
 }
 
+//obs: fordi vi lister deployments, så kan det umiddelbart ikke ses
+//hvis den er slettet og pods derfor er ved at terminate...
 func list_deployments(deploymentsClient v1.DeploymentInterface) {
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
 	err_handler(err)
 
 	fmt.Println("Listing deployments in default namespace")
-	fmt.Printf("%d deployments exist", len(list.Items))
+	fmt.Printf("%d deployments exist\n", len(list.Items))
 	for _, d := range list.Items {
 		fmt.Printf(" * %s (%d replicas)\n", d.Name, *d.Spec.Replicas)
 	}
@@ -152,3 +194,64 @@ func err_handler(err error) {
 
 //spaghet fra eksempel-filen
 func int32Ptr(i int32) *int32 { return &i }
+
+//https://patorjk.com/software/taag/#p=display&f=Basic&t=BENIS
+func benis() string {
+	s :=
+		`
+	_____________________ _______  .___  _________
+	\______   \_   _____/ \      \ |   |/   _____/
+	 |    |  _/|    __)_  /   |   \|   |\_____  \ 
+	 |    |   \|        \/    |    \   |/        \
+	 |______  /_______  /\____|__  /___/_______  /
+	        \/        \/         \/            \/ 
+	`
+	return s
+}
+
+func benis2() string {
+
+	s1 := ".----------------.  .----------------.  .-----------------. .----------------.  .----------------."
+	s2 := "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |"
+	s3 := "| |   ______     | || |  _________   | || | ____  _____  | || |     _____    | || |    _______   | |"
+	s4 := `| |  |_   _ \    | || | |_   ___  |  | || ||_   \|_   _| | || |    |_   _|   | || |   /  ___  |  | |`
+	s5 := `| |    | |_) |   | || |   | |_  \_|  | || |  |   \ | |   | || |      | |     | || |  |  (__ \_|  | |`
+	s6 := "| |    |  __'.   | || |   |  _|  _   | || |  | |\\ \\| |   | || |      | |     | || |   '.___`-.   | |"
+	s7 := "| |   _| |__) |  | || |  _| |___/ |  | || | _| |_\\   |_  | || |     _| |_    | || |  |`\\____) |  | |"
+	s8 := "| |  |_______/   | || | |_________|  | || ||_____|\\____| | || |    |_____|   | || |  |_______.'  | |"
+	s9 := "| |              | || |              | || |              | || |              | || |              | |"
+	s10 := "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |"
+	s11 := " '----------------'  '----------------'  '----------------'  '----------------'  '----------------' "
+
+	return s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11
+
+}
+
+// func benis2() string {
+// 	s := fmt.Sprintf(
+// 	`
+// 	.----------------.  .----------------.  .-----------------. .----------------.  .----------------.
+// 	| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |
+// 	| |   ______     | || |  _________   | || | ____  _____  | || |     _____    | || |    _______   | |
+// 	| |  |_   _ \    | || | |_   ___  |  | || ||_   \|_   _| | || |    |_   _|   | || |   /  ___  |  | |
+// 	| |    | |_) |   | || |   | |_  \_|  | || |  |   \ | |   | || |      | |     | || |  |  (__ \_|  | |
+// 	| |    |  __'.   | || |   |  _|  _   | || |  | |\ \| |   | || |      | |     | || |   '.___`-.   | |
+// 	| |   _| |__) |  | || |  _| |___/ |  | || | _| |_\   |_  | || |     _| |_    | || |  |`\____) |  | |
+// 	| |  |_______/   | || | |_________|  | || ||_____|\____| | || |    |_____|   | || |  |_______.'  | |
+// 	| |              | || |              | || |              | || |              | || |              | |
+// 	| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |
+// 	 '----------------'  '----------------'  '----------------'  '----------------'  '----------------'
+// 	`
+// }
+
+func haaukins() string {
+	s :=
+		`
+	 ___ ___    _____      _____   ____ ___ ____  __.___ _______    _________ ________     _______   
+	/   |   \  /  _  \    /  _  \ |    |   \    |/ _|   |\      \  /   _____/ \_____  \    \   _  \  
+   /    ~    \/  /_\  \  /  /_\  \|    |   /      < |   |/   |   \ \_____  \   /  ____/    /  /_\  \ 
+   \    Y    /    |    \/    |    \    |  /|    |  \|   /    |    \/        \ /       \    \  \_/   \
+	\___|_  /\____|__  /\____|__  /______/ |____|__ \___\____|__  /_______  / \_______ \ /\ \_____  /
+		  \/         \/         \/                 \/           \/        \/          \/ \/       \/`
+	return s
+}
