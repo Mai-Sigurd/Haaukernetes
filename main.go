@@ -3,6 +3,10 @@
 
 //HUSK AT MINIKUBE SKAL KØRE :)))
 
+//næste trin er at få exposed pod helt ud til browseren
+//TechWorldWithNanas video der forklarer services er ret god. Særligt headless service kunne
+//virke brugbart. Derudover, så kan man måske med en "ClusterIP" nøjes med 2x yaml fil pr. pod? (og ikke 3 som i mine eksempler)
+
 package main
 
 import (
@@ -16,6 +20,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 
@@ -34,6 +39,17 @@ import (
 )
 
 func main() {
+	home := homedir.HomeDir()
+	kubeconfig := filepath.Join(home, ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	err_handler(err)
+	clientset, err := kubernetes.NewForConfig(config)
+	err_handler(err)
+
+	browser(*clientset)
+}
+
+func gui_main() {
 	home := homedir.HomeDir()
 	kubeconfig := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -90,6 +106,110 @@ func old_main() {
 
 	create_namespace(*clientset, *namespace_test())
 
+}
+
+//baseret på mine indledende eksperimenter med at tilgå noget fra browser
+//expose til browser demo
+//serviceport: https://stackoverflow.com/questions/74655705/how-to-create-a-service-port-in-client-go
+func browser(clientset kubernetes.Clientset) {
+	//create deployment
+	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	create_deployment(deploymentsClient, logon_browser())
+
+	//create service
+	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+	service := &apiv1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "haaukins",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app": "myapp",
+			},
+		},
+		Spec: apiv1.ServiceSpec{
+			Ports: []apiv1.ServicePort{
+				{
+					Port:       80,
+					TargetPort: intstr.FromInt(32000),
+				},
+			},
+			Selector: map[string]string{
+				"app": "haaukins",
+			},
+			ClusterIP: "",
+		},
+	}
+	serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
+
+	//create nodeport (expose to outside world)
+	expose := &apiv1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "logon-expose",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app": "haaukins",
+			},
+		},
+		Spec: apiv1.ServiceSpec{
+			Type: apiv1.ServiceTypeNodePort,
+			Ports: []apiv1.ServicePort{
+				{
+					NodePort:   32000,
+					Port:       80,
+					Protocol:   apiv1.ProtocolTCP,
+					TargetPort: intstr.FromInt(80),
+				},
+			},
+			Selector: map[string]string{
+				"app": "haaukins",
+			},
+		},
+	}
+	serviceClient.Create(context.TODO(), expose, metav1.CreateOptions{})
+}
+
+//tilpasset version af logon()-funktion, til brug for browser-eksperimenter
+func logon_browser() appsv1.Deployment {
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "haaukins-deployment",
+			Labels: map[string]string{
+				"app": "haaukins",
+			},
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: int32Ptr(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": "haaukins",
+				},
+			},
+			Template: apiv1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"app": "haaukins",
+					},
+				},
+				Spec: apiv1.PodSpec{
+					Containers: []apiv1.Container{
+						{
+							Name:            "logon",
+							Image:           "logon",
+							ImagePullPolicy: apiv1.PullNever,
+							Ports: []apiv1.ContainerPort{
+								{
+									Name:          "http",
+									Protocol:      apiv1.ProtocolTCP,
+									ContainerPort: 80,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	return *deployment
 }
 
 //demo namespace
