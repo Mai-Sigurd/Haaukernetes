@@ -20,4 +20,4 @@
 
 ## Forbinde til exercise
 - Det er navnet på pod samt port der afgør hvordan man finder den
-- I dette tilfælde finder man den via url "logon:5901", i browseren i kali
+- I dette tilfælde finder man den via url "logon:80" (portnummer specificeret i .yaml), i browseren i kali
