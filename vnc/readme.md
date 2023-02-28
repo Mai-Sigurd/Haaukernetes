@@ -1,5 +1,6 @@
 # Køre kali-vnc docker image for sig selv
 `docker build . -t kali-vnc`
+
 `docker run -d --name vnc -p 5901:5901 kali-vnc`
 
 # Kubernetes setup
