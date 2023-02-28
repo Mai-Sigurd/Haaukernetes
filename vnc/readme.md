@@ -11,7 +11,7 @@
 ## Køre setup
 - Sørg for at minikube kører samt at docker images er bygget i minikube docker-env
 - Sørg evt. for at der ikke kører andet i minikube
-- Kør `kubectl apply -f` på alle .yaml filerne / brug de to scripts `start_vnc.sh` og `start_logon.sh` 
+- Kør `kubectl apply -f` på alle .yaml filerne / brug de to scripts `start_vnc.sh` og `start_logon.sh` (eksisterer nu også for heartbleed, både stop og start)
 
 ## Forbinde til vnc 
 - Kræver en vnc client (have no idea hvad man får til mac)
