@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logon
+  labels:
+    app: logon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:  
+      app: logon
+  template:
+    metadata:
+      labels:
+        app: logon
+    spec:
+      containers:
+      - name: logon
+        image: logon
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80

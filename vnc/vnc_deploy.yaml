@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vnc
+  labels:
+    app: vnc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vnc
+  template:
+    metadata:
+      labels:
+        app: vnc
+    spec:
+      containers:
+      - name: vnc
+        image: kali-vnc
+        imagePullPolicy: Never
+        ports: 
+        - containerPort: 5901
