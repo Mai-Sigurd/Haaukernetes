@@ -15,7 +15,8 @@
 
 ## Forbinde til vnc 
 - Kræver en vnc client (have no idea hvad man får til mac)
-- localhost:32320 (specificeret i vnc_expose.yaml) kan indsættes i vnc client
+- minikube-ip:32320 (port specificeret i vnc_expose.yaml) kan indsættes i vnc client hvorefter "kali" er kodeordet
+    - OBS: minikube-ip findes ved at køre `echo $(minikube ip)`
 
 ## Forbinde til exercise
 - Det er navnet på pod samt port der afgør hvordan man finder den
