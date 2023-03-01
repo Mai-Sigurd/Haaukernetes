@@ -37,8 +37,10 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
+var portDict map[string]int32
 
-func main() {
+func oldoldmain() {
+	
 	home := homedir.HomeDir()
 	kubeconfig := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -49,16 +51,18 @@ func main() {
 	browser(*clientset)
 }
 
-func gui_main() {
+func main() {
+	portDict := make(map[string]int32)
+	portDict["logon"] = 80
+
+
+
 	home := homedir.HomeDir()
 	kubeconfig := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	err_handler(err)
 	clientset, err := kubernetes.NewForConfig(config)
 	err_handler(err)
-
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
-	_ = deploymentsClient //compiler
 
 	fmt.Println(benis())
 
@@ -67,19 +71,29 @@ func gui_main() {
 		fmt.Println("Ohøj i skuret! Velkommen til haaukins")
 		fmt.Println("--------------------")
 		fmt.Println("Du har nu følgende valgmuligheder")
-		fmt.Println("Skriv 'l' for at se deployments")
-		fmt.Println("Skriv 'c' for at oprette deployments")
-		fmt.Println("Skriv 'd' for at slette deployments")
+		fmt.Println("Skriv 'team' for at tilmelde")
+		fmt.Println("Skriv 'exercise' to turn on the exersise")
+	
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
+		
+		fmt.Println("to turn on a ")
 		input := scanner.Text()
 		switch input {
-		case "l":
-			list_deployments(deploymentsClient)
-		case "c":
-			create_deployment(deploymentsClient, logon())
-		case "d":
-			delete_deployment(deploymentsClient, "user-a-logon")
+		case "team":
+			fmt.Println("skriv navnet on your team ")
+			teamName := scanner.Text()
+			create_namespace(*clientset, teamName)
+
+			
+
+		case "exercise":
+			fmt.Println("skriv navnet on your team ")
+			teamName := scanner.Text()
+			fmt.Println("skriv navnet on your exercise ")
+			exercise := scanner.Text()
+			configureDeployment(teamName, exercise, portDict[exercise], exercise )
+
 		}
 	}
 
@@ -97,14 +111,14 @@ func old_main() {
 	//deploymentsClient := clientset.AppsV1().Deployments("user-a")
 	list_deployments(deploymentsClient)
 
-	create_deployment(deploymentsClient, logon())
+	//create_deployment(deploymentsClient, logon())
 
 	//name := "user-a-logon"
 	//delete_deployment(deploymentsClient, name)
 
 	//list_deployments(deploymentsClient)
 
-	create_namespace(*clientset, *namespace_test())
+	//create_namespace(*clientset, *namespace_test())
 
 }
 
@@ -212,67 +226,16 @@ func logon_browser() appsv1.Deployment {
 	return *deployment
 }
 
-//demo namespace
-func namespace_test() *apiv1.Namespace {
+
+func create_namespace(clientset kubernetes.Clientset, name string) {
 	namespace := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "test",
+			Name: name,
 		},
 	}
-	return namespace
-
-}
-
-func create_namespace(clientset kubernetes.Clientset, namespace apiv1.Namespace) {
-	new_namespace, err := clientset.CoreV1().Namespaces().Create(context.TODO(), &namespace, metav1.CreateOptions{})
+	new_namespace, err := clientset.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
 	err_handler(err)
 	fmt.Printf("Created namespace with name %s\n", new_namespace.Name)
-}
-
-//TODO:
-//- dette er blot en demo. Værdier skal parametriseres
-func logon() appsv1.Deployment {
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "user-a-logon",
-			Labels: map[string]string{
-				"app": "haaukins",
-			},
-			//Namespace: "user-a", //NAMESPACE SKAL EKSISTERE OG MATCHE NAMESPACE I DEPLOYMENTKLIENTEN
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "user-a-logon",
-				},
-			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": "user-a-logon",
-					},
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:            "logon",
-							Image:           "logon",
-							ImagePullPolicy: apiv1.PullNever,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 80,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	return *deployment
 }
 
 func create_deployment(deploymentsClient v1.DeploymentInterface, deployment appsv1.Deployment) {
@@ -283,7 +246,7 @@ func create_deployment(deploymentsClient v1.DeploymentInterface, deployment apps
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 
 }
-
+// Deployment er en pod 
 //obs: fordi vi lister deployments, så kan det umiddelbart ikke ses
 //hvis den er slettet og pods derfor er ved at terminate...
 func list_deployments(deploymentsClient v1.DeploymentInterface) {
