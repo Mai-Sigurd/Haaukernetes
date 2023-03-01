@@ -22,3 +22,7 @@
 ## Forbinde til exercise
 - Det er navnet på pod samt port der afgør hvordan man finder den
 - I dette tilfælde finder man den via url "logon:80" (portnummer specificeret i .yaml), i browseren i kali
+
+## Mac Setup
+- Kør `minikube service vnc-expose`
+- Burde åbne browser. Kopier det url og udskift http med vnc og kør det i din vnc viewer. 
