@@ -11,7 +11,7 @@ import (
 )
 
 // serviceport: https://stackoverflow.com/questions/74655705/how-to-create-a-service-port-in-client-go
-func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) {
+func CreateServices(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) {
 	fmt.Println("Creating service and expose service clients")
 	serviceClient := clientSet.CoreV1().Services(nameSpace)
 
@@ -55,7 +55,7 @@ func getExposeService(nameSpace string, exerciseName string, containerPort int32
 	//create nodeport (expose to outside world)
 	exposeService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      exerciseName,
+			Name:      exerciseName + "-expose",
 			Namespace: nameSpace,
 			Labels: map[string]string{
 				"app": exerciseName,
@@ -65,7 +65,7 @@ func getExposeService(nameSpace string, exerciseName string, containerPort int32
 			Type: apiv1.ServiceTypeNodePort,
 			Ports: []apiv1.ServicePort{
 				{
-					NodePort:   32000,
+					//NodePort:   32000, // Den kan ikke være det samme for alle fordi den kan kun allokeres en gang
 					Port:       containerPort,
 					Protocol:   apiv1.ProtocolTCP,
 					TargetPort: intstr.FromInt(int(containerPort)),

@@ -51,24 +51,25 @@ func main() {
 	for {
 		fmt.Println("")
 		fmt.Println("Du har nu følgende valgmuligheder")
-		fmt.Println("Skriv 'exercise' to turn on the exercise")
+		fmt.Println("Skriv 'exercise' to turn on an exercise")
 		fmt.Println("Skriv 'kali' to launch VM with selected exercises via vnc")
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
 		case "exercise":
-			fmt.Println("Skriv navnet on your exercise")
+			fmt.Println("Skriv navnet on the exercise to turn on")
 			scanner.Scan()
 			exerciseName := scanner.Text()
 			if port, ok := exerciseToPorts[exerciseName]; ok {
 				deployments.CreateDeployment(*clientSet, teamName, exerciseName, port)
-				services.CreateService(*clientSet, teamName, exerciseName, port)
+				services.CreateServices(*clientSet, teamName, exerciseName, port)
 			} else {
 				fmt.Println("Invalid exercise")
 			}
 		case "kali":
 			fmt.Println("KALIIIII")
+			// TODO gør lignende her for kali-vnc - der er nok noget port gøjl der skal fikses. Skal måde service og expose service bruges. Hvis nej, så skiller jeg dem ad igen
 		default:
 			fmt.Println("Invalid input")
 		}

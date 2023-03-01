@@ -25,4 +25,5 @@
 
 ## Mac Setup
 - Kør `minikube service vnc-expose`
-- Burde åbne browser. Kopier det url og udskift http med vnc og kør det i din vnc viewer. 
+- Burde åbne browser. Kopier det url og udskift http med vnc og kør det i din vnc viewer.
+- Vær sikker på at docker images af challenges are tilgængelige indeni minikube. Hvis ej, brug `minikube image load <name>`
