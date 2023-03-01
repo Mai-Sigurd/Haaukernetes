@@ -11,28 +11,21 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"k8-project/deployments"
-	utils "k8-project/utils"
+	"k8-project/namespaces"
+	"k8-project/services"
+	"k8-project/utils"
+	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
-	"time"
-
-	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/client-go/kubernetes"
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-
-	"k8-project/namespaces"
 )
 
-var exerciseToPorts = map[string]int32{"logon": 1, "heartbleed": 2}
+var exerciseToPorts = map[string]int32{"logon": 80, "heartbleed": 443}
 
 func main() {
 	home := homedir.HomeDir()
@@ -42,44 +35,37 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrHandler(err)
 
-	deploymentsClient := clientSet.AppsV1().Deployments(apiv1.NamespaceDefault)
-	teamName := ""
-
 	fmt.Println("--------------------")
 	fmt.Println("Ohøj i skuret! Velkommen til haaukins")
 	fmt.Println("--------------------")
 
+	scanner := bufio.NewScanner(os.Stdin)
+	teamName := ""
+	for teamName == "" {
+		fmt.Println("Skriv dit alias")
+		scanner.Scan()
+		teamName = scanner.Text()
+		namespaces.CreateNamespace(*clientSet, teamName)
+	}
+
 	for {
+		fmt.Println("")
 		fmt.Println("Du har nu følgende valgmuligheder")
-		fmt.Println("Skriv 'team' for at tilmelde dig")
 		fmt.Println("Skriv 'exercise' to turn on the exercise")
 		fmt.Println("Skriv 'kali' to launch VM with selected exercises via vnc")
-
-		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
-		case "team":
-			fmt.Println("Skriv dit team navn")
-			scanner.Scan()
-			teamName = scanner.Text()
-			namespaces.CreateNamespace(*clientSet, teamName)
 		case "exercise":
-			if teamName == "" {
-				fmt.Println("Please tilmeld dig først")
-				time.Sleep(3 * time.Second)
+			fmt.Println("Skriv navnet on your exercise")
+			scanner.Scan()
+			exerciseName := scanner.Text()
+			if port, ok := exerciseToPorts[exerciseName]; ok {
+				deployments.CreateDeployment(*clientSet, teamName, exerciseName, port)
+				services.CreateService(*clientSet, teamName, exerciseName, port)
 			} else {
-				fmt.Println("Skriv navnet on your exercise")
-				scanner.Scan()
-				exerciseName := scanner.Text()
-				if port, ok := exerciseToPorts[exerciseName]; ok {
-					deployment := deployments.ConfigureDeployment(teamName, exerciseName, port, exerciseName)
-					deployments.CreateDeployment(deploymentsClient, deployment)
-				} else {
-					fmt.Println("Invalid exercise")
-				}
-				time.Sleep(3 * time.Second)
+				fmt.Println("Invalid exercise")
 			}
 		case "kali":
 			fmt.Println("KALIIIII")
@@ -87,106 +73,4 @@ func main() {
 			fmt.Println("Invalid input")
 		}
 	}
-}
-
-// serviceport: https://stackoverflow.com/questions/74655705/how-to-create-a-service-port-in-client-go
-func browser(clientset kubernetes.Clientset) {
-	//create deployment
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
-	deployments.CreateDeployment(deploymentsClient, logon_browser())
-
-	//create service
-	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
-	service := &apiv1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "haaukins",
-			Namespace: "default",
-			Labels: map[string]string{
-				"app": "myapp",
-			},
-		},
-		Spec: apiv1.ServiceSpec{
-			Ports: []apiv1.ServicePort{
-				{
-					Port:       80,
-					TargetPort: intstr.FromInt(32000),
-				},
-			},
-			Selector: map[string]string{
-				"app": "haaukins",
-			},
-			ClusterIP: "",
-		},
-	}
-	serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
-
-	//create nodeport (expose to outside world)
-	expose := &apiv1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "logon-expose",
-			Namespace: "default",
-			Labels: map[string]string{
-				"app": "haaukins",
-			},
-		},
-		Spec: apiv1.ServiceSpec{
-			Type: apiv1.ServiceTypeNodePort,
-			Ports: []apiv1.ServicePort{
-				{
-					NodePort:   32000,
-					Port:       80,
-					Protocol:   apiv1.ProtocolTCP,
-					TargetPort: intstr.FromInt(80),
-				},
-			},
-			Selector: map[string]string{
-				"app": "haaukins",
-			},
-		},
-	}
-	serviceClient.Create(context.TODO(), expose, metav1.CreateOptions{})
-}
-
-// tilpasset version af logon()-funktion, til brug for browser-eksperimenter
-func logon_browser() appsv1.Deployment {
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "haaukins-deployment",
-			Labels: map[string]string{
-				"app": "haaukins",
-			},
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: utils.Int32Ptr(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "haaukins",
-				},
-			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": "haaukins",
-					},
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:            "logon",
-							Image:           "logon",
-							ImagePullPolicy: apiv1.PullNever,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 80,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	return *deployment
 }

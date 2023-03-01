@@ -7,6 +7,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
@@ -20,16 +21,25 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseName string, containerPort int32) {
+	deployment := configureDeployment(teamName, exerciseName, containerPort)
+	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
+	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
+	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+}
+
 // name = "logon"
 // containerPort = 80
 // appLabel = "haaukins"
 // nameSpace = "user-a"
-func ConfigureDeployment(nameSpace string, name string, containerPort int32, appLabel string) appsv1.Deployment {
+func configureDeployment(nameSpace string, name string, containerPort int32) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 			Labels: map[string]string{
-				"app": appLabel,
+				"app": name,
 			},
 			Namespace: nameSpace, //NAMESPACE SKAL EKSISTERE OG MATCHE NAMESPACE I DEPLOYMENTKLIENTEN
 		},
@@ -66,13 +76,6 @@ func ConfigureDeployment(nameSpace string, name string, containerPort int32, app
 		},
 	}
 	return *deployment
-}
-
-func CreateDeployment(deploymentsClient v1.DeploymentInterface, deployment appsv1.Deployment) {
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
-	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
 // Deployment er en pod
