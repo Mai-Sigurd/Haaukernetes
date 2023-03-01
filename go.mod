@@ -1,4 +1,4 @@
-module main
+module k8-project
 
 go 1.18
 
