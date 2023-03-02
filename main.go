@@ -63,13 +63,17 @@ func main() {
 			exerciseName := scanner.Text()
 			if port, ok := exerciseToPorts[exerciseName]; ok {
 				deployments.CreateDeployment(*clientSet, teamName, exerciseName, port)
-				services.CreateServices(*clientSet, teamName, exerciseName, port)
+				services.CreateService(*clientSet, teamName, exerciseName, port)
 			} else {
 				fmt.Println("Invalid exercise")
 			}
 		case "kali":
-			fmt.Println("KALIIIII")
-			// TODO gør lignende her for kali-vnc - der er nok noget port gøjl der skal fikses. Skal måde service og expose service bruges. Hvis nej, så skiller jeg dem ad igen
+			fmt.Println("Starting Kali")
+			deployments.CreateDeployment(*clientSet, teamName, "kali-vnc", 5901)
+			services.CreateService(*clientSet, teamName, "kali-vnc", 5901)
+			services.CreateExposeService(*clientSet, teamName, "kali-vnc", 5901)
+			fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
+			fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
 		default:
 			fmt.Println("Invalid input")
 		}
