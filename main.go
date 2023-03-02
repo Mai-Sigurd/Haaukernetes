@@ -68,10 +68,12 @@ func main() {
 				fmt.Println("Invalid exercise")
 			}
 		case "kali":
-			fmt.Println("KALIIIII")
+			fmt.Println("Starting Kali")
 			deployments.CreateDeployment(*clientSet, teamName, "kali-vnc", 5901)
 			services.CreateService(*clientSet, teamName, "kali-vnc", 5901)
 			services.CreateExposeService(*clientSet, teamName, "kali-vnc", 5901)
+			fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
+			fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
 		default:
 			fmt.Println("Invalid input")
 		}
