@@ -36,13 +36,13 @@ func main() {
 	utils.ErrHandler(err)
 
 	fmt.Println("--------------------")
-	fmt.Println("Ohøj i skuret! Velkommen til haaukins")
+	fmt.Println("Hello from cyberspace! Welcome to haaukins")
 	fmt.Println("--------------------")
 
 	scanner := bufio.NewScanner(os.Stdin)
 	teamName := ""
 	for teamName == "" {
-		fmt.Println("Skriv dit alias")
+		fmt.Println("Write your alias")
 		scanner.Scan()
 		teamName = scanner.Text()
 		namespaces.CreateNamespace(*clientSet, teamName)
@@ -50,15 +50,15 @@ func main() {
 
 	for {
 		fmt.Println("")
-		fmt.Println("Du har nu følgende valgmuligheder")
-		fmt.Println("Skriv 'exercise' to turn on an exercise")
-		fmt.Println("Skriv 'kali' to launch VM with selected exercises via vnc")
+		fmt.Println("You have the following choices:")
+		fmt.Println("Write 'exercise' to turn on an exercise")
+		fmt.Println("Write 'kali' to launch VM with selected exercises via vnc")
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
 		case "exercise":
-			fmt.Println("Skriv navnet on the exercise to turn on")
+			fmt.Println("Write the name of the exercise to turn on")
 			scanner.Scan()
 			exerciseName := scanner.Text()
 			if port, ok := exerciseToPorts[exerciseName]; ok {
