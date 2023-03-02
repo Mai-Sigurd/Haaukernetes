@@ -51,13 +51,14 @@ func main() {
 	for {
 		fmt.Println("")
 		fmt.Println("You have the following choices:")
-		fmt.Println("Write 'exercise' to turn on an exercise")
+		fmt.Println("Write 'on' to turn on an exercise")
+		fmt.Println("Write 'off' to turn off an exercise")
 		fmt.Println("Write 'kali' to launch VM with selected exercises via vnc")
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
-		case "exercise":
+		case "on":
 			fmt.Println("Write the name of the exercise to turn on")
 			scanner.Scan()
 			exerciseName := scanner.Text()
@@ -65,17 +66,42 @@ func main() {
 				deployments.CreateDeployment(*clientSet, teamName, exerciseName, port)
 				services.CreateService(*clientSet, teamName, exerciseName, port)
 			} else {
-				fmt.Println("Invalid exercise")
+				fmt.Printf("Exercise %s does not exist", exerciseName)
+			}
+		case "off":
+			fmt.Println("Write the name of the exercise you want to turn off")
+			scanner.Scan()
+			exerciseName := scanner.Text()
+			if _, ok := exerciseToPorts[exerciseName]; ok {
+				deleteExercise(*clientSet, teamName, exerciseName)
+			} else {
+				fmt.Printf("Exercise %s does not exist", exerciseName)
 			}
 		case "kali":
-			fmt.Println("Starting Kali")
-			deployments.CreateDeployment(*clientSet, teamName, "kali-vnc", 5901)
-			services.CreateService(*clientSet, teamName, "kali-vnc", 5901)
-			services.CreateExposeService(*clientSet, teamName, "kali-vnc", 5901)
-			fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
-			fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
+			startKali(*clientSet, teamName)
 		default:
 			fmt.Println("Invalid input")
 		}
 	}
+}
+
+func deleteExercise(clientSet kubernetes.Clientset, teamName string, exerciseName string) {
+	if !deployments.CheckIfDeploymentExists(clientSet, teamName, exerciseName) {
+		fmt.Printf("Exercise %s is not turned on \n", exerciseName)
+	} else {
+		if deployments.DeleteDeployment(clientSet, teamName, exerciseName) {
+			fmt.Printf("Exercise %s turned off\n", exerciseName)
+		} else {
+			fmt.Printf("Exercise %s could not be deleted\n", exerciseName)
+		}
+	}
+}
+
+func startKali(clientSet kubernetes.Clientset, teamName string) {
+	fmt.Println("Starting Kali")
+	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901)
+	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
+	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
+	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
+	fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
 }
