@@ -8,7 +8,6 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	v1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	//
@@ -81,7 +80,8 @@ func configureDeployment(nameSpace string, name string, containerPort int32) app
 // Deployment er en pod
 // obs: fordi vi lister deployments, så kan det umiddelbart ikke ses
 // hvis den er slettet og pods derfor er ved at terminate...
-func ListDeployments(deploymentsClient v1.DeploymentInterface) {
+func ListDeployments(clientSet kubernetes.Clientset, namespace string) {
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
 	utils.ErrHandler(err)
 
@@ -92,11 +92,28 @@ func ListDeployments(deploymentsClient v1.DeploymentInterface) {
 	}
 }
 
-func DeleteDeployment(deploymentsClient v1.DeploymentInterface, name string) {
-	fmt.Printf("Ohai, deleting deployment %s \n", name)
-	deletePolicy := metav1.DeletePropagationForeground
-	if err := deploymentsClient.Delete(context.TODO(), name, metav1.DeleteOptions{PropagationPolicy: &deletePolicy}); err != nil {
-		panic(err)
+func CheckIfDeploymentExists(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
+	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
+	utils.ErrHandler(err)
+	for _, d := range list.Items {
+		if d.Name == deploymentName {
+			return true
+		}
 	}
-	fmt.Println("Deployment deleted")
+	return false
+}
+
+func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
+	fmt.Printf("Deleting deployment %s \n", deploymentName)
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
+	deletePolicy := metav1.DeletePropagationForeground
+	err := deploymentsClient.Delete(context.TODO(), deploymentName, metav1.DeleteOptions{PropagationPolicy: &deletePolicy})
+	if err != nil {
+		fmt.Println("Deployment could not be deleted")
+		return false
+	} else {
+		fmt.Println("Deployment successfully deleted")
+		return true
+	}
 }
