@@ -32,7 +32,7 @@ func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseNam
 				},
 			},
 			Selector: map[string]string{
-				"app": nameSpace,
+				"app": exerciseName,
 			},
 			ClusterIP: "",
 		},
@@ -67,7 +67,7 @@ func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerc
 				},
 			},
 			Selector: map[string]string{
-				"app": nameSpace,
+				"app": exerciseName,
 			},
 		},
 	}
