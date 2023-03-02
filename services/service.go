@@ -18,7 +18,7 @@ func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseNam
 
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      exerciseName + "-service",
+			Name:      exerciseName,
 			Namespace: nameSpace,
 			Labels: map[string]string{
 				"app": exerciseName,
