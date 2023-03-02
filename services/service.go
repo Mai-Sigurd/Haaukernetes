@@ -11,22 +11,11 @@ import (
 )
 
 // serviceport: https://stackoverflow.com/questions/74655705/how-to-create-a-service-port-in-client-go
-func CreateServices(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) {
-	fmt.Println("Creating service and expose service clients")
+
+func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
+	fmt.Println("Creating service client")
 	serviceClient := clientSet.CoreV1().Services(nameSpace)
 
-	service := getService(nameSpace, exerciseName, containerPort)
-	resultS, err := serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created service client with name %s\n", resultS.Name)
-
-	exposeService := getExposeService(nameSpace, exerciseName, containerPort)
-	resultE, err := serviceClient.Create(context.TODO(), exposeService, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created expose service client with name %s\n", resultE.Name)
-}
-
-func getService(nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      exerciseName,
@@ -43,16 +32,22 @@ func getService(nameSpace string, exerciseName string, containerPort int32) *api
 				},
 			},
 			Selector: map[string]string{
-				"app": nameSpace,
+				"app": exerciseName,
 			},
 			ClusterIP: "",
 		},
 	}
-	return service
+	createdService, err := serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created service client with name %s\n", createdService.Name)
+	return createdService
 }
 
-func getExposeService(nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
+func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
+	fmt.Println("Creating expose service client")
 	//create nodeport (expose to outside world)
+	serviceClient := clientSet.CoreV1().Services(nameSpace)
+
 	exposeService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      exerciseName + "-expose",
@@ -72,9 +67,12 @@ func getExposeService(nameSpace string, exerciseName string, containerPort int32
 				},
 			},
 			Selector: map[string]string{
-				"app": nameSpace,
+				"app": exerciseName,
 			},
 		},
 	}
-	return exposeService
+	resultExposeService, err := serviceClient.Create(context.TODO(), exposeService, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created expose service client with name %s\n", resultExposeService.Name)
+	return resultExposeService
 }
