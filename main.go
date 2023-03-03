@@ -1,12 +1,7 @@
 //https://medium.com/programming-kubernetes/building-stuff-with-the-kubernetes-api-part-4-using-go-b1d0e3c1c899
 //https://github.com/kubernetes/client-go/blob/master/examples/create-update-delete-deployment/main.go
 
-//HUSK AT MINIKUBE SKAL KØRE :)))
-
-//næste trin er at få exposed pod helt ud til browseren
-//TechWorldWithNanas video der forklarer services er ret god. Særligt headless service kunne
-//virke brugbart. Derudover, så kan man måske med en "ClusterIP" nøjes med 2x yaml fil pr. pod? (og ikke 3 som i mine eksempler)
-
+// HUSK AT MINIKUBE SKAL KØRE :)))
 package main
 
 import (
@@ -25,7 +20,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var exerciseToPorts = map[string]int32{"logon": 80, "heartbleed": 443}
+var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443}
 
 func main() {
 	home := homedir.HomeDir()
@@ -51,31 +46,31 @@ func main() {
 	for {
 		fmt.Println("")
 		fmt.Println("You have the following choices:")
-		fmt.Println("Write 'on' to turn on an exercise")
-		fmt.Println("Write 'off' to turn off an exercise")
-		fmt.Println("Write 'kali' to launch VM with selected exercises via vnc")
+		fmt.Println("Write 'on' to turn on a challenge")
+		fmt.Println("Write 'off' to turn off a challenge")
+		fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
 		case "on":
-			fmt.Println("Write the name of the exercise to turn on")
+			fmt.Println("Write the name of the challenge to turn on")
 			scanner.Scan()
-			exerciseName := scanner.Text()
-			if port, ok := exerciseToPorts[exerciseName]; ok {
-				deployments.CreateDeployment(*clientSet, teamName, exerciseName, port)
-				services.CreateService(*clientSet, teamName, exerciseName, port)
+			challengeName := scanner.Text()
+			if port, ok := challengeToPort[challengeName]; ok {
+				deployments.CreateDeployment(*clientSet, teamName, challengeName, port)
+				services.CreateService(*clientSet, teamName, challengeName, port)
 			} else {
-				fmt.Printf("Exercise %s does not exist", exerciseName)
+				fmt.Printf("Challenge %s does not exist", challengeName)
 			}
 		case "off":
-			fmt.Println("Write the name of the exercise you want to turn off")
+			fmt.Println("Write the name of the challenge you want to turn off")
 			scanner.Scan()
-			exerciseName := scanner.Text()
-			if _, ok := exerciseToPorts[exerciseName]; ok {
-				deleteExercise(*clientSet, teamName, exerciseName)
+			challengeName := scanner.Text()
+			if _, ok := challengeToPort[challengeName]; ok {
+				deleteChallenge(*clientSet, teamName, challengeName)
 			} else {
-				fmt.Printf("Exercise %s does not exist", exerciseName)
+				fmt.Printf("Challenge %s does not exist", challengeName)
 			}
 		case "kali":
 			startKali(*clientSet, teamName)
@@ -85,14 +80,16 @@ func main() {
 	}
 }
 
-func deleteExercise(clientSet kubernetes.Clientset, teamName string, exerciseName string) {
-	if !deployments.CheckIfDeploymentExists(clientSet, teamName, exerciseName) {
-		fmt.Printf("Exercise %s is not turned on \n", exerciseName)
+func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string) {
+	if !deployments.CheckIfDeploymentExists(clientSet, teamName, challengeName) {
+		fmt.Printf("Challenge %s is not turned on \n", challengeName)
 	} else {
-		if deployments.DeleteDeployment(clientSet, teamName, exerciseName) {
-			fmt.Printf("Exercise %s turned off\n", exerciseName)
+		deploymentDeleteStatus := deployments.DeleteDeployment(clientSet, teamName, challengeName)
+		serviceDeleteStatus := services.DeleteService(clientSet, teamName, challengeName)
+		if deploymentDeleteStatus && serviceDeleteStatus {
+			fmt.Printf("Challenge %s turned off\n", challengeName)
 		} else {
-			fmt.Printf("Exercise %s could not be deleted\n", exerciseName)
+			fmt.Printf("Challenge %s could not be turned off\n", challengeName)
 		}
 	}
 }
