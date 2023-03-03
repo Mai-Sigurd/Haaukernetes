@@ -10,16 +10,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// serviceport: https://stackoverflow.com/questions/74655705/how-to-create-a-service-port-in-client-go
-
-func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
+// CreateService creates an internal service in the given namespace.
+func CreateService(clientSet kubernetes.Clientset, namespace string, exerciseName string, containerPort int32) *apiv1.Service {
 	fmt.Println("Creating service client")
-	serviceClient := clientSet.CoreV1().Services(nameSpace)
+	serviceClient := clientSet.CoreV1().Services(namespace)
 
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      exerciseName,
-			Namespace: nameSpace,
+			Namespace: namespace,
 			Labels: map[string]string{
 				"app": exerciseName,
 			},
@@ -43,9 +42,10 @@ func CreateService(clientSet kubernetes.Clientset, nameSpace string, exerciseNam
 	return createdService
 }
 
+// CreateExposeService creates a service in the given namespace that will be exposed on a
+// port assigned by the system.
 func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
 	fmt.Println("Creating expose service client")
-	//create nodeport (expose to outside world)
 	serviceClient := clientSet.CoreV1().Services(nameSpace)
 
 	exposeService := &apiv1.Service{
@@ -60,7 +60,6 @@ func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerc
 			Type: apiv1.ServiceTypeNodePort,
 			Ports: []apiv1.ServicePort{
 				{
-					//NodePort:   32000, // Den kan ikke være det samme for alle fordi den kan kun allokeres en gang
 					Port:       containerPort,
 					Protocol:   apiv1.ProtocolTCP,
 					TargetPort: intstr.FromInt(int(containerPort)),
@@ -75,4 +74,19 @@ func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerc
 	utils.ErrHandler(err)
 	fmt.Printf("Created expose service client with name %s\n", resultExposeService.Name)
 	return resultExposeService
+}
+
+// DeleteService deletes a service in the given namespace.
+func DeleteService(clientSet kubernetes.Clientset, namespace string, serviceName string) bool {
+	fmt.Printf("Deleting service %s \n", serviceName)
+	serviceClient := clientSet.CoreV1().Services(namespace)
+	deletePolicy := metav1.DeletePropagationForeground
+	err := serviceClient.Delete(context.TODO(), serviceName, metav1.DeleteOptions{PropagationPolicy: &deletePolicy})
+	if err != nil {
+		fmt.Println("Service could not be deleted")
+		return false
+	} else {
+		fmt.Println("Service successfully deleted")
+		return true
+	}
 }
