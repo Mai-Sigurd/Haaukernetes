@@ -20,6 +20,8 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
+// CreateDeployment configures a deployment and then creates a deployment from that configuration
+// in the given namespace.
 func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseName string, containerPort int32) {
 	deployment := configureDeployment(teamName, exerciseName, containerPort)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
@@ -29,10 +31,7 @@ func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseN
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
-// name = "logon"
-// containerPort = 80
-// appLabel = "haaukins"
-// nameSpace = "user-a"
+// configureDeployment makes a deployment configuration for a pod and replicaset
 func configureDeployment(nameSpace string, name string, containerPort int32) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -77,9 +76,8 @@ func configureDeployment(nameSpace string, name string, containerPort int32) app
 	return *deployment
 }
 
-// Deployment er en pod
-// obs: fordi vi lister deployments, så kan det umiddelbart ikke ses
-// hvis den er slettet og pods derfor er ved at terminate...
+// ListDeployments lists the existing deployments in the given namespace.
+// This also includes terminating deployments.
 func ListDeployments(clientSet kubernetes.Clientset, namespace string) {
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
@@ -92,6 +90,7 @@ func ListDeployments(clientSet kubernetes.Clientset, namespace string) {
 	}
 }
 
+// CheckIfDeploymentExists checks if a deployment exists in the given namespace.
 func CheckIfDeploymentExists(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
@@ -104,6 +103,7 @@ func CheckIfDeploymentExists(clientSet kubernetes.Clientset, namespace string, d
 	return false
 }
 
+// DeleteDeployment deletes a deployment in the given namespace.
 func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
 	fmt.Printf("Deleting deployment %s \n", deploymentName)
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
