@@ -45,7 +45,11 @@ func main() {
 		fmt.Println("Write your alias")
 		scanner.Scan()
 		teamName = scanner.Text()
-		namespaces.CreateNamespace(*clientSet, teamName)
+		if namespaces.NamespaceExists(*clientSet, teamName) {
+			teamName = ""
+		} else {
+			namespaces.CreateNamespace(*clientSet, teamName)
+		}
 	}
 
 	for {
