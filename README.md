@@ -31,3 +31,7 @@ kør i terminal
 alt er grønt !!
 
 ## noget med at challenges kører op en ip idresse, jeg ved ikke hvor. 
+
+## Static checking 
+Run `go install honnef.co/go/tools/cmd/staticcheck@latest` to install the checker
+Run `staticcheck ./...` to check all packages. No output means that there are no problems.  
