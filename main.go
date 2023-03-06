@@ -47,6 +47,8 @@ func main() {
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
+			netpol.CreateExerciseIngressPolicy(*clientSet, teamName)
+			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
 		}
 	}
 
@@ -81,8 +83,6 @@ func main() {
 			}
 		case "kali":
 			startKali(*clientSet, teamName)
-			netpol.CreateExerciseIngressPolicy(*clientSet, teamName)
-			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
 		default:
 			fmt.Println("Invalid input")
 		}

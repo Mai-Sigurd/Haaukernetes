@@ -76,7 +76,7 @@ func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
 	result, err := networkClient.Create(context.TODO(), netpol, metav1.CreateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Created egress policy for namespace %s - %q", teamName, result)
+	fmt.Printf("Created egress policy: %q for namespace %s", result.GetObjectMeta().GetName(), teamName)
 }
 
 func CreateExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
@@ -119,5 +119,5 @@ func CreateExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
 	result, err := networkClient.Create(context.TODO(), netpol, metav1.CreateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Created ingress policy for namespace %s - %q", teamName, result)
+	fmt.Printf("Created ingress policy: %q for namespace %s", result.GetObjectMeta().GetName(), teamName)
 }
