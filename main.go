@@ -9,11 +9,14 @@ import (
 	"fmt"
 	"k8-project/deployments"
 	"k8-project/namespaces"
+	"k8-project/netpol"
 	"k8-project/services"
 	"k8-project/utils"
-	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
+
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	"k8s.io/client-go/tools/clientcmd"
@@ -78,6 +81,8 @@ func main() {
 			}
 		case "kali":
 			startKali(*clientSet, teamName)
+			netpol.CreateExerciseIngressPolicy(*clientSet, teamName)
+			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
 		default:
 			fmt.Println("Invalid input")
 		}
