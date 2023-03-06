@@ -1,4 +1,4 @@
-package networkpolicies
+package netpol
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 //!This is not made to be pretty, but as a starting point that works as intended!
 //pls refactor into smaller functions etc.
 
-func createKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
+func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	//create egress rule
 	getAddress := func(s v1.Protocol) *v1.Protocol { return &s }
 	policyTypes := []networking.PolicyType{"Egress"}
@@ -79,7 +79,7 @@ func createKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	fmt.Printf("Created egress policy for namespace %s - %q", teamName, result)
 }
 
-func createExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
+func CreateExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	//create ingress rule
 	policyTypes := []networking.PolicyType{"Ingress"}
 	ingress := []networking.NetworkPolicyIngressRule{
