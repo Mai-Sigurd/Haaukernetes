@@ -1,27 +1,31 @@
 
 # Mai
-## build challenges
-find web mappen og cat readmes i admin-logon og heartbleed
-og kør docker kommando
 
 ## minikube
-minikube start
+``minikube start``
 
-## load challenges ind i minikube
-minikube image load logon
+## minikube og nye docker images
+``eval $(minikube -p minikube docker-env)``
+
+i den mappe hvor din dockerfile er
+``docker build . -t <image name>``
+
+check dit image er i minikube
+``minikube image ls --format table``
+
+## load challenges ind i minikube hvis ovenstående ikke virker
+``minikube image load logon``
 
 ## Go run main.go
-go run main.go
-det kører uden videre, men det kører jo rent faktisk ikke, får ikke nogle print statements
+``go run main.go``
 
 ## delete deployment
 
     kubectl delete deployment haaukins-deployment
 
 ## se minikube dashboard
-kør i terminal
-minikube dashboard
-alt er grønt !!
+
+``minikube dashboard``
 
 ## open vnc
-minikube service vnc-expose
+``minikube service vnc-expose``
