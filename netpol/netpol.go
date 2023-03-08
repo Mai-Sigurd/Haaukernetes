@@ -12,25 +12,33 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-//!This is not made to be pretty, but as a starting point that works as intended!
-//pls refactor into smaller functions etc.
-
 func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
-	//create egress rule
-	getAddress := func(s v1.Protocol) *v1.Protocol { return &s }
+	policyName := "egress-policy"
 	policyTypes := []networking.PolicyType{"Egress"}
-	egress := []networking.NetworkPolicyEgressRule{
+	egress := buildEgressRules()
+	matchLabels := make(map[string]string)
+	matchLabels["app"] = "kali-vnc"
+	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, egress, nil, matchLabels)
+}
+
+func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
+	policyName := "ingress-policy"
+	policyTypes := []networking.PolicyType{"Ingress"}
+	ingress := buildIngressRules()
+	matchLabels := make(map[string]string)
+	matchLabels["type"] = "challenge"
+	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, nil, ingress, matchLabels)
+}
+
+func buildEgressRules() []networking.NetworkPolicyEgressRule {
+	getAddress := func(s v1.Protocol) *v1.Protocol { return &s }
+	return []networking.NetworkPolicyEgressRule{
 		{
 			To: []networking.NetworkPolicyPeer{
 				{
-					// NamespaceSelector: &metav1.LabelSelector{
-					// 	MatchLabels: map[string]string{
-					// 		"kubernetes.io/metadata.name": teamName, //target own namespace
-					// 	},
-					// },
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"type": "exercise", //exercise pods has this label
+							"type": "challenge",
 						},
 					},
 				},
@@ -55,69 +63,48 @@ func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 			},
 		},
 	}
-	//configure policy
-	netpol := &networking.NetworkPolicy{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "egress-policy",
-			Namespace: teamName,
-		},
-		Spec: networking.NetworkPolicySpec{
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "kali-vnc",
-				},
-			},
-			PolicyTypes: policyTypes,
-			Egress:      egress,
-		},
-	}
-
-	//create policy
-	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
-	result, err := networkClient.Create(context.TODO(), netpol, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created egress policy: %q for namespace %s", result.GetObjectMeta().GetName(), teamName)
 }
 
-func CreateExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
-	//create ingress rule
-	policyTypes := []networking.PolicyType{"Ingress"}
-	ingress := []networking.NetworkPolicyIngressRule{
+func buildIngressRules() []networking.NetworkPolicyIngressRule {
+	return []networking.NetworkPolicyIngressRule{
 		{
 			From: []networking.NetworkPolicyPeer{
 				{
-					//just deleting namespaceselector might be ok, see comment in above function
-					//NamespaceSelector: &metav1.LabelSelector{},
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"app": "kali-vnc", //needs to align with kali labels
+							"app": "kali-vnc",
 						},
 					},
 				},
 			},
 		},
 	}
+}
 
-	//configure policy
+//many params not very pretty
+func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
+	netpol := configureNetworkPolicy(policyName, teamName, policyTypes, egress, ingress, matchLabels)
+	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
+	result, err := networkClient.Create(context.TODO(), &netpol, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created network policy of type %q with name %q for namespace %s", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), teamName)
+}
+
+//many params not very pretty
+func configureNetworkPolicy(policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
 	netpol := &networking.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "ingress-policy",
+			Name:      policyName,
 			Namespace: teamName,
 		},
 		Spec: networking.NetworkPolicySpec{
 			PodSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"type": "exercise",
-				},
+				MatchLabels: matchLabels,
 			},
 			PolicyTypes: policyTypes,
+			Egress:      egress,
 			Ingress:     ingress,
 		},
 	}
-
-	//create policy
-	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
-	result, err := networkClient.Create(context.TODO(), netpol, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created ingress policy: %q for namespace %s", result.GetObjectMeta().GetName(), teamName)
+	return *netpol
 }
