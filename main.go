@@ -47,8 +47,8 @@ func main() {
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
-			netpol.CreateExerciseIngressPolicy(*clientSet, teamName)
 			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
+			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
 		}
 	}
 
@@ -69,7 +69,7 @@ func main() {
 			if port, ok := challengeToPort[challengeName]; ok {
 				podLabels := make(map[string]string)
 				podLabels["app"] = challengeName
-				podLabels["type"] = "exercise"
+				podLabels["type"] = "challenge"
 				deployments.CreateDeployment(*clientSet, teamName, challengeName, port, podLabels)
 				services.CreateService(*clientSet, teamName, challengeName, port)
 			} else {
