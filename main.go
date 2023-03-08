@@ -67,7 +67,7 @@ func main() {
 			scanner.Scan()
 			challengeName := scanner.Text()
 			if port, ok := challengeToPort[challengeName]; ok {
-				deployments.CreateDeployment(*clientSet, teamName, challengeName, port)
+				deployments.CreateExerciseDeployment(*clientSet, teamName, challengeName, port)
 				services.CreateService(*clientSet, teamName, challengeName, port)
 			} else {
 				fmt.Printf("Challenge %s does not exist", challengeName)
@@ -105,7 +105,7 @@ func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeN
 
 func startKali(clientSet kubernetes.Clientset, teamName string) {
 	fmt.Println("Starting Kali")
-	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901)
+	deployments.CreateKaliDeployment(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
 	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")

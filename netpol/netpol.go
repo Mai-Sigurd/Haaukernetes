@@ -64,7 +64,7 @@ func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 		Spec: networking.NetworkPolicySpec{
 			PodSelector: metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "vnc",
+					"app": "kali-vnc",
 				},
 			},
 			PolicyTypes: policyTypes,
@@ -90,7 +90,7 @@ func CreateExerciseIngressPolicy(clientSet kubernetes.Clientset, teamName string
 					//NamespaceSelector: &metav1.LabelSelector{},
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"app": "vnc", //needs to align with kali labels
+							"app": "kali-vnc", //needs to align with kali labels
 						},
 					},
 				},
