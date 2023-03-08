@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"k8-project/utils"
+
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -11,16 +12,16 @@ import (
 )
 
 // CreateService creates an internal service in the given namespace.
-func CreateService(clientSet kubernetes.Clientset, namespace string, exerciseName string, containerPort int32) *apiv1.Service {
+func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPort int32) *apiv1.Service {
 	fmt.Println("Creating service client")
 	serviceClient := clientSet.CoreV1().Services(namespace)
 
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      exerciseName,
+			Name:      challengeName,
 			Namespace: namespace,
 			Labels: map[string]string{
-				"app": exerciseName,
+				"app": challengeName,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
@@ -31,7 +32,7 @@ func CreateService(clientSet kubernetes.Clientset, namespace string, exerciseNam
 				},
 			},
 			Selector: map[string]string{
-				"app": exerciseName,
+				"app": challengeName,
 			},
 			ClusterIP: "",
 		},
@@ -44,16 +45,16 @@ func CreateService(clientSet kubernetes.Clientset, namespace string, exerciseNam
 
 // CreateExposeService creates a service in the given namespace that will be exposed on a
 // port assigned by the system.
-func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerciseName string, containerPort int32) *apiv1.Service {
+func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, challengeName string, containerPort int32) *apiv1.Service {
 	fmt.Println("Creating expose service client")
 	serviceClient := clientSet.CoreV1().Services(nameSpace)
 
 	exposeService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      exerciseName + "-expose",
+			Name:      challengeName + "-expose",
 			Namespace: nameSpace,
 			Labels: map[string]string{
-				"app": exerciseName,
+				"app": challengeName,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
@@ -66,7 +67,7 @@ func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, exerc
 				},
 			},
 			Selector: map[string]string{
-				"app": exerciseName,
+				"app": challengeName,
 			},
 		},
 	}
