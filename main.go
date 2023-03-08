@@ -9,11 +9,14 @@ import (
 	"fmt"
 	"k8-project/deployments"
 	"k8-project/namespaces"
+	"k8-project/netpol"
 	"k8-project/services"
 	"k8-project/utils"
-	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
+
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	"k8s.io/client-go/tools/clientcmd"
@@ -44,6 +47,8 @@ func main() {
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
+			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
+			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
 		}
 	}
 
@@ -62,7 +67,10 @@ func main() {
 			scanner.Scan()
 			challengeName := scanner.Text()
 			if port, ok := challengeToPort[challengeName]; ok {
-				deployments.CreateDeployment(*clientSet, teamName, challengeName, port)
+				podLabels := make(map[string]string)
+				podLabels["app"] = challengeName
+				podLabels["type"] = "challenge"
+				deployments.CreateDeployment(*clientSet, teamName, challengeName, port, podLabels)
 				services.CreateService(*clientSet, teamName, challengeName, port)
 			} else {
 				fmt.Printf("Challenge %s does not exist", challengeName)
@@ -100,7 +108,9 @@ func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeN
 
 func startKali(clientSet kubernetes.Clientset, teamName string) {
 	fmt.Println("Starting Kali")
-	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901)
+	podLabels := make(map[string]string)
+	podLabels["app"] = "kali-vnc"
+	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901, podLabels)
 	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
 	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
