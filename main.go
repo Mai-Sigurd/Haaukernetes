@@ -103,6 +103,6 @@ func startKali(clientSet kubernetes.Clientset, teamName string) {
 	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
-	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
+	fmt.Println("You can now vnc into your Kali")
 	fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
 }
