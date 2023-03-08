@@ -21,10 +21,10 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
-// CreateExerciseDeployment configures a deployment and then creates a deployment from that configuration
+// CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseName string, containerPort int32, podLabels map[string]string) {
-	deployment := configureDeployment(teamName, exerciseName, containerPort, podLabels)
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, challengeName, containerPort, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -32,7 +32,7 @@ func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseN
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
-// configureExerciseDeployment makes a deployment configuration for a pod and replicaset
+// configureDeployment makes a deployment configuration for a pod and replicaset
 func configureDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
