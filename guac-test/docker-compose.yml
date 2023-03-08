@@ -1,0 +1,58 @@
+version: '2.0'
+
+# networks
+networks:
+  guacnetwork:
+    driver: bridge
+
+# services
+services:
+
+  # guacd
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd
+    networks:
+      guacnetwork:
+    volumes:
+      - /home/username/docker/volumes/guacamole/drive:/drive:rw
+      - /home/username/docker/volumes/guacamole/record:/record:rw
+    restart: unless-stopped
+
+  # mariadb
+  mariadb:
+    container_name: guacamole_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: guacamole_db
+      MYSQL_USER: guacamole_user
+      MYSQL_PASSWORD: 'password'
+    image: mariadb:latest
+    networks:
+      guacnetwork:
+    volumes:
+      - /home/username/docker/volumes/guacamole/init:/docker-entrypoint-initdb.d:z
+      - /home/username/docker/volumes/guacamole/data:/var/lib/mysql
+    restart: unless-stopped
+
+  # guacamole
+  guacamole:
+    container_name: guacamole
+    depends_on:
+      - guacd
+      - mariadb
+    environment:
+      TOTP_ENABLED: true # enables 2-factor authentication.
+      GUACD_HOSTNAME: guacd
+      MYSQL_HOSTNAME: mariadb
+      MYSQL_DATABASE: guacamole_db
+      MYSQL_USER: guacamole_user
+      MYSQL_PASSWORD: 'password'
+    image: guacamole/guacamole
+    links:
+      - guacd
+    networks:
+      guacnetwork:
+    ports:
+      - "8025:8080/tcp"
+    restart: unless-stopped
