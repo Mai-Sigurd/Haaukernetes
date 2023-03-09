@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"k8-project/deployments"
 	"k8-project/namespaces"
+	"k8-project/netpol"
 	"k8-project/services"
 	"k8-project/utils"
 	appsv1 "k8s.io/api/apps/v1"
@@ -18,13 +19,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
+
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
 
-var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443}
+var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-and-profit": 22}
 
 func main() {
 	home := homedir.HomeDir()
@@ -48,6 +50,8 @@ func main() {
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
+			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
+			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
 		}
 	}
 
@@ -65,11 +69,11 @@ func main() {
 			fmt.Println("Write the name of the challenge to turn on")
 			scanner.Scan()
 			challengeName := scanner.Text()
-			// TODO delete firs if
-			if challengeName == "fp" {
-				runFunAndProfit(*clientSet, teamName, "fun-profit")
-			} else if port, ok := challengeToPort[challengeName]; ok {
-				deployments.CreateDeployment(*clientSet, teamName, challengeName, port)
+			if port, ok := challengeToPort[challengeName]; ok {
+				podLabels := make(map[string]string)
+				podLabels["app"] = challengeName
+				podLabels["type"] = "challenge"
+				deployments.CreateDeployment(*clientSet, teamName, challengeName, port, podLabels)
 				services.CreateService(*clientSet, teamName, challengeName, port)
 			} else {
 				fmt.Printf("Challenge %s does not exist", challengeName)
@@ -100,14 +104,6 @@ func runFunAndProfit(clientSet kubernetes.Clientset, teamName string, exerciseNa
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
 	utils.ErrHandler(err)
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-
-	/// "Mounting the config map
-	//sshVolume := createSshVolume(teamName)
-	//configMap, err := clientSet.CoreV1().ConfigMaps(teamName).Create(context.TODO(), &sshVolume, metav1.CreateOptions{})
-	//fmt.Printf("Created configmap %q.\n", configMap.GetObjectMeta().GetName())
-	//utils.ErrHandler(err)
-	// ///
-
 	services.CreateService(clientSet, teamName, exerciseName, 22)
 
 }
@@ -158,19 +154,6 @@ func configureFunAndProfit(nameSpace string, name string) appsv1.Deployment {
 	return *deployment
 }
 
-func createSshVolume(namespace string) apiv1.ConfigMap {
-	result := apiv1.ConfigMap{
-		TypeMeta: metav1.TypeMeta{
-			Kind: "ConfigMap",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "ssh-config",
-			Namespace: namespace,
-		},
-	}
-	return result
-}
-
 func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string) {
 	if !deployments.CheckIfDeploymentExists(clientSet, teamName, challengeName) {
 		fmt.Printf("Challenge %s is not turned on \n", challengeName)
@@ -187,7 +170,9 @@ func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeN
 
 func startKali(clientSet kubernetes.Clientset, teamName string) {
 	fmt.Println("Starting Kali")
-	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901)
+	podLabels := make(map[string]string)
+	podLabels["app"] = "kali-vnc"
+	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901, podLabels)
 	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
 	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
 	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
