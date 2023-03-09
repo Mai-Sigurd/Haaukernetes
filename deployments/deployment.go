@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	utils "k8-project/utils"
+
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,8 +23,8 @@ import (
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseName string, containerPort int32) {
-	deployment := configureDeployment(teamName, exerciseName, containerPort)
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, challengeName, containerPort, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -32,7 +33,7 @@ func CreateDeployment(clientSet kubernetes.Clientset, teamName string, exerciseN
 }
 
 // configureDeployment makes a deployment configuration for a pod and replicaset
-func configureDeployment(nameSpace string, name string, containerPort int32) appsv1.Deployment {
+func configureDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -50,9 +51,7 @@ func configureDeployment(nameSpace string, name string, containerPort int32) app
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": name,
-					},
+					Labels: podLabels,
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
