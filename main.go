@@ -22,7 +22,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "fun-profit": 22}
+var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-and-profit": 22, "always-be-crypting": 1337}
 
 func main() {
 	home := homedir.HomeDir()
