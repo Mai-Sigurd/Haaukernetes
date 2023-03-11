@@ -6,16 +6,12 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"k8-project/deployments"
 	"k8-project/namespaces"
 	"k8-project/netpol"
 	"k8-project/services"
 	"k8-project/utils"
-	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
@@ -26,7 +22,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-and-profit": 22}
+var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "fun-profit": 22}
 
 func main() {
 	home := homedir.HomeDir()
@@ -93,65 +89,6 @@ func main() {
 			fmt.Println("Invalid input")
 		}
 	}
-}
-
-// TODO delete
-func runFunAndProfit(clientSet kubernetes.Clientset, teamName string, exerciseName string) {
-
-	deployment := configureFunAndProfit(teamName, exerciseName)
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
-	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
-	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-	services.CreateService(clientSet, teamName, exerciseName, 22)
-
-}
-
-// TODO delete
-func configureFunAndProfit(nameSpace string, name string) appsv1.Deployment {
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
-			Labels: map[string]string{
-				"app": name,
-			},
-			Namespace: nameSpace, //NAMESPACE SKAL EKSISTERE OG MATCHE NAMESPACE I DEPLOYMENTKLIENTEN
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: utils.Int32Ptr(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": name,
-				},
-			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": name,
-					},
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:            name,
-							Image:           name,
-							ImagePullPolicy: apiv1.PullNever,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 22,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	return *deployment
 }
 
 func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string) {
