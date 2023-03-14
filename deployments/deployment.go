@@ -75,18 +75,22 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 	return *deployment
 }
 
-// ListDeployments lists the existing deployments in the given namespace.
+// PrintListDeployments ListDeployments lists the existing deployments in the given namespace.
 // This also includes terminating deployments.
-func ListDeployments(clientSet kubernetes.Clientset, namespace string) {
-	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
-	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrHandler(err)
-
+func PrintListDeployments(clientSet kubernetes.Clientset, namespace string) {
+	list := GetAllDeployments(clientSet, namespace)
 	fmt.Println("Listing deployments in default namespace")
 	fmt.Printf("%d deployments exist\n", len(list.Items))
 	for _, d := range list.Items {
 		fmt.Printf(" * %s (%d replicas)\n", d.Name, *d.Spec.Replicas)
 	}
+}
+
+func GetAllDeployments(clientSet kubernetes.Clientset, namespace string) *appsv1.DeploymentList {
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
+	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
+	utils.ErrHandler(err)
+	return list
 }
 
 // CheckIfDeploymentExists checks if a deployment exists in the given namespace.
