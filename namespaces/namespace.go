@@ -26,7 +26,6 @@ func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 	if err != nil {
 		return false
 	}
-	fmt.Printf("\nSorry namespace %s already exists \n ", name)
 	return true
 }
 

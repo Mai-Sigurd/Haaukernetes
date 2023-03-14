@@ -41,7 +41,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	eventName := ""
-	maxNumberExercises := 5
+	maxNumberExercises := 1
 
 	for eventName == "" {
 		fmt.Println("Write your eventName")
@@ -50,15 +50,16 @@ func main() {
 	}
 
 	nameChan := make(chan string)
-	go createNewTeam(scanner, clientSet, nameChan)
-	teamName := <-nameChan
-
+	teamName := ""
+	printBool := true
 	for {
-		fmt.Println("")
-		fmt.Println("You have the following choices:")
-		fmt.Println("Write 'admin' for admin choices")
-		fmt.Println("Write 'team' for team choices")
-
+		if printBool {
+			fmt.Println("")
+			fmt.Println("You have the following choices:")
+			fmt.Println("Write 'admin' for admin choices")
+			fmt.Println("Write 'team' for team choices")
+		}
+		printBool = true
 		scanner.Scan()
 		input := scanner.Text()
 
@@ -66,12 +67,14 @@ func main() {
 		case "admin":
 			fmt.Println("Write 'end' to end event")
 			fmt.Println("Write 'max' to change max number of exercise (default 5)")
+			printBool = false
 		case "team":
 			fmt.Println("Write 'create' to create a TeamName")
 			fmt.Println("Write 'change' to change Teams")
 			fmt.Println("Write 'on' to turn on a challenge")
 			fmt.Println("Write 'off' to turn off a challenge")
 			fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
+			printBool = false
 
 		/// Admin choices
 		case "end":
@@ -89,19 +92,25 @@ func main() {
 			go changeTeams(scanner, clientSet, nameChan)
 			teamName = <-nameChan
 		case "on":
-			fmt.Println("Write the name of the challenge to turn on")
-			checkForMax(*clientSet, teamName, maxNumberExercises)
-			scanner.Scan()
-			challengeName := scanner.Text()
-			if port, ok := challengeToPort[challengeName]; ok {
-				podLabels := make(map[string]string)
-				podLabels["app"] = challengeName
-				podLabels["type"] = "challenge"
-				deployments.CreateDeployment(*clientSet, teamName, challengeName, port, podLabels)
-				services.CreateService(*clientSet, teamName, challengeName, port)
+
+			if deploymentsLessThanMax(*clientSet, teamName, maxNumberExercises) {
+				fmt.Println("Write the name of the challenge to turn on")
+				scanner.Scan()
+				challengeName := scanner.Text()
+				if port, ok := challengeToPort[challengeName]; ok {
+					podLabels := make(map[string]string)
+					podLabels["app"] = challengeName
+					podLabels["type"] = "challenge"
+					deployments.CreateDeployment(*clientSet, teamName, challengeName, port, podLabels)
+					services.CreateService(*clientSet, teamName, challengeName, port)
+				} else {
+					fmt.Printf("Challenge %s does not exist", challengeName)
+				}
 			} else {
-				fmt.Printf("Challenge %s does not exist", challengeName)
+				fmt.Println("Sorry, you have to many exercises turned on")
+				deployments.PrintListDeployments(*clientSet, teamName)
 			}
+
 		case "off":
 			fmt.Println("Write the name of the challenge you want to turn off")
 			scanner.Scan()
@@ -119,9 +128,8 @@ func main() {
 	}
 }
 
-func checkForMax(clientset kubernetes.Clientset, name string, exercises int) {
-	// TODO
-
+func deploymentsLessThanMax(clientSet kubernetes.Clientset, namespace string, exercises int) bool {
+	return (len(deployments.GetAllDeployments(clientSet, namespace).Items)) < exercises
 }
 
 func changeMaxExercises(scanner *bufio.Scanner) int {
@@ -163,6 +171,7 @@ func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name
 		scanner.Scan()
 		teamName = scanner.Text()
 		if namespaces.NamespaceExists(*clientSet, teamName) {
+			fmt.Printf("\nSorry namespace %s already exists \n ", name)
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
