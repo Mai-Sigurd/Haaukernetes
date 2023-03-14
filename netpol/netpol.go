@@ -81,7 +81,7 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 	}
 }
 
-//many params not very pretty
+// many params not very pretty
 func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
 	netpol := configureNetworkPolicy(policyName, teamName, policyTypes, egress, ingress, matchLabels)
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
@@ -90,7 +90,7 @@ func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, team
 	fmt.Printf("Created network policy of type %q with name %q for namespace %s", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), teamName)
 }
 
-//many params not very pretty
+// many params not very pretty
 func configureNetworkPolicy(policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
 	netpol := &networking.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
