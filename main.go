@@ -12,10 +12,9 @@ import (
 	"k8-project/netpol"
 	"k8-project/services"
 	"k8-project/utils"
+	"k8s.io/client-go/kubernetes"
 	"os"
 	"path/filepath"
-
-	"k8s.io/client-go/kubernetes"
 
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
@@ -23,7 +22,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443}
+var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-and-profit": 22, "always-be-crypting": 1337}
 
 func main() {
 	home := homedir.HomeDir()
