@@ -171,7 +171,7 @@ func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name
 		scanner.Scan()
 		teamName = scanner.Text()
 		if namespaces.NamespaceExists(*clientSet, teamName) {
-			fmt.Printf("\nSorry namespace %s already exists \n ", name)
+			fmt.Printf("\nSorry namespace %s already exists \n ", teamName)
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
