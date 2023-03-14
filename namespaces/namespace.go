@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"k8-project/utils"
+	"k8s.io/api/core/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -29,8 +30,17 @@ func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 	return true
 }
 
-// DeleteAllNamespaces TODO
+func GetAllNamespaces(clientSet kubernetes.Clientset) *v1.NamespaceList {
+	list, _ := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	return list
+}
+
+// DeleteAllNamespaces
 func DeleteAllNamespaces(clientSet kubernetes.Clientset) {
-	// TODO
+	list := GetAllNamespaces(clientSet)
+	for _, d := range list.Items {
+		err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), d.Name, metav1.DeleteOptions{})
+		utils.ErrHandler(err)
+	}
 
 }
