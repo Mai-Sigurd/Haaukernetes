@@ -29,3 +29,9 @@ func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 	fmt.Printf("\nSorry namespace %s already exists \n ", name)
 	return true
 }
+
+// DeleteAllNamespaces TODO
+func DeleteAllNamespaces(clientSet kubernetes.Clientset) {
+	// TODO
+
+}

@@ -14,6 +14,7 @@ import (
 	"k8-project/utils"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"k8s.io/client-go/kubernetes"
 
@@ -38,32 +39,58 @@ func main() {
 	fmt.Println("--------------------")
 
 	scanner := bufio.NewScanner(os.Stdin)
-	teamName := ""
-	for teamName == "" {
-		fmt.Println("Write your alias")
+
+	eventName := ""
+	maxNumberExercises := 5
+
+	for eventName == "" {
+		fmt.Println("Write your eventName")
 		scanner.Scan()
-		teamName = scanner.Text()
-		if namespaces.NamespaceExists(*clientSet, teamName) {
-			teamName = ""
-		} else {
-			namespaces.CreateNamespace(*clientSet, teamName)
-			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
-			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
-		}
+		eventName = scanner.Text()
 	}
+
+	nameChan := make(chan string)
+	go createNewTeam(scanner, clientSet, nameChan)
+	teamName := <-nameChan
 
 	for {
 		fmt.Println("")
 		fmt.Println("You have the following choices:")
-		fmt.Println("Write 'on' to turn on a challenge")
-		fmt.Println("Write 'off' to turn off a challenge")
-		fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
+		fmt.Println("Write 'admin' for admin choices")
+		fmt.Println("Write 'team' for team choices")
+
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
+		case "admin":
+			fmt.Println("Write 'end' to end event")
+			fmt.Println("Write 'max' to change max number of exercise (default 5)")
+		case "team":
+			fmt.Println("Write 'create' to create a TeamName")
+			fmt.Println("Write 'change' to change Teams")
+			fmt.Println("Write 'on' to turn on a challenge")
+			fmt.Println("Write 'off' to turn off a challenge")
+			fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
+
+		/// Admin choices
+		case "end":
+			namespaces.DeleteAllNamespaces(*clientSet)
+			fmt.Println("All namespaces have been deleted")
+
+		case "max":
+			maxNumberExercises = changeMaxExercises(scanner)
+
+		/// Team choices
+		case "create":
+			go createNewTeam(scanner, clientSet, nameChan)
+			teamName = <-nameChan
+		case "change":
+			go changeTeams(scanner, clientSet, nameChan)
+			teamName = <-nameChan
 		case "on":
 			fmt.Println("Write the name of the challenge to turn on")
+			checkForMax(*clientSet, teamName, maxNumberExercises)
 			scanner.Scan()
 			challengeName := scanner.Text()
 			if port, ok := challengeToPort[challengeName]; ok {
@@ -90,6 +117,60 @@ func main() {
 			fmt.Println("Invalid input")
 		}
 	}
+}
+
+func checkForMax(clientset kubernetes.Clientset, name string, exercises int) {
+	// TODO
+
+}
+
+func changeMaxExercises(scanner *bufio.Scanner) int {
+	fmt.Println("Write your new max exercises, remember it cannot be less than 1")
+	newMax := 0
+	for newMax < 1 {
+		scanner.Scan()
+		result := scanner.Text()
+		n, err := strconv.Atoi(result)
+		if err != nil {
+			fmt.Println("New max has to be a number")
+		} else if n < 1 {
+			fmt.Println("New max has to more than 0")
+		} else {
+			newMax = n
+		}
+	}
+	return newMax
+}
+
+func changeTeams(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string) {
+	teamName := ""
+	for teamName == "" {
+		fmt.Println("Write your alias")
+		scanner.Scan()
+		teamName = scanner.Text()
+		if !namespaces.NamespaceExists(*clientSet, teamName) {
+			fmt.Println("Team name doesnt exist")
+			teamName = ""
+		}
+	}
+	name <- teamName
+}
+
+func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string) {
+	teamName := ""
+	for teamName == "" {
+		fmt.Println("Write your alias")
+		scanner.Scan()
+		teamName = scanner.Text()
+		if namespaces.NamespaceExists(*clientSet, teamName) {
+			teamName = ""
+		} else {
+			namespaces.CreateNamespace(*clientSet, teamName)
+			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
+			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
+		}
+	}
+	name <- teamName
 }
 
 func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string) {
