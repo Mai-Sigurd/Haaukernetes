@@ -153,7 +153,7 @@ func changeMaxExercises(scanner *bufio.Scanner) int {
 func changeTeams(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string) {
 	teamName := ""
 	for teamName == "" {
-		fmt.Println("Write your alias")
+		fmt.Println("Write your team alias")
 		scanner.Scan()
 		teamName = scanner.Text()
 		if !namespaces.NamespaceExists(*clientSet, teamName) {
@@ -167,7 +167,7 @@ func changeTeams(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name c
 func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string) {
 	teamName := ""
 	for teamName == "" {
-		fmt.Println("Write your alias")
+		fmt.Println("Write your team alias")
 		scanner.Scan()
 		teamName = scanner.Text()
 		if namespaces.NamespaceExists(*clientSet, teamName) {
