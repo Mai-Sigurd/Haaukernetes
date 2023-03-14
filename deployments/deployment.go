@@ -5,7 +5,6 @@ import (
 	"fmt"
 	utils "k8-project/utils"
 
-	"k8s.io/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -87,7 +86,7 @@ func PrintListDeployments(clientSet kubernetes.Clientset, namespace string) {
 	}
 }
 
-func GetAllDeployments(clientSet kubernetes.Clientset, namespace string) *v1.DeploymentList {
+func GetAllDeployments(clientSet kubernetes.Clientset, namespace string) *appsv1.DeploymentList {
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
 	utils.ErrHandler(err)
