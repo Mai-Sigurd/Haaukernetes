@@ -32,11 +32,14 @@ func GetAllNamespaces(clientSet kubernetes.Clientset) *apiv1.NamespaceList {
 }
 
 // DeleteAllNamespaces
+// TODO: Currently has errors because we cannot differente between minikube namespaces and team namespaces
 func DeleteAllNamespaces(clientSet kubernetes.Clientset) {
 	list := GetAllNamespaces(clientSet)
 	for _, d := range list.Items {
 		err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), d.Name, metav1.DeleteOptions{})
-		utils.ErrHandler(err)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 }
