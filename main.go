@@ -40,7 +40,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	eventName := ""
-	maxNumberExercises := 1
+	maxNumberExercises := 5
 
 	for eventName == "" {
 		fmt.Println("Write your eventName")
