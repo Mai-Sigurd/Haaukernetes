@@ -1,52 +1,46 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/go-openapi/runtime/middleware"
-	"github.com/gorilla/mux"
-	"k8-project/models"
-	"net/http"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
+// @title Blueprint Swagger API
+// @version 1.0
+// @description Swagger API for Golang Project Blueprint.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email martin7.heinz@gmail.com
+
+// @license.name MIT
+// @license.url https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
-	r := mux.NewRouter()
-	//namespaceController := models.BaseHandlerNamespace()
-	r.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
-	// documentation for developers
-	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
-	sh := middleware.SwaggerUI(opts, nil)
-	r.Handle("/docs", sh)
+	// Creates a router without any middleware by default
+	r := gin.New()
 
-	// documentation for share
-	opts1 := middleware.RedocOpts{SpecURL: "/swagger.yaml", Path: "docs1"}
-	sh1 := middleware.Redoc(opts1, nil)
-	r.Handle("/docs1", sh1)
+	// Global middleware
+	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.
+	// By default gin.DefaultWriter = os.Stdout
+	r.Use(gin.Logger())
 
-	namespace := r.PathPrefix("/namespace").Subrouter()
-	namespace.HandleFunc("/", models.PostNamespace).Methods("POST")
-	//namespace.HandleFunc("/", getNamespace).Methods("GET")
-	//namespace.HandleFunc("/{id}", deleteNamespace).Methods("DELETE")
+	// Recovery middleware recovers from any panics and writes a 500 if there was one.
+	r.Use(gin.Recovery())
 
-	challenge := r.PathPrefix("/challenge").Subrouter()
-	challenge.HandleFunc("/", createChallenge).Methods("POST")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	http.Handle("/", r)
-	s := &http.Server{
-		Addr: fmt.Sprintf("%s:%s", "localhost", "5000"),
-	}
-	s.ListenAndServe()
-}
+	//v1 := r.Group("/api/v1")
+	//{
+	//	v1.Use(auth())
+	//	v1.POST("/namespace/:id", apis.GetNamespace())
+	//}
 
-func createChallenge(writer http.ResponseWriter, request *http.Request) {
-
-}
-
-func createNamespace(w http.ResponseWriter, request *http.Request) {
-	response := models.Challenge{}
-	response.Namespace = "hey"
-
-	w.Header().Set("content-type", "application/json")
-	json.NewEncoder(w).Encode(response)
 }

@@ -8,10 +8,16 @@
 
 
 # Run 
-minikube start
-go run main.go
+`` minikube start ``
 
-# Swagger API
+``go run main.go``
+
+# generating new swagger
+## requirements
+``go install github.com/swaggo/swag/cmd/swag@latest``
+
+## run
+``swag init ``
 
 # Frontend
 Navigate to the terminal_frontend folder and run
