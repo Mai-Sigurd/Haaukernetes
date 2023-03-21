@@ -33,10 +33,11 @@ func GetNamespace(ctx *gin.Context) {
 // @Router /namespace/ [post]
 func PostNamespace(ctx *gin.Context) {
 	//TODO
-	name := ctx.Param("name")
-	fmt.Print(name)
-	namespace := Namespace{Name: "hello"}
-	ctx.JSON(200, namespace)
+	var namespaceBody Namespace
+	if err := ctx.BindJSON(&namespaceBody); err != nil {
+		// DO SOMETHING WITH THE ERROR
+	}
+	fmt.Println(namespaceBody)
 }
 
 // DeleteNamespace godoc
