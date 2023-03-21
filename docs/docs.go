@@ -15,6 +15,103 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/challenge/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates challenge based in a given namespace",
+                "parameters": [
+                    {
+                        "description": "Challenge",
+                        "name": "namespace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.Challenge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Challenge"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes challenge in a namespace",
+                "parameters": [
+                    {
+                        "description": "Challenge",
+                        "name": "challenge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.DelChallenge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/kali/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves kali ip based on namespace name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Kali"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates Kali based on given namespace name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Kali"
+                        }
+                    }
+                }
+            }
+        },
         "/namespace/": {
             "post": {
                 "produces": [
@@ -89,6 +186,44 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "apis.Challenge": {
+            "type": "object",
+            "properties": {
+                "imageName": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "apis.DelChallenge": {
+            "type": "object",
+            "properties": {
+                "imageName": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.Kali": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "description": "Ipaddress ip\nin: string",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace name\nin: string",
+                    "type": "string"
+                }
+            }
+        },
         "apis.Namespace": {
             "type": "object",
             "properties": {

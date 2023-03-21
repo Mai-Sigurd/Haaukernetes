@@ -1,4 +1,33 @@
 definitions:
+  apis.Challenge:
+    properties:
+      imageName:
+        type: string
+      namespace:
+        type: string
+      port:
+        type: integer
+    type: object
+  apis.DelChallenge:
+    properties:
+      imageName:
+        type: string
+      namespace:
+        type: string
+    type: object
+  apis.Kali:
+    properties:
+      ip:
+        description: |-
+          Ipaddress ip
+          in: string
+        type: string
+      name:
+        description: |-
+          Namespace name
+          in: string
+        type: string
+    type: object
   apis.Namespace:
     properties:
       name:
@@ -10,6 +39,68 @@ definitions:
 info:
   contact: {}
 paths:
+  /challenge/:
+    delete:
+      parameters:
+      - description: Challenge
+        in: body
+        name: challenge
+        required: true
+        schema:
+          $ref: '#/definitions/apis.DelChallenge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Deletes challenge in a namespace
+    post:
+      parameters:
+      - description: Challenge
+        in: body
+        name: namespace
+        required: true
+        schema:
+          $ref: '#/definitions/apis.Challenge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Challenge'
+      summary: Creates challenge based in a given namespace
+  /kali/{name}:
+    get:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Kali'
+      summary: Retrieves kali ip based on namespace name
+    post:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Kali'
+      summary: Creates Kali based on given namespace name
   /namespace/:
     post:
       parameters:
