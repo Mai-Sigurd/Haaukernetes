@@ -17,7 +17,7 @@ type Namespace struct {
 // @Param name path string true "Namespace name"
 // @Success 200 {object} Namespace
 // @Router /namespace/{name} [get]
-func GetNamespace(ctx *gin.Context) {
+func (c Controller) GetNamespace(ctx *gin.Context) {
 	// TODO
 	name := ctx.Param("name")
 	fmt.Print(name)
@@ -31,11 +31,11 @@ func GetNamespace(ctx *gin.Context) {
 // @Param namespace body Namespace true "Namespace"
 // @Success 200 {object} Namespace
 // @Router /namespace/ [post]
-func PostNamespace(ctx *gin.Context) {
+func (c Controller) PostNamespace(ctx *gin.Context) {
 	//TODO
 	var namespaceBody Namespace
 	if err := ctx.BindJSON(&namespaceBody); err != nil {
-		// TODO
+		ctx.Error(err)
 	}
 	fmt.Println(namespaceBody)
 }
@@ -46,7 +46,7 @@ func PostNamespace(ctx *gin.Context) {
 // @Param name path string true "Namespace name"
 // @Success 200
 // @Router /namespace/{name} [delete]
-func DeleteNamespace(ctx *gin.Context) {
+func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	// TODO
 	name := ctx.Param("name")
 	fmt.Print(name)

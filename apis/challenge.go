@@ -22,7 +22,7 @@ type DelChallenge struct {
 // @Param namespace body Challenge true "Challenge"
 // @Success 200 {object} Challenge
 // @Router /challenge/ [post]
-func PostChallenge(ctx *gin.Context) {
+func (c Controller) PostChallenge(ctx *gin.Context) {
 	// TODO
 	var challengeBody Challenge
 	if err := ctx.BindJSON(&challengeBody); err != nil {
@@ -38,7 +38,7 @@ func PostChallenge(ctx *gin.Context) {
 // @Param challenge body DelChallenge true "Challenge"
 // @Success 200
 // @Router /challenge/ [delete]
-func DeleteChallenge(ctx *gin.Context) {
+func (c Controller) DeleteChallenge(ctx *gin.Context) {
 	// TODO
 	var challengeBody DelChallenge
 	if err := ctx.BindJSON(&challengeBody); err != nil {
