@@ -28,6 +28,12 @@ func main() {
 		namespace.DELETE("/", apis.DeleteNamespace)
 	}
 
+	challenge := r.Group("/challenge/")
+	{
+		challenge.POST("/", apis.PostChallenge)
+		challenge.DELETE("/", apis.DeleteChallenge)
+	}
+
 	r.Run(":5000")
 
 }
