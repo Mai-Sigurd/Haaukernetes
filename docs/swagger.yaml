@@ -1,6 +1,5 @@
-basePath: /api/v1
 definitions:
-  models.Namespace:
+  apis.Namespace:
     properties:
       name:
         description: |-
@@ -9,16 +8,7 @@ definitions:
         type: string
     type: object
 info:
-  contact:
-    email: martin7.heinz@gmail.com
-    name: API Support
-  description: Swagger API for Golang Project Blueprint.
-  license:
-    name: MIT
-    url: https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
-  termsOfService: http://swagger.io/terms/
-  title: Blueprint Swagger API
-  version: "1.0"
+  contact: {}
 paths:
   /namespace/:
     get:
@@ -28,11 +18,6 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Namespace'
+            $ref: '#/definitions/apis.Namespace'
       summary: Retrieves namespace based on given name
-securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

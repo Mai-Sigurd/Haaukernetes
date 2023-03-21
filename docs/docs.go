@@ -9,15 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "martin7.heinz@gmail.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -33,7 +25,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Namespace"
+                            "$ref": "#/definitions/apis.Namespace"
                         }
                     }
                 }
@@ -41,7 +33,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Namespace": {
+        "apis.Namespace": {
             "type": "object",
             "properties": {
                 "name": {
@@ -50,24 +42,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
-	BasePath:         "/api/v1",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Blueprint Swagger API",
-	Description:      "Swagger API for Golang Project Blueprint.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

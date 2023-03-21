@@ -13,8 +13,9 @@ type Namespace struct {
 // GetNamespace GetUser godoc
 // @Summary Retrieves namespace based on given name
 // @Produce json
-// @Success 200 {object} models.Namespace
+// @Success 200 {object} Namespace
 // @Router /namespace/ [get]
-func GetNamespace(c *gin.Context) {
-
+func GetNamespace(ctx *gin.Context) {
+	namespace := Namespace{Name: "hello"}
+	ctx.JSON(200, namespace)
 }
