@@ -23,10 +23,10 @@ type DelChallenge struct {
 // @Success 200 {object} Challenge
 // @Router /challenge/ [post]
 func PostChallenge(ctx *gin.Context) {
-	//TODO
+	// TODO
 	var challengeBody Challenge
 	if err := ctx.BindJSON(&challengeBody); err != nil {
-		// DO SOMETHING WITH THE ERROR
+		// TODO
 	}
 	fmt.Println(challengeBody)
 	ctx.JSON(200, challengeBody)
@@ -39,10 +39,10 @@ func PostChallenge(ctx *gin.Context) {
 // @Success 200
 // @Router /challenge/ [delete]
 func DeleteChallenge(ctx *gin.Context) {
-	//TODO
+	// TODO
 	var challengeBody DelChallenge
 	if err := ctx.BindJSON(&challengeBody); err != nil {
-		// DO SOMETHING WITH THE ERROR
+		//TODO
 	}
 	fmt.Println(challengeBody)
 }
