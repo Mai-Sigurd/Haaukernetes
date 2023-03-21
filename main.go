@@ -6,9 +6,21 @@ import (
 	"github.com/swaggo/gin-swagger"
 	"k8-project/apis"
 	_ "k8-project/docs"
+	"k8-project/utils"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
+	"path/filepath"
 )
 
 func main() {
+	home := homedir.HomeDir()
+	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	utils.ErrHandler(err)
+	clientSet, err := kubernetes.NewForConfig(config)
+	utils.ErrHandler(err)
+	controller := apis.Controller{ClientSet: clientSet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -23,27 +35,27 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	namespace := r.Group("/namespace/")
 	{
-		namespace.GET("/:name", apis.GetNamespace)
-		namespace.POST("/", apis.PostNamespace)
-		namespace.DELETE("/", apis.DeleteNamespace)
+		namespace.GET("/:name", controller.GetNamespace)
+		namespace.POST("/", controller.PostNamespace)
+		namespace.DELETE("/", controller.DeleteNamespace)
 	}
 
 	challenge := r.Group("/challenge/")
 	{
-		challenge.POST("/", apis.PostChallenge)
-		challenge.DELETE("/", apis.DeleteChallenge)
+		challenge.POST("/", controller.PostChallenge)
+		challenge.DELETE("/", controller.DeleteChallenge)
 	}
 
 	kali := r.Group("/kali/")
 	{
-		kali.POST("/:namespace", apis.PostKali)
-		kali.GET("/:namespace", apis.GetKali)
+		kali.POST("/:namespace", controller.PostKali)
+		kali.GET("/:namespace", controller.GetKali)
 	}
 
 	//TODO wireguard api?
 
 	//TODO guac api?
 
-	r.Run(":5011")
+	r.Run(":5012")
 
 }

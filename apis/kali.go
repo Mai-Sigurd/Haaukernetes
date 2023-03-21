@@ -21,7 +21,7 @@ type Kali struct {
 // @Param name path string true "Namespace name"
 // @Success 200 {object} Kali
 // @Router /kali/{name} [get]
-func GetKali(ctx *gin.Context) {
+func (c Controller) GetKali(ctx *gin.Context) {
 	// TODO get the kali ip
 	name := ctx.Param("name")
 	fmt.Print(name)
@@ -35,7 +35,7 @@ func GetKali(ctx *gin.Context) {
 // @Param name path string true "Namespace name"
 // @Success 200 {object} Kali
 // @Router /kali/{name} [post]
-func PostKali(ctx *gin.Context) {
+func (c Controller) PostKali(ctx *gin.Context) {
 	// TODO
 	name := ctx.Param("name")
 	fmt.Print(name)
