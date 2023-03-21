@@ -24,8 +24,10 @@ func main() {
 	namespace := r.Group("/namespace/")
 	{
 		namespace.GET("/:name", apis.GetNamespace)
+		namespace.POST("/", apis.PostNamespace)
+		namespace.DELETE("/", apis.DeleteNamespace)
 	}
 
-	r.Run(":5005")
+	r.Run(":5000")
 
 }
