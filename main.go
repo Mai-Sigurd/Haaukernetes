@@ -34,6 +34,16 @@ func main() {
 		challenge.DELETE("/", apis.DeleteChallenge)
 	}
 
+	kali := r.Group("/kali/")
+	{
+		kali.POST("/:namespace", apis.PostKali)
+		kali.GET("/:namespace", apis.GetKali)
+	}
+
+	//TODO wireguard api?
+
+	//TODO guac api?
+
 	r.Run(":5000")
 
 }
