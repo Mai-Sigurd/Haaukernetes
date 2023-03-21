@@ -10,8 +10,14 @@ definitions:
 info:
   contact: {}
 paths:
-  /namespace/:
+  /namespace/{name}:
     get:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
