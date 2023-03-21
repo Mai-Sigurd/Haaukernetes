@@ -23,9 +23,9 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	namespace := r.Group("/namespace/")
 	{
-		namespace.GET("/namespace/", apis.GetNamespace)
+		namespace.GET("/:name", apis.GetNamespace)
 	}
 
-	r.Run(":5000")
+	r.Run(":5005")
 
 }

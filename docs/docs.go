@@ -15,12 +15,21 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/namespace/": {
+        "/namespace/{name}": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Retrieves namespace based on given name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
