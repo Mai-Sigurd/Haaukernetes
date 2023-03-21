@@ -10,7 +10,37 @@ definitions:
 info:
   contact: {}
 paths:
+  /namespace/:
+    post:
+      parameters:
+      - description: Namespace
+        in: body
+        name: namespace
+        required: true
+        schema:
+          $ref: '#/definitions/apis.Namespace'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Namespace'
+      summary: Creates namespace based on given name
   /namespace/{name}:
+    delete:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Deletes namespace based on given name
     get:
       parameters:
       - description: Namespace name

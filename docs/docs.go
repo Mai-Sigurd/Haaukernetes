@@ -15,6 +15,33 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/namespace/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates namespace based on given name",
+                "parameters": [
+                    {
+                        "description": "Namespace",
+                        "name": "namespace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespace"
+                        }
+                    }
+                }
+            }
+        },
         "/namespace/{name}": {
             "get": {
                 "produces": [
@@ -36,6 +63,26 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/apis.Namespace"
                         }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes namespace based on given name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
