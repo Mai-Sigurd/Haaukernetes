@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
+	"io"
 	"k8-project/apis"
 	"net/http"
 )
@@ -100,7 +101,7 @@ func generalResponse(req *http.Request) {
 		fmt.Print(err.Error())
 	}
 	defer res.Body.Close()
-	body, readErr := ioutil.ReadAll(res.Body)
+	body, readErr := io.ReadAll(res.Body)
 	if readErr != nil {
 		fmt.Print(err.Error())
 	}
