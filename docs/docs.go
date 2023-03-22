@@ -59,12 +59,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.DelRespChallenge"
+                        }
                     }
                 }
             }
         },
-        "/kali/{name}": {
+        "/kali/{namespace}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -189,7 +192,7 @@ const docTemplate = `{
         "apis.Challenge": {
             "type": "object",
             "properties": {
-                "imageName": {
+                "challengeName": {
                     "type": "string"
                 },
                 "namespace": {
@@ -203,7 +206,21 @@ const docTemplate = `{
         "apis.DelChallenge": {
             "type": "object",
             "properties": {
-                "imageName": {
+                "challengeName": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.DelRespChallenge": {
+            "type": "object",
+            "properties": {
+                "challengeName": {
+                    "type": "string"
+                },
+                "message": {
                     "type": "string"
                 },
                 "namespace": {
@@ -218,7 +235,11 @@ const docTemplate = `{
                     "description": "Ipaddress ip\nin: string",
                     "type": "string"
                 },
-                "name": {
+                "message": {
+                    "description": "Message m\nin: string",
+                    "type": "string"
+                },
+                "namespace": {
                     "description": "Namespace name\nin: string",
                     "type": "string"
                 }

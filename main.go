@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -10,10 +12,17 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+	"os"
 	"path/filepath"
 )
 
 func main() {
+	fmt.Println("Write the port you want the web app to run on")
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	port := scanner.Text()
+
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -56,6 +65,6 @@ func main() {
 
 	//TODO guac api?
 
-	r.Run(":5012")
+	r.Run(port)
 
 }

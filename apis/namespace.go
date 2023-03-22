@@ -2,7 +2,6 @@ package apis
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"k8-project/namespaces"
 	"k8-project/netpol"
@@ -24,8 +23,8 @@ type Namespace struct {
 func (c Controller) GetNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if !namespaces.NamespaceExists(*c.ClientSet, name) {
-		existError := fmt.Errorf("\nSorry namespace %s does not exist \n ", name)
-		ctx.Error(existError)
+		message := "Sorry namespace " + name + " does not exist"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		ctx.JSON(200, Namespace{name})
 	}
@@ -40,10 +39,11 @@ func (c Controller) GetNamespace(ctx *gin.Context) {
 func (c Controller) PostNamespace(ctx *gin.Context) {
 	var body Namespace
 	if err := ctx.BindJSON(&body); err != nil {
-		ctx.Error(err)
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	} else if namespaces.NamespaceExists(*c.ClientSet, body.Name) {
-		existError := fmt.Errorf("\nSorry namespace %s already exists \n ", body.Name)
-		ctx.Error(existError)
+		message := "Sorry namespace " + body.Name + " already exists"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		namespaces.CreateNamespace(*c.ClientSet, body.Name)
 		netpol.CreateKaliEgressPolicy(*c.ClientSet, body.Name)
@@ -60,13 +60,12 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 // @Success 200
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
-	// TODO
 	name := ctx.Param("name")
 	err := c.ClientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
 	if err != nil {
-		ctx.Error(err)
+		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
-		ctx.JSON(200, "Deleted")
+		ctx.JSON(200, "Namespace "+name+" Deleted")
 	}
 
 }

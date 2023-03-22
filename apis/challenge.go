@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"k8-project/deployments"
 	"k8-project/services"
@@ -19,6 +18,12 @@ type DelChallenge struct {
 	Namespace     string `json:"namespace"`
 }
 
+type DelRespChallenge struct {
+	ChallengeName string `json:"challengeName"`
+	Namespace     string `json:"namespace"`
+	Message       string `json:"message"`
+}
+
 // PostChallenge godoc
 // @Summary Creates challenge based in a given namespace
 // @Produce json
@@ -28,44 +33,54 @@ type DelChallenge struct {
 func (c Controller) PostChallenge(ctx *gin.Context) {
 	var body Challenge
 	if err := ctx.BindJSON(&body); err != nil {
-		bad := fmt.Errorf("bad request")
-		_ = ctx.Error(bad)
-	}
-	podLabels := make(map[string]string)
-	podLabels["app"] = body.ChallengeName
-	podLabels["type"] = "challenge"
-	deployments.CreateDeployment(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port, podLabels)
-	services.CreateService(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port)
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
+	} else {
+		podLabels := make(map[string]string)
+		podLabels["app"] = body.ChallengeName
+		podLabels["type"] = "challenge"
+		deployments.CreateDeployment(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port, podLabels)
+		services.CreateService(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port)
 
-	ctx.JSON(200, body)
+		ctx.JSON(200, body)
+	}
 }
 
 // DeleteChallenge godoc
 // @Summary Deletes challenge in a namespace
 // @Produce json
 // @Param challenge body DelChallenge true "Challenge"
-// @Success 200
+// @Success 200 {object} DelRespChallenge
 // @Router /challenge/ [delete]
 func (c Controller) DeleteChallenge(ctx *gin.Context) {
 	var body DelChallenge
 	if err := ctx.BindJSON(&body); err != nil {
-		bad := fmt.Errorf("bad request")
-		_ = ctx.Error(bad)
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	deleteChallenge(*c.ClientSet, body.Namespace, body.ChallengeName)
-	ctx.JSON(200, body)
+	deleteChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, ctx, body)
 }
 
-func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string) {
+// TODO skal de her repsones eventuelt i api??
+func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string, ctx *gin.Context, body DelChallenge) {
+	ctx.JSON(200, body)
 	if !deployments.CheckIfDeploymentExists(clientSet, teamName, challengeName) {
-		fmt.Printf("Challenge %s is not turned on \n", challengeName)
+		message := "Challenge " + challengeName + " is not turned on"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		deploymentDeleteStatus := deployments.DeleteDeployment(clientSet, teamName, challengeName)
 		serviceDeleteStatus := services.DeleteService(clientSet, teamName, challengeName)
 		if deploymentDeleteStatus && serviceDeleteStatus {
-			fmt.Printf("Challenge %s turned off\n", challengeName)
+			message := "Challenge " + challengeName + " turned off"
+			resp := DelRespChallenge{
+				ChallengeName: body.ChallengeName,
+				Namespace:     body.ChallengeName,
+				Message:       message,
+			}
+			ctx.JSON(200, resp)
 		} else {
-			fmt.Printf("Challenge %s could not be turned off\n", challengeName)
+			message := "Challenge " + challengeName + "could not be turned off"
+			ctx.JSON(400, ErrorResponse{Message: message})
 		}
 	}
 }
