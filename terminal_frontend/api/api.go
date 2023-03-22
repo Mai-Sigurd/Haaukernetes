@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
-	"io/ioutil"
-	_ "io/ioutil"
 	"k8-project/apis"
 	"net/http"
 )
