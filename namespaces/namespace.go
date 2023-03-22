@@ -23,9 +23,23 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) {
 
 func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 	_, err := clientSet.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
-	if err != nil {
-		return false
+	return err == nil
+}
+
+func GetAllNamespaces(clientSet kubernetes.Clientset) *apiv1.NamespaceList {
+	list, _ := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	return list
+}
+
+// DeleteAllNamespaces
+// TODO: Currently has errors because we cannot differente between minikube namespaces and team namespaces
+func DeleteAllNamespaces(clientSet kubernetes.Clientset) {
+	list := GetAllNamespaces(clientSet)
+	for _, d := range list.Items {
+		err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), d.Name, metav1.DeleteOptions{})
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
-	fmt.Printf("\nSorry namespace %s already exists \n ", name)
-	return true
+
 }
