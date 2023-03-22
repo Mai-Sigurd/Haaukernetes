@@ -11,6 +11,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, service apiv1.Service) {
+	fmt.Printf("Creating service %s\n", service.ObjectMeta.Name)
+	serviceClient := clientSet.CoreV1().Services(teamName)
+	result, err := serviceClient.Create(context.TODO(), &service, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
+}
+
 // CreateService creates an internal service in the given namespace.
 func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPort int32) *apiv1.Service {
 	fmt.Println("Creating service client")
