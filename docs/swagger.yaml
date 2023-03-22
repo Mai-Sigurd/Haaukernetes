@@ -1,7 +1,7 @@
 definitions:
   apis.Challenge:
     properties:
-      imageName:
+      challengeName:
         type: string
       namespace:
         type: string
@@ -10,7 +10,16 @@ definitions:
     type: object
   apis.DelChallenge:
     properties:
-      imageName:
+      challengeName:
+        type: string
+      namespace:
+        type: string
+    type: object
+  apis.DelRespChallenge:
+    properties:
+      challengeName:
+        type: string
+      message:
         type: string
       namespace:
         type: string
@@ -22,7 +31,12 @@ definitions:
           Ipaddress ip
           in: string
         type: string
-      name:
+      message:
+        description: |-
+          Message m
+          in: string
+        type: string
+      namespace:
         description: |-
           Namespace name
           in: string
@@ -53,6 +67,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/apis.DelRespChallenge'
       summary: Deletes challenge in a namespace
     post:
       parameters:
@@ -70,7 +86,7 @@ paths:
           schema:
             $ref: '#/definitions/apis.Challenge'
       summary: Creates challenge based in a given namespace
-  /kali/{name}:
+  /kali/{namespace}:
     get:
       parameters:
       - description: Namespace name
