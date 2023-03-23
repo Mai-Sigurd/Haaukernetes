@@ -61,7 +61,6 @@ func (c Controller) DeleteChallenge(ctx *gin.Context) {
 	deleteChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, ctx, body)
 }
 
-// TODO skal de her repsones eventuelt i api??
 func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string, ctx *gin.Context, body DelChallenge) {
 	ctx.JSON(200, body)
 	if !deployments.CheckIfDeploymentExists(clientSet, teamName, challengeName) {
