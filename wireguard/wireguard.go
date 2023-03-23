@@ -7,6 +7,7 @@ import (
 	"k8-project/secrets"
 	"k8-project/services"
 	"k8-project/utils"
+	"k8-project/wireguardconfigs"
 	"os/exec"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -17,24 +18,39 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-//this works but is not pretty
-func createKeys() (string, string) {
-	priv, _ := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
-	pub, _ := exec.Command("/bin/sh", "-c", "echo '"+string(priv)+"' | docker run --rm -i masipcat/wireguard-go wg pubkey").Output()
-	return string(priv), string(pub)
-}
-
-func StartWireguard(clientSet kubernetes.Clientset, teamName string) {
-	serverPrivateKey, _ := createKeys() //serverpublickey should be used for clients config file..
-	//we need to get the clients public key form somewhere.. possibly from caller?
-	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, "placeholder")
+//clientpublickey should come from caller i.e. api call
+//clientprivatekey should be inserted by client itself
+func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string) {
+	serverPrivateKey, serverPublicKey := createKeys()
+	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, clientPublicKey)
 	secrets.CreateWireGuardSecret(clientSet, teamName, serverPrivateKey)
 	deployment := configureWireGuardDeployment(teamName)
 	deployments.CreatePrebuiltDeployment(clientSet, teamName, deployment)
 	service := configureWireguardNodePortService(teamName)
 	services.CreatePrebuiltService(clientSet, teamName, *service)
 
+	//throw nodeport from service into this?
+	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey)
+	//what should we do with clientConf?
+	fmt.Println(clientConf) //print for testing
+
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", teamName)
+}
+
+//this works but is not pretty
+//-> does not work on server because no docker..
+func createKeys() (string, string) {
+	priv, err := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Generated privatekey: " + string(priv))
+	pub, err := exec.Command("/bin/sh", "-c", "echo '"+string(priv)+"' | docker run --rm -i masipcat/wireguard-go wg pubkey").Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Generated publickey: " + string(pub))
+	return string(priv), string(pub)
 }
 
 func configureWireguardNodePortService(teamName string) *apiv1.Service {
@@ -50,6 +66,8 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 			Type: apiv1.ServiceTypeNodePort,
 			Ports: []apiv1.ServicePort{
 				{
+					Name:       "wg",
+					Protocol:   apiv1.ProtocolUDP,
 					Port:       51820,
 					TargetPort: intstr.FromInt(51820),
 				},
@@ -100,9 +118,9 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 					},
 					Containers: []apiv1.Container{
 						{
-							Name:  "wireguard",
-							Image: "masipcat/wireguard-go:latest",
-							Command: []string{"sh", "-c", "echo 'Public key '$(wg pubkey < /etc/wireguard/privatekey)'' && /entrypoint.sh}							"},
+							Name:    "wireguard",
+							Image:   "masipcat/wireguard-go:latest",
+							Command: []string{"sh", "-c", "echo 'Public key '$(wg pubkey < /etc/wireguard/privatekey)'' && /entrypoint.sh"},
 							Ports: []apiv1.ContainerPort{
 								{
 									ContainerPort: 51820,
@@ -124,15 +142,15 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 								},
 								Privileged: utils.BoolPtr(true),
 							},
-							Resources: apiv1.ResourceRequirements{
-								Requests: apiv1.ResourceList{
-									apiv1.ResourceCPU:    resource.Quantity{Format: "100m"},
-									apiv1.ResourceMemory: resource.Quantity{Format: "64Mi"},
-								},
-								Limits: apiv1.ResourceList{
-									apiv1.ResourceLimitsMemory: resource.Quantity{Format: "256Mi"},
-								},
-							},
+							// Resources: apiv1.ResourceRequirements{
+							// 	Requests: apiv1.ResourceList{
+							// 		apiv1.ResourceCPU:    returnFirst(resource.ParseQuantity("100m")),
+							// 		apiv1.ResourceMemory: returnFirst(resource.ParseQuantity("64Mi")),
+							// 	},
+							// 	Limits: apiv1.ResourceList{
+							// 		apiv1.ResourceLimitsMemory: returnFirst(resource.ParseQuantity("256Mi")),
+							// 	},
+							// },
 							VolumeMounts: []apiv1.VolumeMount{
 								{
 									Name:      "cfgmap",
@@ -151,13 +169,19 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 						{
 							Name: "cfgmap",
 							VolumeSource: apiv1.VolumeSource{
-								ConfigMap: nil,
+								ConfigMap: &apiv1.ConfigMapVolumeSource{
+									LocalObjectReference: apiv1.LocalObjectReference{
+										Name: "wg-configmap",
+									},
+								},
 							},
 						},
 						{
 							Name: "secret",
 							VolumeSource: apiv1.VolumeSource{
-								Secret: nil,
+								Secret: &apiv1.SecretVolumeSource{
+									SecretName: "wg-secret",
+								},
 							},
 						},
 					},
@@ -167,3 +191,5 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 	}
 	return deployment
 }
+
+func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity }
