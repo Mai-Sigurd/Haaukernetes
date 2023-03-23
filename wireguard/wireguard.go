@@ -59,7 +59,7 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 			Name:      "wireguard",
 			Namespace: teamName,
 			Labels: map[string]string{
-				"app": "wireguard",
+				"vpn": "wireguard",
 			},
 		},
 		Spec: apiv1.ServiceSpec{
@@ -73,7 +73,7 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 				},
 			},
 			Selector: map[string]string{
-				"app": "wireguard",
+				"vpn": "wireguard",
 			},
 			ClusterIP: "",
 		},
@@ -91,13 +91,13 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 			Replicas: utils.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "wireguard",
+					"vpn": "wireguard",
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "wireguard",
+						"vpn": "wireguard",
 					},
 				},
 				Spec: apiv1.PodSpec{

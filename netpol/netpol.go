@@ -12,12 +12,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreateKaliEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
+func CreateEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	policyName := "egress-policy"
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
 	matchLabels["app"] = "kali-vnc"
+	matchLabels["vpn"] = "wireguard"
 	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, egress, nil, matchLabels)
 }
 
@@ -73,6 +74,7 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
 							"app": "kali-vnc",
+							"vpn": "wireguard",
 						},
 					},
 				},
