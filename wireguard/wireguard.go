@@ -19,7 +19,7 @@ import (
 )
 
 //clientpublickey should come from caller i.e. api call
-//clientprivatekey should be inserted by client itself
+//clientprivatekey should be inserted to file by client itself
 func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string) {
 	serverPrivateKey, serverPublicKey := createKeys()
 	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, clientPublicKey)
@@ -27,10 +27,9 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 	deployment := configureWireGuardDeployment(teamName)
 	deployments.CreatePrebuiltDeployment(clientSet, teamName, deployment)
 	service := configureWireguardNodePortService(teamName)
-	services.CreatePrebuiltService(clientSet, teamName, *service)
+	createdService := services.CreatePrebuiltService(clientSet, teamName, *service)
+	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort)
 
-	//throw nodeport from service into this?
-	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey)
 	//what should we do with clientConf?
 	fmt.Println(clientConf) //print for testing
 
@@ -38,7 +37,6 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 }
 
 //this works but is not pretty
-//-> does not work on server because no docker..
 func createKeys() (string, string) {
 	priv, err := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
 	if err != nil {
