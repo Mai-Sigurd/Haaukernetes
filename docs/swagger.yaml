@@ -8,6 +8,11 @@ definitions:
       port:
         type: integer
     type: object
+  apis.ConfigFile:
+    properties:
+      file:
+        type: string
+    type: object
   apis.DelChallenge:
     properties:
       challengeName:
@@ -48,6 +53,11 @@ definitions:
         description: |-
           Namespace name
           in: string
+        type: string
+    type: object
+  apis.PublicKey:
+    properties:
+      key:
         type: string
     type: object
 info:
@@ -163,4 +173,21 @@ paths:
           schema:
             $ref: '#/definitions/apis.Namespace'
       summary: Retrieves namespace based on given name
+  /wireguard/:
+    post:
+      parameters:
+      - description: PublicKey
+        in: body
+        name: publicKey
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PublicKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.ConfigFile'
+      summary: Sends a public key to Wireguard
 swagger: "2.0"

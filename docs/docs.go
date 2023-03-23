@@ -186,6 +186,33 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/wireguard/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Sends a public key to Wireguard",
+                "parameters": [
+                    {
+                        "description": "PublicKey",
+                        "name": "publicKey",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.PublicKey"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.ConfigFile"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -200,6 +227,14 @@ const docTemplate = `{
                 },
                 "port": {
                     "type": "integer"
+                }
+            }
+        },
+        "apis.ConfigFile": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
                 }
             }
         },
@@ -250,6 +285,14 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "description": "Namespace name\nin: string",
+                    "type": "string"
+                }
+            }
+        },
+        "apis.PublicKey": {
+            "type": "object",
+            "properties": {
+                "key": {
                     "type": "string"
                 }
             }

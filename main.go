@@ -61,7 +61,10 @@ func main() {
 		kali.GET("/:namespace", controller.GetKali)
 	}
 
-	//TODO wireguard api?
+	wireguard := r.Group("/wireguard/")
+	{
+		wireguard.POST("/", controller.PostPublicKey)
+	}
 
 	//TODO guac api?
 
