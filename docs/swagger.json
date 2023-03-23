@@ -1,0 +1,290 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/challenge/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates challenge based in a given namespace",
+                "parameters": [
+                    {
+                        "description": "Challenge",
+                        "name": "namespace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.Challenge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Challenge"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes challenge in a namespace",
+                "parameters": [
+                    {
+                        "description": "Challenge",
+                        "name": "challenge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.DelChallenge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.DelRespChallenge"
+                        }
+                    }
+                }
+            }
+        },
+        "/kali/{namespace}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves kali ip based on namespace name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Kali"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates Kali based on given namespace name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Kali"
+                        }
+                    }
+                }
+            }
+        },
+        "/namespace/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates namespace based on given name",
+                "parameters": [
+                    {
+                        "description": "Namespace",
+                        "name": "namespace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespace"
+                        }
+                    }
+                }
+            }
+        },
+        "/namespace/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves namespace based on given name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespace"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes namespace based on given name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/wireguard/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Sends a public key to Wireguard",
+                "parameters": [
+                    {
+                        "description": "PublicKey",
+                        "name": "publicKey",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.PublicKey"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.ConfigFile"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "apis.Challenge": {
+            "type": "object",
+            "properties": {
+                "challengeName": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "apis.ConfigFile": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.DelChallenge": {
+            "type": "object",
+            "properties": {
+                "challengeName": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.DelRespChallenge": {
+            "type": "object",
+            "properties": {
+                "challengeName": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.Kali": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "description": "Ipaddress ip\nin: string",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Message m\nin: string",
+                    "type": "string"
+                },
+                "namespace": {
+                    "description": "Namespace name\nin: string",
+                    "type": "string"
+                }
+            }
+        },
+        "apis.Namespace": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Namespace name\nin: string",
+                    "type": "string"
+                }
+            }
+        },
+        "apis.PublicKey": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
