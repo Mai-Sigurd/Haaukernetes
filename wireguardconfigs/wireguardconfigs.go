@@ -2,14 +2,13 @@ package wireguardconfigs
 
 import (
 	"regexp"
+	"strconv"
 )
 
 //general naming for constants suggest all caps but this makes them public -> is that okay? should they be exposed
 //through functions or not?
 
-//TODO
-//WOOPS, port needs to be dynamic...
-const endpoint = "164.92.194.69:31820"
+const endpoint = "164.92.194.69:"
 const subnet = "10.96.0.0/12"
 
 const clientConfig = `
@@ -43,8 +42,8 @@ PublicKey =
 AllowedIPs = 10.33.0.2/32
 `
 
-func GetClientConfig(serverPublicKey string) string {
-	configWithIPsAndEndpoint := addAllowedIpsAndEndpointToClientConfig(endpoint, subnet)
+func GetClientConfig(serverPublicKey string, nodeport int32) string {
+	configWithIPsAndEndpoint := addAllowedIpsAndEndpointToClientConfig(addNodePort(nodeport, endpoint), subnet)
 	return replacePublicKey(serverPublicKey, configWithIPsAndEndpoint)
 }
 
@@ -82,4 +81,8 @@ func replacePrivateKey(privateKey string, conf string) string {
 func replacePublicKey(publicKey string, conf string) string {
 	publicKeyRegex := regexp.MustCompile("PublicKey =")
 	return publicKeyRegex.ReplaceAllString(conf, "PublicKey = "+publicKey)
+}
+
+func addNodePort(nodePort int32, endpoint string) string {
+	return endpoint + strconv.Itoa(int(nodePort))
 }
