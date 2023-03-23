@@ -29,7 +29,7 @@ type Kali struct {
 // @Success 200 {object} Kali
 // @Router /kali/{namespace} [get]
 func (c Controller) GetKali(ctx *gin.Context) {
-	// TODO get the kali ip
+	// TODO get the kali ip - is deprecated, and will become guac based instead
 	name := ctx.Param("name")
 	message := "You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <namespace>`"
 	kali := Kali{Namespace: name, Ip: "ip addreess", Message: message}
