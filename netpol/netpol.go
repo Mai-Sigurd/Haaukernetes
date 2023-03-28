@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	utils "k8-project/utils"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	networking "k8s.io/api/networking/v1"
@@ -25,10 +26,29 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	policyName := "ingress-policy"
 	policyTypes := []networking.PolicyType{"Ingress"}
-	ingress := buildIngressRules()
+
+	//dynamic handling of pod ip because label selectors are not working for wierd reasons
+	podClient := clientSet.CoreV1().Pods(teamName)
+	pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
+	utils.ErrHandler(err)
+
+	//tried to be upfront about not necessarily knowing which index the pod is at (we could make sure that it's at 0 always but meh)
+	podIP := findPodIp(pods)
+	fmt.Printf("Wireguard pod ip for namespace %s: %s\n", teamName, podIP)
+
+	ingress := buildIngressRules(podIP)
 	matchLabels := make(map[string]string)
 	matchLabels["type"] = "challenge"
 	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, nil, ingress, matchLabels)
+}
+
+func findPodIp(pods *v1.PodList) string {
+	for i := range pods.Items {
+		if strings.Contains(pods.Items[i].Name, "wireguard") {
+			return pods.Items[i].Status.PodIP
+		}
+	}
+	return ""
 }
 
 func buildEgressRules() []networking.NetworkPolicyEgressRule {
@@ -66,7 +86,7 @@ func buildEgressRules() []networking.NetworkPolicyEgressRule {
 	}
 }
 
-func buildIngressRules() []networking.NetworkPolicyIngressRule {
+func buildIngressRules(podIP string) []networking.NetworkPolicyIngressRule {
 	return []networking.NetworkPolicyIngressRule{
 		{
 			From: []networking.NetworkPolicyPeer{
@@ -76,6 +96,12 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 							"app": "kali-vnc",
 							"vpn": "wireguard",
 						},
+					},
+				},
+				//the labelselector above does not work for wireguard, for unknown reasons... so we use ip directly instead
+				{
+					IPBlock: &networking.IPBlock{
+						CIDR: podIP + "/32",
 					},
 				},
 			},
