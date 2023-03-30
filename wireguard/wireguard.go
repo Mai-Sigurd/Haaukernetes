@@ -9,6 +9,7 @@ import (
 	"k8-project/utils"
 	"k8-project/wireguardconfigs"
 	"os/exec"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -32,7 +33,8 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 
 	//what should we do with clientConf?
 	fmt.Println(clientConf) //print for testing
-
+	fmt.Println("Sleeping 5 seconds to let pods start")
+	time.Sleep(5 * time.Second)
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", teamName)
 }
 
