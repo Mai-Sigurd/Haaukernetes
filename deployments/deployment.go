@@ -21,6 +21,8 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
+const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
+
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
@@ -64,9 +66,8 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:            name,
-							Image:           name,
-							ImagePullPolicy: apiv1.PullNever,
+							Name:  name,
+							Image: imageRepoUrl + name,
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
@@ -74,6 +75,11 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 									ContainerPort: containerPort,
 								},
 							},
+						},
+					},
+					ImagePullSecrets: []apiv1.LocalObjectReference{
+						{
+							Name: "regcred",
 						},
 					},
 				},
