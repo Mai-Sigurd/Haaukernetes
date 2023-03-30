@@ -13,7 +13,6 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -192,4 +191,4 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 	return deployment
 }
 
-func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity }
+//func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity }
