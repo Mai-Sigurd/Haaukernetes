@@ -10,17 +10,20 @@ import (
 	"k8-project/deployments"
 	"k8-project/namespaces"
 	"k8-project/netpol"
+	"k8-project/secrets"
 	"k8-project/services"
 	"k8-project/utils"
-	"k8s.io/client-go/kubernetes"
+	"k8-project/wireguard"
 	"os"
 	"path/filepath"
 	"strconv"
 
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/util/homedir"
+
 	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
 	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-and-profit": 22, "always-be-crypting": 1337}
@@ -28,6 +31,7 @@ var challengeToPort = map[string]int32{"logon": 80, "heartbleed": 443, "for-fun-
 func main() {
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	//kubeConfigPath := "/etc/rancher/k3s/k3s.yaml"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrHandler(err)
 	clientSet, err := kubernetes.NewForConfig(config)
@@ -85,7 +89,7 @@ func main() {
 
 		/// Team choices
 		case "create":
-			go createNewTeam(scanner, clientSet, nameChan)
+			go createNewTeam(scanner, clientSet, nameChan, "") //TODO: we need to retrieve key from people!
 			teamName = <-nameChan
 		case "change":
 			go changeTeams(scanner, clientSet, nameChan)
@@ -163,7 +167,9 @@ func changeTeams(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name c
 	name <- teamName
 }
 
-func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string) {
+//TODO: needs to get public key from somewhere
+//needs to also create the secret
+func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name chan<- string, clientPublicKey string) {
 	teamName := ""
 	for teamName == "" {
 		fmt.Println("Write your team alias")
@@ -174,7 +180,9 @@ func createNewTeam(scanner *bufio.Scanner, clientSet *kubernetes.Clientset, name
 			teamName = ""
 		} else {
 			namespaces.CreateNamespace(*clientSet, teamName)
-			netpol.CreateKaliEgressPolicy(*clientSet, teamName)
+			secrets.CreateImageRepositorySecret(*clientSet, teamName)
+			wireguard.StartWireguard(*clientSet, teamName, clientPublicKey)
+			netpol.CreateEgressPolicy(*clientSet, teamName)
 			netpol.CreateChallengeIngressPolicy(*clientSet, teamName)
 		}
 	}
@@ -199,9 +207,9 @@ func startKali(clientSet kubernetes.Clientset, teamName string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali-vnc"
-	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5901, podLabels)
-	services.CreateService(clientSet, teamName, "kali-vnc", 5901)
-	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5901)
+	deployments.CreateDeployment(clientSet, teamName, "kali-vnc", 5900, podLabels)
+	services.CreateService(clientSet, teamName, "kali-vnc", 5900)
+	services.CreateExposeService(clientSet, teamName, "kali-vnc", 5900)
 	fmt.Println("You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <teamName>`")
 	fmt.Println("If on Mac first do `minikube service kali-vnc-expose -n <teamName>` and use that url with vnc")
 }
