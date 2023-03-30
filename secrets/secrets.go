@@ -4,16 +4,29 @@ import (
 	"context"
 	"fmt"
 	"k8-project/utils"
+	"os"
+	"path/filepath"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/util/homedir"
 )
 
 func CreateWireGuardSecret(clientSet kubernetes.Clientset, teamName string, privatekey string) {
 	data := make(map[string][]byte)
 	data["privatekey"] = []byte(privatekey)
 	secret := configureSecret("wg-secret", teamName, v1.SecretTypeOpaque, data)
+	CreateSecret(clientSet, teamName, secret)
+}
+
+func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string) {
+	home := homedir.HomeDir()
+	dockerconfigjson, err := os.ReadFile(filepath.Join(home, "do_secret"))
+	utils.ErrHandler(err)
+	data := make(map[string][]byte)
+	data[".dockerconfigjson"] = dockerconfigjson
+	secret := configureSecret("regcred", teamName, v1.SecretTypeDockerConfigJson, data)
 	CreateSecret(clientSet, teamName, secret)
 }
 
