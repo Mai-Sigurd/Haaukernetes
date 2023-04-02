@@ -8,7 +8,10 @@ import (
 //general naming for constants suggest all caps but this makes them public -> is that okay? should they be exposed
 //through functions or not?
 
+//public endpoint for k8s cluster
 const endpoint = "164.92.194.69:"
+
+//pod CIDR for cluster
 const subnet = "10.96.0.0/12"
 
 const clientConfig = `
