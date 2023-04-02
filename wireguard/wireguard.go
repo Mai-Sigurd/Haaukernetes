@@ -20,7 +20,7 @@ import (
 
 //clientpublickey should come from caller i.e. api call
 //clientprivatekey should be inserted to file by client itself
-func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string) {
+func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string) string {
 	serverPrivateKey, serverPublicKey := createKeys()
 	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, clientPublicKey)
 	secrets.CreateWireGuardSecret(clientSet, teamName, serverPrivateKey)
@@ -30,11 +30,10 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 	createdService := services.CreatePrebuiltService(clientSet, teamName, *service)
 	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort)
 
-	//what should we do with clientConf?
-	fmt.Println(clientConf) //print for testing
 	fmt.Println("Sleeping 5 seconds to let pods start")
 	time.Sleep(5 * time.Second)
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", teamName)
+	return clientConf
 }
 
 //this works but is not pretty
