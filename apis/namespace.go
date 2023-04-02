@@ -4,6 +4,7 @@ import (
 	"context"
 	"k8-project/namespaces"
 	"k8-project/netpol"
+	"k8-project/secrets"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -49,6 +50,7 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 		namespaces.CreateNamespace(*c.ClientSet, body.Name)
 		netpol.CreateEgressPolicy(*c.ClientSet, body.Name)
 		netpol.CreateChallengeIngressPolicy(*c.ClientSet, body.Name)
+		secrets.CreateImageRepositorySecret(*c.ClientSet, body.Name)
 		ctx.JSON(200, body)
 	}
 
