@@ -3,17 +3,20 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
+	"os"
+	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/util/homedir"
+
 	"k8-project/apis"
 	_ "k8-project/docs"
 	"k8-project/utils"
-	"k8s.io/client-go/kubernetes"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
-	"os"
-	"path/filepath"
 )
 
 func main() {
@@ -63,7 +66,7 @@ func main() {
 
 	wireguard := r.Group("/wireguard/")
 	{
-		wireguard.POST("/", controller.PostPublicKey)
+		wireguard.POST("/", controller.StartWireguard)
 	}
 
 	//TODO guac api?
