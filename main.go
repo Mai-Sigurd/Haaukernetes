@@ -28,7 +28,6 @@ func main() {
 
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
-	//kubeConfigPath := "/etc/rancher/k3s/k3s.yaml"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrHandler(err)
 	clientSet, err := kubernetes.NewForConfig(config)
