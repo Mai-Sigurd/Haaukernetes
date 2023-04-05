@@ -1,0 +1,193 @@
+definitions:
+  apis.Challenge:
+    properties:
+      challengeName:
+        type: string
+      namespace:
+        type: string
+      port:
+        type: integer
+    type: object
+  apis.ConfigFile:
+    properties:
+      file:
+        type: string
+    type: object
+  apis.DelChallenge:
+    properties:
+      challengeName:
+        type: string
+      namespace:
+        type: string
+    type: object
+  apis.DelRespChallenge:
+    properties:
+      challengeName:
+        type: string
+      message:
+        type: string
+      namespace:
+        type: string
+    type: object
+  apis.Kali:
+    properties:
+      ip:
+        description: |-
+          Ipaddress ip
+          in: string
+        type: string
+      message:
+        description: |-
+          Message m
+          in: string
+        type: string
+      namespace:
+        description: |-
+          Namespace name
+          in: string
+        type: string
+    type: object
+  apis.Namespace:
+    properties:
+      name:
+        description: |-
+          Namespace name
+          in: string
+        type: string
+    type: object
+  apis.PublicKey:
+    properties:
+      key:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /challenge/:
+    delete:
+      parameters:
+      - description: Challenge
+        in: body
+        name: challenge
+        required: true
+        schema:
+          $ref: '#/definitions/apis.DelChallenge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.DelRespChallenge'
+      summary: Deletes challenge in a namespace
+    post:
+      parameters:
+      - description: Challenge
+        in: body
+        name: namespace
+        required: true
+        schema:
+          $ref: '#/definitions/apis.Challenge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Challenge'
+      summary: Creates challenge based in a given namespace
+  /kali/{namespace}:
+    get:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Kali'
+      summary: Retrieves kali ip based on namespace name
+    post:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Kali'
+      summary: Creates Kali based on given namespace name
+  /namespace/:
+    post:
+      parameters:
+      - description: Namespace
+        in: body
+        name: namespace
+        required: true
+        schema:
+          $ref: '#/definitions/apis.Namespace'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Namespace'
+      summary: Creates namespace based on given name
+  /namespace/{name}:
+    delete:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Deletes namespace based on given name
+    get:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Namespace'
+      summary: Retrieves namespace based on given name
+  /wireguard/:
+    post:
+      parameters:
+      - description: PublicKey
+        in: body
+        name: publicKey
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PublicKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.ConfigFile'
+      summary: Sends a public key to Wireguard
+swagger: "2.0"
