@@ -1,15 +1,21 @@
 FROM kalilinux/kali-rolling:latest
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV DESKTOP_PKG=kali-desktop-xfce
+
+ENV DESKTOP_ENVIRONMENT=xfce
+ENV DESKTOP_PKG=kali-desktop-${DESKTOP_ENVIRONMENT}
+
 ENV REMOTE_ACCESS=rdp
 
 ARG UNAME=kali
 ARG UPASS=kali
-ARG RDP_PORT=3389
+
+ARG RDP_PORT=13389
+ARG SSH_PORT=20022
 
 # Kali packages to install
-ENV KALI_PKG=kali-linux-default
+ENV KALI_PACKAGE=default
+ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
 # Install common packages
 RUN apt update -q --fix-missing
@@ -28,6 +34,9 @@ RUN apt -y install --no-install-recommends ${KALI_PKG}
 RUN useradd -m -s /bin/bash -G sudo ${UNAME}
 RUN echo "${UNAME}:${UPASS}" | chpasswd
 
+# Change ssh port
+RUN echo "Port $SSH_PORT" >>/etc/ssh/sshd_config
+
 # Install and configure xrdp for rdp access
 RUN apt -y install --no-install-recommends xorg xorgxrdp xrdp
 RUN echo "/etc/init.d/xrdp start" >> /startkali.sh
@@ -40,7 +49,7 @@ RUN chmod +x /home/${UNAME}/.xsession
 RUN echo "/bin/bash" >> /startkali.sh
 
 # Expose ports
-EXPOSE ${RDP_PORT}
-WORKDIR "/home/kali"
+EXPOSE ${SSH_PORT} ${RDP_PORT}
+WORKDIR "/root"
 ENTRYPOINT ["/bin/bash"]
 CMD ["/startkali.sh"]
