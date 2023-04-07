@@ -2,8 +2,8 @@ package netpol
 
 import (
 	"context"
-	"fmt"
 	utils "k8-project/utils"
+	"log"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
@@ -31,7 +31,7 @@ func AddWireguardToChallengeIngressPolicy(clientSet kubernetes.Clientset, teamNa
 
 	//tried to be upfront about not necessarily knowing which index the pod is at (we could make sure that it's at 0 always but meh)
 	podIP := findPodIp(pods)
-	fmt.Printf("Wireguard pod ip for namespace %s: %s\n", teamName, podIP)
+	log.Printf("Wireguard pod ip for namespace %s: %s\n", teamName, podIP)
 
 	ingress := buildIngressRulesAddWireguard(podIP)
 	matchLabels := make(map[string]string)
@@ -43,7 +43,7 @@ func AddWireguardToChallengeIngressPolicy(clientSet kubernetes.Clientset, teamNa
 	existingNetpol.Spec.Ingress = append(existingNetpol.Spec.Ingress, ingress...)
 	updated, err := networkClient.Update(context.TODO(), existingNetpol, metav1.UpdateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Updated ingress policy for namespace: %s with wireguard ip. %q\n", teamName, updated)
+	log.Printf("Updated ingress policy for namespace: %s with wireguard ip. %q\n", teamName, updated)
 
 }
 
@@ -139,7 +139,7 @@ func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, team
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
 	result, err := networkClient.Create(context.TODO(), &netpol, metav1.CreateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), teamName)
+	log.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), teamName)
 }
 
 // many params not very pretty
