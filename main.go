@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/homedir"
@@ -20,6 +22,15 @@ import (
 )
 
 func main() {
+	currentTime := time.Now()
+	f, err := os.OpenFile(currentTime.Format("2006.01.02 15:04:05"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+
 	fmt.Println("Write the port you want the web app to run on")
 
 	scanner := bufio.NewScanner(os.Stdin)
