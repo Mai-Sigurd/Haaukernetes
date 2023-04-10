@@ -2,8 +2,8 @@ package secrets
 
 import (
 	"context"
-	"fmt"
 	"k8-project/utils"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -34,7 +34,7 @@ func CreateSecret(clientSet kubernetes.Clientset, teamName string, secret v1.Sec
 	secretsClient := clientSet.CoreV1().Secrets(teamName)
 	result, err := secretsClient.Create(context.TODO(), &secret, metav1.CreateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Created secret %q.\n", result.GetObjectMeta().GetName())
+	log.Printf("Created secret %q.\n", result.GetObjectMeta().GetName())
 }
 
 func configureSecret(name string, namespace string, secretType v1.SecretType, data map[string][]byte) v1.Secret {
