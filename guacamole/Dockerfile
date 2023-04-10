@@ -7,14 +7,7 @@ ENV DESKTOP_PKG=kali-desktop-${DESKTOP_ENVIRONMENT}
 
 ENV REMOTE_ACCESS=rdp
 
-ARG UNAME=kali
-ARG UPASS=kali
-
-ARG RDP_PORT=13389
-ARG SSH_PORT=20022
-
-# Kali packages to install
-ENV KALI_PACKAGE=default
+ENV KALI_PACKAGE=core
 ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
 # Install common packages
@@ -24,32 +17,28 @@ RUN apt -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh
 
 # Create a start script
 RUN echo "#!/bin/bash" > /startkali.sh
-RUN echo "/etc/init.d/ssh start" >> /startkali.sh
 RUN chmod 755 /startkali.sh
 
 # Install Kali packages
 RUN apt -y install --no-install-recommends ${KALI_PKG}
 
 # Create a non-root Kali user
-RUN useradd -m -s /bin/bash -G sudo ${UNAME}
-RUN echo "${UNAME}:${UPASS}" | chpasswd
-
-# Change ssh port
-RUN echo "Port $SSH_PORT" >>/etc/ssh/sshd_config
+RUN useradd -m -s /bin/bash -G sudo kali
+RUN echo "kali:kali" | chpasswd
 
 # Install and configure xrdp for rdp access
 RUN apt -y install --no-install-recommends xorg xorgxrdp xrdp
 RUN echo "/etc/init.d/xrdp start" >> /startkali.sh
-RUN sed -i s/^port=3389/port=${RDP_PORT}/ /etc/xrdp/xrdp.ini
+RUN sed -i s/^port=3389/port=13389/ /etc/xrdp/xrdp.ini
 RUN adduser xrdp ssl-cert
-RUN echo xfce4-session > /home/${UNAME}/.xsession
-RUN chmod +x /home/${UNAME}/.xsession
+RUN echo xfce4-session > /home/kali/.xsession
+RUN chmod +x /home/kali/.xsession
 
 # Run and keep the start script running
 RUN echo "/bin/bash" >> /startkali.sh
 
 # Expose ports
-EXPOSE ${SSH_PORT} ${RDP_PORT}
+EXPOSE 13389
 WORKDIR "/root"
 ENTRYPOINT ["/bin/bash"]
 CMD ["/startkali.sh"]
