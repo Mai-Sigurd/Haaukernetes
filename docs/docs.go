@@ -192,15 +192,15 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Sends a public key to Wireguard",
+                "summary": "Sends a public key and starts Wireguard",
                 "parameters": [
                     {
-                        "description": "PublicKey",
+                        "description": "Wireguard",
                         "name": "publicKey",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.PublicKey"
+                            "$ref": "#/definitions/apis.Wireguard"
                         }
                     }
                 ],
@@ -289,10 +289,13 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.PublicKey": {
+        "apis.Wireguard": {
             "type": "object",
             "properties": {
                 "key": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 }
             }

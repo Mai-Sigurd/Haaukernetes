@@ -36,7 +36,7 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 	return clientConf
 }
 
-//this works but is not pretty
+//this works but is not pretty TODO
 func createKeys() (string, string) {
 	priv, err := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
 	if err != nil {
@@ -79,7 +79,7 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 	return service
 }
 
-//move to separate file?
+//move to separate file? TODO
 func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -148,7 +148,7 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 							// 	Limits: apiv1.ResourceList{
 							// 		apiv1.ResourceLimitsMemory: returnFirst(resource.ParseQuantity("256Mi")),
 							// 	},
-							// },
+							// }, TODO ?
 							VolumeMounts: []apiv1.VolumeMount{
 								{
 									Name:      "cfgmap",
@@ -190,4 +190,4 @@ func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 	return deployment
 }
 
-//func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity }
+//func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity } TODO ?

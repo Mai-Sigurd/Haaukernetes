@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-//public endpoint for k8s cluster
+// public endpoint for k8s cluster
 const endpoint = "164.92.194.69:"
 
-//pod CIDR for cluster
+// pod CIDR for cluster
 const subnet = "10.96.0.0/12"
 
 const clientConfig = `
@@ -26,9 +26,9 @@ AllowedIPs =
 PersistentKeepalive = 25
 `
 
-//spaghetti -> should this be a secret of some kind? maybe it's own file?
-//also: will address-subnet have to be dynamic somehow?
-//also: commented out postup line is commented out because i couldnt get the path to privatekey working, instead it is "hardcoded"
+// spaghetti -> should this be a secret of some kind? maybe it's own file? TODO
+// also: will address-subnet have to be dynamic somehow?
+// also: commented out postup line is commented out because i couldnt get the path to privatekey working, instead it is "hardcoded"
 const serverConfig = `
 [Interface]
 Address = 10.33.0.1/24
@@ -51,10 +51,12 @@ func GetServerConfig(privateKey string, publicKey string) string {
 	return addKeysToConfig(privateKey, publicKey, serverConfig)
 }
 
+// Todo Purpose?
 func GetEndpoint() string {
 	return endpoint
 }
 
+// Todo Purpose?
 func GetSubnet() string {
 	return subnet
 }
