@@ -4,31 +4,22 @@ import (
 	"context"
 	"fmt"
 	utils "k8-project/utils"
+	"log"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
-	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
-	//
-	// Uncomment to load all auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth"
-	//
-	// Or uncomment to load specific auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
 const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
+	log.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
 	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+	log.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration

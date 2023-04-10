@@ -55,9 +55,11 @@ definitions:
           in: string
         type: string
     type: object
-  apis.PublicKey:
+  apis.Wireguard:
     properties:
       key:
+        type: string
+      namespace:
         type: string
     type: object
 info:
@@ -176,12 +178,12 @@ paths:
   /wireguard/:
     post:
       parameters:
-      - description: PublicKey
+      - description: Wireguard
         in: body
         name: publicKey
         required: true
         schema:
-          $ref: '#/definitions/apis.PublicKey'
+          $ref: '#/definitions/apis.Wireguard'
       produces:
       - application/json
       responses:
@@ -189,5 +191,5 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/apis.ConfigFile'
-      summary: Sends a public key to Wireguard
+      summary: Sends a public key and starts Wireguard
 swagger: "2.0"
