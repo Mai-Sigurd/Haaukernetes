@@ -3,10 +3,11 @@ package namespaces
 import (
 	"context"
 	"k8-project/utils"
+	"log"
+
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"log"
 )
 
 func CreateNamespace(clientSet kubernetes.Clientset, name string) {
@@ -28,4 +29,9 @@ func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 func GetAllNamespaces(clientSet kubernetes.Clientset) *apiv1.NamespaceList {
 	list, _ := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	return list
+}
+
+func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) {
+	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), namespace, *metav1.NewDeleteOptions(0))
+	utils.ErrHandler(err)
 }
