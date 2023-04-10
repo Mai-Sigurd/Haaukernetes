@@ -134,3 +134,59 @@ func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deployme
 		return true
 	}
 }
+
+//Functions for using local images while testing, as to not hit the docker pull limit of ~ 100 images / 6 hours
+
+// CreateDeployment configures a deployment and then creates a deployment from that configuration
+// in the given namespace, using a local docker image instead of an imagerepo
+func CreateLocalDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
+	deployment := configureLocalDeployment(teamName, challengeName, containerPort, podLabels)
+	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
+	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
+	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
+	utils.ErrHandler(err)
+	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+}
+
+// configureDeployment makes a deployment configuration for a pod and replicaset, but using a local docker image
+func configureLocalDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+			Labels: map[string]string{
+				"app": name,
+			},
+			Namespace: nameSpace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: utils.Int32Ptr(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": name,
+				},
+			},
+			Template: apiv1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: podLabels,
+				},
+				Spec: apiv1.PodSpec{
+					Containers: []apiv1.Container{
+						{
+							Name:            name,
+							Image:           name,
+							ImagePullPolicy: apiv1.PullIfNotPresent, //PullNever also an option
+							Ports: []apiv1.ContainerPort{
+								{
+									Name:          "http",
+									Protocol:      apiv1.ProtocolTCP,
+									ContainerPort: containerPort,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	return *deployment
+}
