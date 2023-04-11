@@ -2,9 +2,10 @@ package apis
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"k8-project/deployments"
 	"k8-project/services"
+
+	"github.com/gin-gonic/gin"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -51,11 +52,13 @@ func (c Controller) PostKali(ctx *gin.Context) {
 	ctx.JSON(200, kali)
 }
 
+//TODO maybe port 5900 with new image?! if no work, check this
 func startKali(clientSet kubernetes.Clientset, namespace string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali-vnc"
-	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", 5901, podLabels)
-	services.CreateService(clientSet, namespace, "kali-vnc", 5901)
-	services.CreateExposeService(clientSet, namespace, "kali-vnc", 5901)
+	ports := []int32{5901}
+	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", ports, podLabels)
+	services.CreateService(clientSet, namespace, "kali-vnc", ports)
+	services.CreateExposeService(clientSet, namespace, "kali-vnc", 5901) //TODO: deprecated, no nodeport for kali?
 }
