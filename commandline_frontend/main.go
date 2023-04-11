@@ -51,8 +51,8 @@ func main() {
 			fmt.Println("Write the namespace of the challenge to turn on")
 			scanner.Scan()
 			namespace := scanner.Text()
-
-			api.PostChallenge(namespace, challengeName, int32(i))
+			ports := []int32{int32(i)}
+			api.PostChallenge(namespace, challengeName, ports)
 
 		case "off":
 			fmt.Println("Write the name of the challenge you want to turn off")
