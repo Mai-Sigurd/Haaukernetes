@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacamole
+  namespace: guacamole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guacamole
+  template:
+    metadata:
+      labels:
+        app: guacamole
+    spec:
+      containers:
+        - name: guacd
+          image: guacamole/guacd
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4822
+          readinessProbe:
+            tcpSocket:
+              port: 4822
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 4822
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        - name: guacamole
+          image: guacamole/guacamole
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GUACD_HOSTNAME
+              value: "localhost"
+            - name: GUACD_PORT
+              value: "4822"
+            - name: MYSQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-port
+            - name: MYSQL_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-hostname
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-database
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-password
+          ports:
+            - name: guacamole-app
+              containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
