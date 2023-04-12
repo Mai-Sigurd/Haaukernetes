@@ -40,27 +40,27 @@ spec:
             - name: MYSQL_PORT
               valueFrom:
                 secretKeyRef:
-                  name: mariadb-secret
+                  name: mariadb
                   key: mariadb-port
             - name: MYSQL_HOSTNAME
               valueFrom:
                 secretKeyRef:
-                  name: mariadb-secret
+                  name: mariadb
                   key: mariadb-hostname
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: mariadb-secret
+                  name: mariadb
                   key: mariadb-database
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: mariadb-secret
+                  name: mariadb
                   key: mariadb-user
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mariadb-secret
+                  name: mariadb
                   key: mariadb-password
           ports:
             - name: guacamole-app
