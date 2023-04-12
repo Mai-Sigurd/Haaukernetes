@@ -50,7 +50,9 @@ func startChallenge(challengeName string, clientSet kubernetes.Clientset, namesp
 	services.CreateService(clientSet, namespace, challengeName, challengePorts)
 }
 
+// TODO currently this only starts the 6 challenges, not the duplicates we talked about
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
+	log.Printf("Start all challenges only starts 6") // todo delete when fixed
 	for key := range ports {
 		startChallenge(key, clientSet, namespace)
 	}
