@@ -17,7 +17,6 @@ RUN apt -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh
 
 # Create a start script
 RUN echo "#!/bin/bash" > /startkali.sh
-RUN echo "/etc/init.d/ssh start" >> /startkali.sh
 RUN chmod 755 /startkali.sh
 
 # Install Kali packages
