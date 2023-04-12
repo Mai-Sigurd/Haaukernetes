@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"log"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -71,6 +72,8 @@ func TestGeneralLoad(t *testing.T) {
 	personA := "PersonA"
 
 	setUpKubernetesResources(*clientSet, personA)
+
+	//TODO do we wanna start all challenges for this test?
 	startAllChallenges(*clientSet, personA)
 	apis.StartKali(*clientSet, personA)
 
@@ -79,7 +82,7 @@ func TestGeneralLoad(t *testing.T) {
 	// CPU Load after starting
 	after, err1 := cpu.Get()
 	if err1 != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n", err1)
 		return
 	}
 
@@ -89,16 +92,39 @@ func TestGeneralLoad(t *testing.T) {
 
 }
 
-// Find out how many users there can be run on a minimal kubernetes requirments server setup (with an amount of challenges running)
+// Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running)
 func TestMinimalKubernetesSetup(t *testing.T) {
 	setupLog("Minimal-k8s")
+	//  TODO How do we actually stress test Kubernetes?
 	//now for testi westi
 }
 
-// Find out how much resource usage there is for decently size competetion (maybe the amount of people of who participate in cybermesterskaberne).
+// Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
 func TestChampionshipLoad(t *testing.T) {
 	setupLog("Championship")
-	//now for testi westi
+	clientSet := getClientSet()
+
+	// TODO correct amount
+	const amountOfPeople = 100
+	people := [amountOfPeople]string{}
+
+	for i := 0; i < amountOfPeople; i++ {
+		is := strconv.Itoa(i)
+		personI := "Person" + is
+		people[i] = personI
+		setUpKubernetesResources(*clientSet, personI)
+		startAllChallenges(*clientSet, personI)
+	}
+
+	// CPU Load after starting
+	after, err := cpu.Get()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+	// TODO igen hmm, er det vi gerne vil have
+	log.Printf("cpu system after test: %f %%\n", float64(after.System))
+
 }
 
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
