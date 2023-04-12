@@ -21,7 +21,7 @@ func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, serv
 }
 
 func portArray(ports []int32) []apiv1.ServicePort {
-	var result []apiv1.ServicePort
+	result := make([]apiv1.ServicePort, len(ports))
 	for i := 0; i < len(ports); i++ {
 		result[i] = apiv1.ServicePort{
 			Port:       ports[i],
