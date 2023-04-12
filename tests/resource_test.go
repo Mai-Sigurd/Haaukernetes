@@ -51,7 +51,7 @@ func startChallenge(challengeName string, clientSet kubernetes.Clientset, namesp
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
-	for key, _ := range ports {
+	for key := range ports {
 		startChallenge(key, clientSet, namespace)
 	}
 }
