@@ -13,6 +13,7 @@ import (
 )
 
 const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
+const localImageRegistryUrl = "localhost:5000/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	log.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
@@ -34,7 +35,7 @@ func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challenge
 }
 
 func portArray(ports []int32) []apiv1.ContainerPort {
-	var result []apiv1.ContainerPort
+	result := make([]apiv1.ContainerPort, len(ports))
 	for i := 0; i < len(ports); i++ {
 		result[i] = apiv1.ContainerPort{
 			Name:          "http",
@@ -170,7 +171,7 @@ func configureLocalDeployment(nameSpace string, name string, containerPorts []in
 					Containers: []apiv1.Container{
 						{
 							Name:            name,
-							Image:           name,
+							Image:           localImageRegistryUrl + name,
 							ImagePullPolicy: apiv1.PullIfNotPresent, //PullNever also an option
 							Ports:           portArray(containerPorts),
 						},
