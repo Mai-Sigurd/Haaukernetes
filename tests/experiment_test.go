@@ -35,7 +35,7 @@ var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-
 //use "t.SkipNow()"" in a test to skip it
 //use "go test -v -run FUNCTIONNAME" to only test a single function i.e. "go test -v -run TestResourceUse"
 
-//make sure to run the docker related script before starting tests, to avoid hitting pull limit
+// make sure to run the docker related script before starting tests, to avoid hitting pull limit
 func init() {
 	result, err := exec.Command("/bin/sh", "-c", "../docker/pull.sh").Output()
 	utils.ErrHandler(err)
@@ -81,8 +81,8 @@ func TestCreateAndDeleteNamespace(t *testing.T) {
 	}
 }
 
-//waitgroups are used to have concurrency while avoiding using a timer or infinite loop, as goroutines will be killed
-//when function returns
+// waitgroups are used to have concurrency while avoiding using a timer or infinite loop, as goroutines will be killed
+// when function returns
 func TestResourceUse(t *testing.T) {
 	clientSet := getClientSet()
 	var wg sync.WaitGroup
@@ -92,7 +92,7 @@ func TestResourceUse(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			setUpKubernetesResources(*clientSet, teamName)
+			setUpKubernetesResourcesWithLogon(*clientSet, teamName)
 		}()
 	}
 	wg.Wait()
@@ -110,7 +110,7 @@ func TestResourceUse(t *testing.T) {
 	//can we do any assertion that actually makes sense in this case?
 }
 
-func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
+func setUpKubernetesResourcesWithLogon(clientSet kubernetes.Clientset, teamName string) {
 	challengeName := "logon"
 	challengePorts := ports[challengeName]
 	podLabels := make(map[string]string)
@@ -132,9 +132,9 @@ func TestPing(t *testing.T) {
 	teamA := "team-a"
 	teamB := "team-b"
 
-	setUpKubernetesResources(*clientSet, teamA)
+	setUpKubernetesResourcesWithLogon(*clientSet, teamA)
 	time.Sleep(10 * time.Second)
-	setUpKubernetesResources(*clientSet, teamB)
+	setUpKubernetesResourcesWithLogon(*clientSet, teamB)
 	time.Sleep(10 * time.Second)
 
 	podClientA := clientSet.CoreV1().Pods(teamA)
