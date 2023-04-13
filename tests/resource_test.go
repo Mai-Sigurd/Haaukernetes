@@ -43,13 +43,14 @@ func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
 }
 
-func startChallenge(challengeName string, clientSet kubernetes.Clientset, namespace string) {
+func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, namespace string) {
+	challengeName := challengeNameI[0 : len(challengeNameI)-1]
 	challengePorts := ports[challengeName]
 	podLabels := make(map[string]string)
-	podLabels["app"] = challengeName
+	podLabels["app"] = challengeNameI
 	podLabels["type"] = "challenge"
-	deployments.CreateLocalDeployment(clientSet, namespace, challengeName, challengePorts, podLabels)
-	services.CreateService(clientSet, namespace, challengeName, challengePorts)
+	deployments.CreateLocalDeployment(clientSet, namespace, challengeNameI, challengePorts, podLabels)
+	services.CreateService(clientSet, namespace, challengeNameI, challengePorts)
 }
 
 // TODO currently this only starts the 6 challenges, not the duplicates we talked about
@@ -117,8 +118,7 @@ func TestChampionshipLoad(t *testing.T) {
 	setupLog("Championship")
 	clientSet := getClientSet()
 
-	// TODO correct amount
-	const amountOfPeople = 100
+	const amountOfPeople = 350
 	people := [amountOfPeople]string{}
 
 	for i := 0; i < amountOfPeople; i++ {
@@ -140,7 +140,7 @@ func TestChampionshipLoad(t *testing.T) {
 
 }
 
-//TODO: add memory also
+// TODO: add memory also
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func TestChallengeLoad(t *testing.T) {
 	//does not work -> maybe calling 'go setupLog' might keep the file open?
