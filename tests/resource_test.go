@@ -80,7 +80,9 @@ func logCPU(c chan string, results *string) {
 		if err != nil {
 			log.Fatalf("%s\n", err)
 		}
-		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("2006.01.02 15:04:0"), float64(cpuNow.System))
+		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
+		actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
+		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("2006.01.02 15:04:0"), actualCPU)
 		result = result + thing
 		*results = result
 	}
