@@ -68,16 +68,32 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	}
 }
 
+func logCPU(c chan string, results *[]string) {
+	var result []string
+	input := ""
+	go func() {
+		input = <-c
+	}()
+	for input == "" {
+		time.Sleep(1 * time.Second / 2)
+		cpuNow, err := cpu.Get()
+		if err != nil {
+			log.Fatalf("%s\n", err)
+		}
+		thing := fmt.Sprintf("%f, %f", time.Now(), float64(cpuNow.System))
+		result = append(result, thing)
+		results = &result
+	}
+}
+
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func TestGeneralLoad(t *testing.T) {
 	setupLog("General-load")
 
 	// CPU Load before starting
-	before, err := cpu.Get()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		return
-	}
+	comChannel := make(chan string)
+	var results []string
+	go logCPU(comChannel, &results)
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -85,22 +101,12 @@ func TestGeneralLoad(t *testing.T) {
 
 	setUpKubernetesResources(*clientSet, personA)
 
-	//TODO do we wanna start all challenges for this test?
 	startAllChallenges(*clientSet, personA)
 	apis.StartKali(*clientSet, personA)
+	
+	time.Sleep(10 * time.Second)
 
-	time.Sleep(5 * time.Second)
-
-	// CPU Load after starting
-	after, err1 := cpu.Get()
-	if err1 != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err1)
-		return
-	}
-
-	// TODO test om det er det output vi rent faktisk vil have
-	log.Printf("cpu system before test: %f %%\n", float64(before.System))
-	log.Printf("cpu system after test: %f %%\n", float64(after.System))
+	log.Println(results)
 
 }
 
