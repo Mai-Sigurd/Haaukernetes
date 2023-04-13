@@ -22,16 +22,16 @@ import (
 )
 
 // TODO: defer works or not?!
-func setupLog(filename string) {
+func setupLog(filename string) *os.File {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	defer file.Close()
 
 	log.SetOutput(file)
 	currentTime := time.Now()
 	log.Printf("Testing started " + currentTime.Format("2006.01.02 15:04:05"))
+	return file
 }
 
 func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
@@ -88,8 +88,8 @@ func logCPU(c chan string, results *[]string) {
 
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func TestGeneralLoad(t *testing.T) {
-	setupLog("General-load")
-
+	file := setupLog("General-load")
+	defer file.Close()
 	// CPU Load before starting
 	comChannel := make(chan string)
 	var results []string
@@ -112,14 +112,16 @@ func TestGeneralLoad(t *testing.T) {
 
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running)
 func TestMinimalKubernetesSetup(t *testing.T) {
-	setupLog("Minimal-k8s")
+	file := setupLog("Minimal-k8s")
+	defer file.Close()
 	//  TODO How do we actually stress test Kubernetes?
 
 }
 
 // Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
 func TestChampionshipLoad(t *testing.T) {
-	setupLog("Championship")
+	file := setupLog("Championship")
+	defer file.Close()
 	clientSet := getClientSet()
 
 	const amountOfPeople = 350
