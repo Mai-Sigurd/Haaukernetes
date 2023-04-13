@@ -62,8 +62,7 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	log.Printf("Starting 5x6 challenges")
 	for key := range ports {
 		for i := 1; i < 6; i++ {
-			challengeName := key[0 : len(key)-1]
-			challengePorts := ports[challengeName]
+			challengePorts := ports[key]
 			startChallenge(fmt.Sprintf(key+"%d", i), clientSet, namespace, challengePorts)
 		}
 	}
