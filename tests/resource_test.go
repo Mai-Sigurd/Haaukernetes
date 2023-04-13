@@ -75,7 +75,7 @@ func logCPU(c chan string, results *[]string) {
 		input = <-c
 	}()
 	for input == "" {
-		time.Sleep(1 * time.Second / 2)
+		time.Sleep(500 * time.Millisecond)
 		cpuNow, err := cpu.Get()
 		if err != nil {
 			log.Fatalf("%s\n", err)
@@ -97,7 +97,7 @@ func TestGeneralLoad(t *testing.T) {
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
-	personA := "PersonA"
+	personA := "persona"
 
 	setUpKubernetesResources(*clientSet, personA)
 
@@ -105,21 +105,28 @@ func TestGeneralLoad(t *testing.T) {
 	apis.StartKali(*clientSet, personA)
 
 	time.Sleep(10 * time.Second)
-
+	comChannel <- "stop"
 	log.Println(results)
 
 }
 
-// Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running)
+// Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
 func TestMinimalKubernetesSetup(t *testing.T) {
 	file := setupLog("Minimal-k8s")
 	defer file.Close()
-	//  TODO How do we actually stress test Kubernetes?
+	//
+}
 
+// Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
+func TestMinimalKubernetesSetupStartup(t *testing.T) {
+	file := setupLog("Minimal-k8s")
+	defer file.Close()
+	//
 }
 
 // Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
 func TestChampionshipLoad(t *testing.T) {
+
 	file := setupLog("Championship")
 	defer file.Close()
 	clientSet := getClientSet()
@@ -129,7 +136,7 @@ func TestChampionshipLoad(t *testing.T) {
 
 	for i := 0; i < amountOfPeople; i++ {
 		is := strconv.Itoa(i)
-		personI := "Person" + is
+		personI := "person" + is
 		people[i] = personI
 		setUpKubernetesResources(*clientSet, personI)
 		startAllChallenges(*clientSet, personI)
