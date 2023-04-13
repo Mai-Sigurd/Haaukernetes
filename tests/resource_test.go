@@ -54,7 +54,7 @@ func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, names
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
 	log.Printf("Start all challenges only starts 6")
 	for key := range ports {
-		startChallenge(key, clientSet, namespace, ports[key])
+		startChallenge(fmt.Sprintf(key+"%d", 1), clientSet, namespace, ports[key])
 	}
 }
 
@@ -82,7 +82,7 @@ func logCPU(c chan string, results *[]string) {
 		}
 		thing := fmt.Sprintf("%s, %f", time.Now().Format("2006.01.02 15:04:0"), float64(cpuNow.System))
 		result = append(result, thing)
-		results = &result
+		*results = result
 	}
 }
 
@@ -107,6 +107,8 @@ func TestGeneralLoad(t *testing.T) {
 	time.Sleep(10 * time.Second)
 	comChannel <- "stop"
 	log.Println(results)
+
+	namespaces.DeleteNamespace(*clientSet, personA)
 
 }
 
