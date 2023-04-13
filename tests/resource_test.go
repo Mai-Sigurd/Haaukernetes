@@ -68,8 +68,8 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	}
 }
 
-func logCPU(c chan string, results *[]string) {
-	var result []string
+func logCPU(c chan string, results *string) {
+	result := "\n"
 	input := ""
 	go func() {
 		input = <-c
@@ -80,8 +80,8 @@ func logCPU(c chan string, results *[]string) {
 		if err != nil {
 			log.Fatalf("%s\n", err)
 		}
-		thing := fmt.Sprintf("%s, %f", time.Now().Format("2006.01.02 15:04:0"), float64(cpuNow.System))
-		result = append(result, thing)
+		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("2006.01.02 15:04:0"), float64(cpuNow.System))
+		result = result + thing
 		*results = result
 	}
 }
@@ -92,7 +92,7 @@ func TestGeneralLoad(t *testing.T) {
 	defer file.Close()
 	// CPU Load before starting
 	comChannel := make(chan string)
-	var results []string
+	var results string
 	go logCPU(comChannel, &results)
 
 	// Starting the kuberneets
