@@ -8,13 +8,15 @@ import (
 	"k8-project/netpol"
 	"k8-project/secrets"
 	"k8-project/services"
+	"k8-project/utils"
 	"k8-project/wireguard"
-	"k8s.io/client-go/kubernetes"
 	"log"
 	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/mackerelio/go-osstat/cpu"
 )
@@ -58,6 +60,15 @@ func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
 	}
 }
 
+func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace string) {
+	log.Printf("Starting 5x6 challenges")
+	for key := range ports {
+		for i := 1; i < 6; i++ {
+			startChallenge(fmt.Sprintf(key+"%d", i), clientSet, namespace)
+		}
+	}
+}
+
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func TestGeneralLoad(t *testing.T) {
 	setupLog("General-load")
@@ -98,7 +109,7 @@ func TestGeneralLoad(t *testing.T) {
 func TestMinimalKubernetesSetup(t *testing.T) {
 	setupLog("Minimal-k8s")
 	//  TODO How do we actually stress test Kubernetes?
-	//now for testi westi
+
 }
 
 // Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
@@ -129,8 +140,61 @@ func TestChampionshipLoad(t *testing.T) {
 
 }
 
+//TODO: add memory also
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func TestChallengeLoad(t *testing.T) {
-	setupLog("Challenge-load")
-	//now for testi westi
+	//does not work -> maybe calling 'go setupLog' might keep the file open?
+	//setupLog("Challenge-load")
+
+	file, err := os.OpenFile("Challenge-load", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer file.Close()
+
+	log.SetOutput(file)
+	currentTime := time.Now()
+	log.Printf("Testing started " + currentTime.Format("2006.01.02 15:04:05"))
+
+	clientSet := getClientSet()
+	teamName := "test"
+
+	//6 challenges
+
+	cpuBeforeFew, err := cpu.Get()
+	utils.ErrHandler(err)
+	log.Printf("CPU before running 6 challenges %f\n", float64(cpuBeforeFew.System))
+
+	log.Printf("Setting up namespace etc. for 6 challenges\n")
+	setUpKubernetesResources(*clientSet, teamName)
+	startAllChallenges(*clientSet, teamName)
+
+	time.Sleep(30 * time.Second)
+	cpuAfterFew, err := cpu.Get()
+	utils.ErrHandler(err)
+	log.Printf("CPU after/while running 6 challenges %f\n", float64(cpuAfterFew.System))
+
+	namespaces.DeleteNamespace(*clientSet, teamName)
+	log.Printf("Sleeping 90 seconds to allow for namespace to be deleted")
+	time.Sleep(90 * time.Second)
+
+	cpuBeforeMany, err := cpu.Get()
+	utils.ErrHandler(err)
+	log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running 30 %f\n", float64(cpuBeforeMany.System))
+
+	//30 challenges
+	//TODO: det er et problem at vi prøver at starte "logon1" fordi den hiver fra map...
+	//-> deployment/pod/service name og imagename skal adskilles i param...
+	log.Printf("Setting up namespace etc. for 30 challenges\n")
+	setUpKubernetesResources(*clientSet, teamName)
+	startAllChallengesWithDuplicates(*clientSet, teamName)
+
+	time.Sleep(30 * time.Second)
+	cpuAfterMany, err := cpu.Get()
+	utils.ErrHandler(err)
+	log.Printf("CPU after/while running 30 challenges %f\n", float64(cpuAfterMany.System))
+
+	namespaces.DeleteNamespace(*clientSet, teamName)
+	time.Sleep(30 * time.Second)
+
 }
