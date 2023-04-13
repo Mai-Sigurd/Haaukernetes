@@ -43,9 +43,7 @@ func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
 }
 
-func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, namespace string) {
-	challengeName := challengeNameI[0 : len(challengeNameI)-1]
-	challengePorts := ports[challengeName]
+func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeNameI
 	podLabels["type"] = "challenge"
@@ -53,11 +51,10 @@ func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, names
 	services.CreateService(clientSet, namespace, challengeNameI, challengePorts)
 }
 
-// TODO currently this only starts the 6 challenges, not the duplicates we talked about
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
-	log.Printf("Start all challenges only starts 6") // todo delete when fixed
+	log.Printf("Start all challenges only starts 6")
 	for key := range ports {
-		startChallenge(key, clientSet, namespace)
+		startChallenge(key, clientSet, namespace, ports[key])
 	}
 }
 
@@ -65,7 +62,9 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	log.Printf("Starting 5x6 challenges")
 	for key := range ports {
 		for i := 1; i < 6; i++ {
-			startChallenge(fmt.Sprintf(key+"%d", i), clientSet, namespace)
+			challengeName := key[0 : len(key)-1]
+			challengePorts := ports[challengeName]
+			startChallenge(fmt.Sprintf(key+"%d", i), clientSet, namespace, challengePorts)
 		}
 	}
 }
