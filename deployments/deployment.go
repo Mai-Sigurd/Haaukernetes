@@ -38,7 +38,8 @@ func portArray(ports []int32) []apiv1.ContainerPort {
 	result := make([]apiv1.ContainerPort, len(ports))
 	for i := 0; i < len(ports); i++ {
 		result[i] = apiv1.ContainerPort{
-			Name:          "http",
+			//Name:          "http",
+			Name:          fmt.Sprintf("port%d", i), //not optimal but works
 			Protocol:      apiv1.ProtocolTCP,
 			ContainerPort: ports[i],
 		}

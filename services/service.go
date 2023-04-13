@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"k8-project/utils"
 	"log"
 
@@ -24,6 +25,7 @@ func portArray(ports []int32) []apiv1.ServicePort {
 	result := make([]apiv1.ServicePort, len(ports))
 	for i := 0; i < len(ports); i++ {
 		result[i] = apiv1.ServicePort{
+			Name:       fmt.Sprintf("port%d", i),
 			Port:       ports[i],
 			TargetPort: intstr.FromInt(int(ports[i])), // intstr.FromInt(32000)
 		}
