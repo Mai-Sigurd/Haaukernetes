@@ -35,13 +35,6 @@ var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-
 //use "t.SkipNow()"" in a test to skip it
 //use "go test -v -run FUNCTIONNAME" to only test a single function i.e. "go test -v -run TestResourceUse"
 
-// make sure to run the docker related script before starting tests, to avoid hitting pull limit
-func init() {
-	result, err := exec.Command("/bin/sh", "-c", "../docker/pull.sh").Output()
-	utils.ErrHandler(err)
-	fmt.Println("result " + string(result))
-}
-
 func getClientSet() *kubernetes.Clientset {
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
