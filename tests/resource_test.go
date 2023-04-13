@@ -80,7 +80,7 @@ func logCPU(c chan string, results *[]string) {
 		if err != nil {
 			log.Fatalf("%s\n", err)
 		}
-		thing := fmt.Sprintf("%f, %f", time.Now(), float64(cpuNow.System))
+		thing := fmt.Sprintf("%s, %f", time.Now().Format("2006.01.02 15:04:0"), float64(cpuNow.System))
 		result = append(result, thing)
 		results = &result
 	}
@@ -103,7 +103,7 @@ func TestGeneralLoad(t *testing.T) {
 
 	startAllChallenges(*clientSet, personA)
 	apis.StartKali(*clientSet, personA)
-	
+
 	time.Sleep(10 * time.Second)
 
 	log.Println(results)
