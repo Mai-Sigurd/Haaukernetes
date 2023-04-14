@@ -29,15 +29,23 @@ POD=$(kubectl get pod --namespace=guacamole -l app=mariadb -o jsonpath="{.items[
 echo "Waiting for pod to be ready"
 kubectl wait --namespace=guacamole --for=condition=Ready pod/"$POD"
 
+echo "Create mariadb service"
+kubectl apply -f mariadb-service.yaml
+
 # THE BELOW DOES NOT WORK WHEN RUNNING AS A SCRIPT BUT WORKS WHEN RUNNING DIRECTLY
 
-echo "Setting up guacamole database"
+# echo "Setting up guacamole database"
 # Create guacamole db
-kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "create database if not exists guacamole;"
+# kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "create database if not exists guacamole;"
 # Create and configure the guacamole user
-kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "GRANT ALL ON guacamole.* TO 'guacamole'@'%' IDENTIFIED BY '$DB_PASSWORD';"
+# kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "GRANT ALL ON guacamole.* TO 'guacamole'@'%' IDENTIFIED BY '$DB_PASSWORD';"
 # Flush mariadb privileges
-kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "flush privileges;"
+# kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "flush privileges;"
 # Run initdb.sql script
-kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -Dguacamole < initdb.sql
+# kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -Dguacamole < initdb.sql
 
+echo "Creating guacamole deployment"
+kubectl apply -f guacamole-deployment.yaml
+
+echo "Creating guacamole service"
+kubectl apply -f guacamole-service.yaml
