@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: guacd
-          image: guacamole/guacd
+          image: guacamole/guacd:1.4.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4822
@@ -30,38 +30,38 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
         - name: guacamole
-          image: guacamole/guacamole
+          image: guacamole/guacamole:1.4.0
           imagePullPolicy: IfNotPresent
           env:
             - name: GUACD_HOSTNAME
               value: "localhost"
             - name: GUACD_PORT
               value: "4822"
-            - name: MYSQL_PORT
+            - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
-                  name: mariadb
-                  key: mariadb-port
-            - name: MYSQL_HOSTNAME
+                  name: postgres
+                  key: postgres-port
+            - name: POSTGRES_HOSTNAME
               valueFrom:
                 secretKeyRef:
-                  name: mariadb
-                  key: mariadb-hostname
-            - name: MYSQL_DATABASE
+                  name: postgres
+                  key: postgres-hostname
+            - name: POSTGRES_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: mariadb
-                  key: mariadb-database
-            - name: MYSQL_USER
+                  name: postgres
+                  key: postgres-database
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: mariadb
-                  key: mariadb-user
-            - name: MYSQL_PASSWORD
+                  name: postgres
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mariadb
-                  key: mariadb-password
+                  name: postgres
+                  key: postgres-password
           ports:
             - name: guacamole-app
               containerPort: 8080
