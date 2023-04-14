@@ -1,12 +1,15 @@
 #!/bin/bash
 
+set -e
+
 OS="xUbuntu_20.04"
 CRIO_VERSION="1.23"
 
 while true; do
   read -p "Use default OS $OS for crio (y/n)" yn
   case $yn in
-  [yY]) echo break ;;
+  [yY])
+    break ;;
   [nN])
     read -p "Enter preferred OS" OS
     break
@@ -18,7 +21,8 @@ done
 while true; do
   read -p "Use default crio version $CRIO_VERSION (y/n)" yn
   case $yn in
-  [yY]) echo break ;;
+  [yY])
+    break ;;
   [nN])
     read -p "Enter preferred version" CRIO_VERSION
     break
@@ -27,7 +31,7 @@ while true; do
   esac
 done
 
-echo "Enabling bridged traffic on node"
+echo "##### Enabling bridged traffic on node"
 cat <<EOF | tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -46,14 +50,14 @@ EOF
 # Apply parameters without reboot
 sysctl --system
 
-echo "Disabling swap"
+echo "##### Disabling swap"
 swapoff -a
 (
   crontab -l 2>/dev/null
   echo "@reboot /sbin/swapoff -a"
 ) | crontab - || true
 
-echo "Installing crio runtime"
+echo "##### Installing crio runtime"
 cat <<EOF | tee /etc/modules-load.d/crio.conf
 overlay
 br_netfilter
@@ -77,7 +81,7 @@ EOF
 
 sysctl --system
 
-echo "Enabling crio repositories for version $CRIO_VERSION"
+echo "##### Enabling crio repositories for version $CRIO_VERSION"
 cat <<EOF | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
 deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /
 EOF
@@ -85,17 +89,17 @@ cat <<EOF | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$
 deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /
 EOF
 
-echo "Adding gpg keys"
+echo "##### Adding gpg keys"
 curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -
 curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -
 
-echo "Update and install crio and crio-tools"
+echo "##### Update and install crio and crio-tools"
 apt-get update
 apt-get install cri-o cri-o-runc cri-tools -y
 systemctl daemon-reload
 systemctl enable crio --now
 
-echo "Installing Kubeadm, Kubelet, and Kubectl"
+echo "##### Installing Kubeadm, Kubelet, and Kubectl"
 apt-get update
 apt-get install -y apt-transport-https ca-certificates curl
 curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -105,7 +109,7 @@ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https:/
 apt-get update -y
 apt-get install -y kubelet kubeadm kubectl
 
-echo "Adding node IP to KUBELET_EXTRA_ARGS"
+echo "##### Adding node IP to KUBELET_EXTRA_ARGS"
 apt-get install -y jq
 local_ip="$(ip --json a s | jq -r '.[] | if .ifname == "eth1" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
 cat > /etc/default/kubelet << EOF
