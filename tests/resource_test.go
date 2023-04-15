@@ -141,15 +141,17 @@ func TestMai(t *testing.T) {
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
+// TODO mememory might be relevant
 func TestMinimalKubernetesSetup(t *testing.T) {
-	file := setupLog("Minimal-k8s")
+	file := setupLog("Minimal-k8s-den-anden")
 	defer file.Close()
 	//
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
+// TODO mememory might be relevant
 func TestMinimalKubernetesSetupStartup(t *testing.T) {
-	file := setupLog("Minimal-k8s")
+	file := setupLog("Minimal-k8s-den-ene")
 	defer file.Close()
 	//
 }
@@ -175,7 +177,7 @@ func TestChampionshipLoad(t *testing.T) {
 		setUpKubernetesResources(*clientSet, personI)
 		startAllChallenges(*clientSet, personI)
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(30 * time.Second)
 	comChannel <- "stop"
 	log.Println(results)
 
@@ -246,7 +248,7 @@ func TestChallengeLoad(t *testing.T) {
 
 	time.Sleep(30 * time.Second)
 	comChannel <- "stop"
-	log.Printf("Done running 30 challengesl\n")
+	log.Printf("Done running 30 challenges\n")
 	log.Printf("Results for running 6 challenges")
 	log.Println(sixchallengeslog)
 	log.Printf("Results for running 30 challenges")
