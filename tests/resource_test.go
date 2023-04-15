@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/shirou/gopsutil/v3/mem"
 	"k8-project/apis"
 	"k8-project/deployments"
 	"k8-project/namespaces"
@@ -16,12 +17,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/shirou/gopsutil/v3/cpu"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/mackerelio/go-osstat/cpu"
 )
 
-// TODO: defer works or not?!
 func setupLog(filename string) *os.File {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -29,8 +28,7 @@ func setupLog(filename string) *os.File {
 	}
 
 	log.SetOutput(file)
-	currentTime := time.Now()
-	log.Printf("Testing started " + currentTime.Format("2006.01.02 15:04:05"))
+	log.Printf("Testing started ")
 	return file
 }
 
@@ -76,13 +74,10 @@ func logCPU(c chan string, results *string) {
 	}()
 	for input == "" {
 		time.Sleep(500 * time.Millisecond)
-		cpuNow, err := cpu.Get()
-		if err != nil {
-			log.Fatalf("%s\n", err)
-		}
 		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
-		actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
-		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("2006.01.02 15:04:0"), actualCPU)
+		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
+		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
+		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU)
 		result = result + thing
 		*results = result
 	}
@@ -114,6 +109,19 @@ func TestGeneralLoad(t *testing.T) {
 
 }
 
+// TODO delete
+func TestMai(t *testing.T) {
+	file := setupLog("Mai")
+	defer file.Close()
+	//
+	comChannel := make(chan string)
+	var results string
+	go logCPU(comChannel, &results)
+	time.Sleep(10 * time.Second)
+	comChannel <- "stop"
+	log.Println(results)
+}
+
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
 func TestMinimalKubernetesSetup(t *testing.T) {
 	file := setupLog("Minimal-k8s")
@@ -135,6 +143,10 @@ func TestChampionshipLoad(t *testing.T) {
 	defer file.Close()
 	clientSet := getClientSet()
 
+	comChannel := make(chan string)
+	var results string
+	go logCPU(comChannel, &results)
+
 	const amountOfPeople = 350
 	people := [amountOfPeople]string{}
 
@@ -145,23 +157,30 @@ func TestChampionshipLoad(t *testing.T) {
 		setUpKubernetesResources(*clientSet, personI)
 		startAllChallenges(*clientSet, personI)
 	}
+	time.Sleep(5 * time.Second)
+	comChannel <- "stop"
+	log.Println(results)
 
-	// CPU Load after starting
-	after, err := cpu.Get()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		return
+	for i := 0; i < amountOfPeople; i++ {
+		is := strconv.Itoa(i)
+		personI := "person" + is
+		people[i] = personI
+		namespaces.DeleteNamespace(*clientSet, personI)
 	}
-	// TODO igen hmm, er det vi gerne vil have
-	log.Printf("cpu system after test: %f %%\n", float64(after.System))
+	time.Sleep(5 * time.Second)
 
 }
 
 // TODO: add memory also
+// TODO change to use new CPU type
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func TestChallengeLoad(t *testing.T) {
 	//does not work -> maybe calling 'go setupLog' might keep the file open?
 	//setupLog("Challenge-load")
+	v, _ := mem.VirtualMemory()
+	// almost every return value is a struct
+	//TODO incooperate mem in function
+	fmt.Printf("Total: %v, Free:%v, UsedPercent:%f%%\n", v.Total, v.Free, v.UsedPercent)
 
 	file, err := os.OpenFile("Challenge-load", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -178,38 +197,37 @@ func TestChallengeLoad(t *testing.T) {
 
 	//6 challenges
 
-	cpuBeforeFew, err := cpu.Get()
+	//cpuBeforeFew, err := cpu.Get()
 	utils.ErrHandler(err)
-	log.Printf("CPU before running 6 challenges %f\n", float64(cpuBeforeFew.System))
+	//log.Printf("CPU before running 6 challenges %f\n", float64(cpuBeforeFew.System))
 
 	log.Printf("Setting up namespace etc. for 6 challenges\n")
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallenges(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
-	cpuAfterFew, err := cpu.Get()
+	//cpuAfterFew, err := cpu.Get()
 	utils.ErrHandler(err)
-	log.Printf("CPU after/while running 6 challenges %f\n", float64(cpuAfterFew.System))
+	//log.Printf("CPU after/while running 6 challenges %f\n", float64(cpuAfterFew.System))
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 	log.Printf("Sleeping 90 seconds to allow for namespace to be deleted")
 	time.Sleep(90 * time.Second)
 
-	cpuBeforeMany, err := cpu.Get()
+	//cpuBeforeMany, err := cpu.Get()
 	utils.ErrHandler(err)
-	log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running 30 %f\n", float64(cpuBeforeMany.System))
+	//log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running 30 %f\n", float64(cpuBeforeMany.System))
 
 	//30 challenges
-	//TODO: det er et problem at vi prøver at starte "logon1" fordi den hiver fra map...
 	//-> deployment/pod/service name og imagename skal adskilles i param...
 	log.Printf("Setting up namespace etc. for 30 challenges\n")
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallengesWithDuplicates(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
-	cpuAfterMany, err := cpu.Get()
+	//cpuAfterMany, err := cpu.Get()
 	utils.ErrHandler(err)
-	log.Printf("CPU after/while running 30 challenges %f\n", float64(cpuAfterMany.System))
+	//log.Printf("CPU after/while running 30 challenges %f\n", float64(cpuAfterMany.System))
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 	time.Sleep(30 * time.Second)
