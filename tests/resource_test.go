@@ -50,7 +50,7 @@ func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, names
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
-	log.Printf("Start all challenges only starts 6")
+	log.Printf("Start 6 challenges")
 	for key := range ports {
 		startChallenge(fmt.Sprintf(key+"%d", 1), clientSet, namespace, ports[key])
 	}
@@ -66,7 +66,7 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	}
 }
 
-func logCPU(c chan string, results *string) {
+func logCPUWithStoredResult(c chan string, results *string) {
 	result := "\n"
 	input := ""
 	go func() {
@@ -77,9 +77,23 @@ func logCPU(c chan string, results *string) {
 		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
 		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU)
+		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
 		result = result + thing
 		*results = result
+	}
+}
+
+func logCPUContiously(c chan string) {
+	input := ""
+	go func() {
+		input = <-c
+	}()
+	for input == "" {
+		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
+		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
+		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
+		thing := fmt.Sprintf("%f\n", actualCPU[0])
+		log.Printf(thing)
 	}
 }
 
@@ -90,7 +104,7 @@ func TestGeneralLoad(t *testing.T) {
 	// CPU Load before starting
 	comChannel := make(chan string)
 	var results string
-	go logCPU(comChannel, &results)
+	go logCPUWithStoredResult(comChannel, &results)
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -115,11 +129,15 @@ func TestMai(t *testing.T) {
 	defer file.Close()
 	//
 	comChannel := make(chan string)
-	var results string
-	go logCPU(comChannel, &results)
-	time.Sleep(10 * time.Second)
+
+	go logCPUContiously(comChannel)
+	log.Printf("something in the middle happens")
+	time.Sleep(5 * time.Second)
 	comChannel <- "stop"
-	log.Println(results)
+	log.Printf("midway")
+	go logCPUContiously(comChannel)
+	time.Sleep(5 * time.Second)
+	comChannel <- "stop"
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
@@ -145,7 +163,7 @@ func TestChampionshipLoad(t *testing.T) {
 
 	comChannel := make(chan string)
 	var results string
-	go logCPU(comChannel, &results)
+	go logCPUWithStoredResult(comChannel, &results)
 
 	const amountOfPeople = 350
 	people := [amountOfPeople]string{}
@@ -172,9 +190,11 @@ func TestChampionshipLoad(t *testing.T) {
 }
 
 // TODO: add memory also
-// TODO change to use new CPU type
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func TestChallengeLoad(t *testing.T) {
+	file := setupLog("challenge-load")
+	defer file.Close()
+
 	//does not work -> maybe calling 'go setupLog' might keep the file open?
 	//setupLog("Challenge-load")
 	v, _ := mem.VirtualMemory()
@@ -182,52 +202,55 @@ func TestChallengeLoad(t *testing.T) {
 	//TODO incooperate mem in function
 	fmt.Printf("Total: %v, Free:%v, UsedPercent:%f%%\n", v.Total, v.Free, v.UsedPercent)
 
-	file, err := os.OpenFile("Challenge-load", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	defer file.Close()
-
-	log.SetOutput(file)
 	currentTime := time.Now()
-	log.Printf("Testing started " + currentTime.Format("2006.01.02 15:04:05"))
+	log.Printf("Testing started " + currentTime.Format("15:04:05"))
 
 	clientSet := getClientSet()
 	teamName := "test"
 
 	//6 challenges
 
-	//cpuBeforeFew, err := cpu.Get()
+	cpuBeforeFew, err := cpu.Percent(500*time.Millisecond, false)
 	utils.ErrHandler(err)
-	//log.Printf("CPU before running 6 challenges %f\n", float64(cpuBeforeFew.System))
+	log.Printf("CPU before running 6 challenges %f\n", cpuBeforeFew[0])
 
-	log.Printf("Setting up namespace etc. for 6 challenges\n")
+	log.Printf("Setting up namespace etc. for 6 challenges, loggin cpu contiously\n ")
+
+	comChannel := make(chan string)
+	var sixchallengeslog string
+	go logCPUWithStoredResult(comChannel, &sixchallengeslog)
+
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallenges(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
-	//cpuAfterFew, err := cpu.Get()
-	utils.ErrHandler(err)
-	//log.Printf("CPU after/while running 6 challenges %f\n", float64(cpuAfterFew.System))
+
+	comChannel <- "stop"
+	log.Printf("Challenges has been run \n")
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
-	log.Printf("Sleeping 90 seconds to allow for namespace to be deleted")
+
+	log.Printf("Sleeping 90 seconds to allow for namespace to be deleted, loggin cpu contiosuly \n")
+
 	time.Sleep(90 * time.Second)
 
-	//cpuBeforeMany, err := cpu.Get()
-	utils.ErrHandler(err)
-	//log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running 30 %f\n", float64(cpuBeforeMany.System))
+	log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running with 30 \n")
 
 	//30 challenges
 	//-> deployment/pod/service name og imagename skal adskilles i param...
-	log.Printf("Setting up namespace etc. for 30 challenges\n")
+	log.Printf("Setting up namespace etc. for 30 challenges, loggin cpu contiously\n")
+	var thirtyChallengeslog string
+	go logCPUWithStoredResult(comChannel, &thirtyChallengeslog)
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallengesWithDuplicates(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
-	//cpuAfterMany, err := cpu.Get()
-	utils.ErrHandler(err)
-	//log.Printf("CPU after/while running 30 challenges %f\n", float64(cpuAfterMany.System))
+	comChannel <- "stop"
+	log.Printf("Done running 30 challengesl\n")
+	log.Printf("Results for running 6 challenges")
+	log.Println(sixchallengeslog)
+	log.Printf("Results for running 30 challenges")
+	log.Println(thirtyChallengeslog)
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 	time.Sleep(30 * time.Second)
