@@ -16,7 +16,23 @@ spec:
     spec:
       containers:
         - name: kali
-          image: kali
+          image: localhost:5000/kali
           imagePullPolicy: Never
+          command:
+            - /bin/bash
+            - "-c"
+            - "firefox & sleep infinity"
+          securityContext:
+            privileged: true
+          env:
+            - name: DISPLAY
+              value: :0
+          volumeMounts:
+            - name: x11
+              mountPath: /tmp/.X11-unix
           ports:
             - containerPort: 13389
+      volumes:
+        - name: x11
+          hostPath:
+            path: /tmp/.X11-unix
