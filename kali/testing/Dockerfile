@@ -34,8 +34,13 @@ RUN adduser xrdp ssl-cert
 RUN echo xfce4-session > /home/kali/.xsession
 RUN chmod +x /home/kali/.xsession
 
-# Open Firefox
-RUN echo "firefox" >> /startkali.sh
+# Install Firefox and Xvfb
+RUN apt -y install --no-install-recommends firefox-esr xvfb libpci3 libdbus-1-3
+
+# Launch Firefox using Xvfb on startup
+RUN echo "Xvfb :99 -screen 0 1024x768x16 &" >> /startkali.sh
+RUN echo "export DISPLAY=:99" >> /startkali.sh
+# RUN echo "firefox-esr" >> /startkali.sh
 
 # Keep the container running
 RUN echo "tail -f /dev/null" >> /startkali.sh
