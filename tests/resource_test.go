@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/v3/mem"
 	"k8-project/apis"
 	"k8-project/deployments"
 	"k8-project/namespaces"
@@ -13,9 +12,12 @@ import (
 	"k8-project/wireguard"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/mem"
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"k8s.io/client-go/kubernetes"
@@ -67,7 +69,7 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 }
 
 func logCPUWithStoredResult(c chan string, results *string) {
-	result := "\n"
+	*results += "\n"
 	input := ""
 	go func() {
 		input = <-c
@@ -77,9 +79,8 @@ func logCPUWithStoredResult(c chan string, results *string) {
 		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
 		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-		thing := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
-		result = result + thing
-		*results = result
+		usage := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
+		*results += usage
 	}
 }
 
@@ -94,6 +95,19 @@ func logCPUContiously(c chan string) {
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
 		thing := fmt.Sprintf("%f\n", actualCPU[0])
 		log.Printf(thing)
+	}
+}
+
+func logMemoryWithStoredResult(c chan string, results *string) {
+	input := ""
+	go func() {
+		input = <-c
+	}()
+	for input == "" {
+		time.Sleep(500 * time.Millisecond)
+		memory, _ := mem.VirtualMemory()
+		usage := fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", memory.Total, memory.Free, memory.UsedPercent)
+		*results += usage
 	}
 }
 
@@ -191,14 +205,11 @@ func TestChampionshipLoad(t *testing.T) {
 
 }
 
-// TODO: add memory also
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func TestChallengeLoad(t *testing.T) {
 	file := setupLog("challenge-load")
 	defer file.Close()
 
-	//does not work -> maybe calling 'go setupLog' might keep the file open?
-	//setupLog("Challenge-load")
 	v, _ := mem.VirtualMemory()
 	// almost every return value is a struct
 	//TODO incooperate mem in function
@@ -219,8 +230,11 @@ func TestChallengeLoad(t *testing.T) {
 	log.Printf("Setting up namespace etc. for 6 challenges, loggin cpu contiously\n ")
 
 	comChannel := make(chan string)
+	memChannel := make(chan string) //might be able to use same channel but with pointer?
 	var sixchallengeslog string
+	var sixChallengesMemLog string
 	go logCPUWithStoredResult(comChannel, &sixchallengeslog)
+	go logMemoryWithStoredResult(memChannel, &sixChallengesMemLog)
 
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallenges(*clientSet, teamName)
@@ -228,33 +242,38 @@ func TestChallengeLoad(t *testing.T) {
 	time.Sleep(30 * time.Second)
 
 	comChannel <- "stop"
+	memChannel <- "stop"
 	log.Printf("Challenges has been run \n")
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 
-	log.Printf("Sleeping 90 seconds to allow for namespace to be deleted, loggin cpu contiosuly \n")
-
-	time.Sleep(90 * time.Second)
-
-	log.Printf("CPU 90 seconds after running 6 challenges and deleting namespace, before running with 30 \n")
+	//watch for namespace to be removed definetely
+	res, _ := exec.Command("/bin/sh", "-c", fmt.Sprintf("watch -e \"kubectl get ns | grep -m 1 %s\" ", teamName)).Output()
+	_ = res //ignore
 
 	//30 challenges
 	//-> deployment/pod/service name og imagename skal adskilles i param...
 	log.Printf("Setting up namespace etc. for 30 challenges, loggin cpu contiously\n")
 	var thirtyChallengeslog string
+	var thirtyChallengesMemLog string
 	go logCPUWithStoredResult(comChannel, &thirtyChallengeslog)
+	go logMemoryWithStoredResult(memChannel, &thirtyChallengesMemLog)
 	setUpKubernetesResources(*clientSet, teamName)
 	startAllChallengesWithDuplicates(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
 	comChannel <- "stop"
+	memChannel <- "stop"
 	log.Printf("Done running 30 challenges\n")
 	log.Printf("Results for running 6 challenges")
 	log.Println(sixchallengeslog)
+	log.Println("MEMORY")
+	log.Println(sixChallengesMemLog)
 	log.Printf("Results for running 30 challenges")
 	log.Println(thirtyChallengeslog)
+	log.Println("MEMORY")
+	log.Println(thirtyChallengesMemLog)
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 	time.Sleep(30 * time.Second)
-
 }
