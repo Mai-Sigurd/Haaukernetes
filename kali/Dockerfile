@@ -5,12 +5,10 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DESKTOP_ENVIRONMENT=xfce
 ENV DESKTOP_PKG=kali-desktop-${DESKTOP_ENVIRONMENT}
 
-ENV REMOTE_ACCESS=rdp
-
-ENV KALI_PACKAGE=core
+# Default has a wide range of tools
+ENV KALI_PACKAGE=default
 ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
-# Install common packages
 RUN apt update -q --fix-missing
 RUN apt upgrade -y
 RUN apt -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh-server ${DESKTOP_PKG}
@@ -34,13 +32,18 @@ RUN adduser xrdp ssl-cert
 RUN echo xfce4-session > /home/kali/.xsession
 RUN chmod +x /home/kali/.xsession
 
-# Open Firefox
-RUN echo "firefox" >> /startkali.sh
+# Install Firefox and Xvfb (display server)
+RUN apt -y install --no-install-recommends firefox-esr xvfb libpci3 libdbus-1-3
+
+# Launch Firefox using Xvfb on startup
+RUN echo "Xvfb :99 -screen 0 1024x768x16 &" >> /startkali.sh
+RUN echo "export DISPLAY=:99" >> /startkali.sh
+RUN echo "firefox-esr" >> /startkali.sh
 
 # Keep the container running
 RUN echo "tail -f /dev/null" >> /startkali.sh
 
-# Expose ports
+# Expose rdp ports
 EXPOSE 13389
 WORKDIR "/root"
 ENTRYPOINT ["/bin/bash"]
