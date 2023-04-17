@@ -225,8 +225,11 @@ const docTemplate = `{
                 "namespace": {
                     "type": "string"
                 },
-                "port": {
-                    "type": "integer"
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

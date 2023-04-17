@@ -46,14 +46,14 @@ func (c Controller) GetKali(ctx *gin.Context) {
 func (c Controller) PostKali(ctx *gin.Context) {
 
 	name := ctx.Param("namespace")
-	StartKali(*c.ClientSet, name)
+	PostKaliKubernetes(*c.ClientSet, name)
 	message := "You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <namespace>`"
 	kali := Kali{Namespace: name, Ip: "ip addreess", Message: message}
 	ctx.JSON(200, kali)
 }
 
 // TODO maybe port 5900 with new image?! if no work, check this
-func StartKali(clientSet kubernetes.Clientset, namespace string) {
+func PostKaliKubernetes(clientSet kubernetes.Clientset, namespace string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali-vnc"
