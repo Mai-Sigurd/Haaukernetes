@@ -2,12 +2,12 @@ package apis
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"k8-project/namespaces"
 	"k8-project/netpol"
 	"k8-project/secrets"
-
-	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type Namespace struct {
@@ -47,15 +47,23 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 		message := "Sorry namespace " + body.Name + " already exists"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		err := namespaces.CreateNamespace(*c.ClientSet, body.Name)
-		if err != nil {
+		errKubernetes := PostNamespaceKubernetes(*c.ClientSet, body.Name)
+		if errKubernetes != nil {
 			ctx.JSON(400, ErrorResponse{Message: err.Error()})
 		}
-		netpol.CreateEgressPolicy(*c.ClientSet, body.Name)
-		netpol.CreateChallengeIngressPolicy(*c.ClientSet, body.Name)
-		secrets.CreateImageRepositorySecret(*c.ClientSet, body.Name)
 		ctx.JSON(200, body)
 	}
+}
+
+func PostNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error {
+	err := namespaces.CreateNamespace(clientSet, name)
+	if err != nil {
+		return err
+	}
+	netpol.CreateEgressPolicy(clientSet, name)
+	netpol.CreateChallengeIngressPolicy(clientSet, name)
+	secrets.CreateImageRepositorySecret(clientSet, name)
+	return nil
 }
 
 // DeleteNamespace godoc
@@ -66,11 +74,15 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	err := c.ClientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
+	err := DeleteNamespaceKubernetes(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
 		ctx.JSON(200, "Namespace "+name+" Deleted")
 	}
+}
 
+func DeleteNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error {
+	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return err
 }
