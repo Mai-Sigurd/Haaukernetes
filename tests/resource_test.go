@@ -76,8 +76,6 @@ func logCPUWithStoredResult(c chan string, results *string) {
 	}()
 	for input == "" {
 		time.Sleep(500 * time.Millisecond)
-		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
-		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
 		usage := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
 		*results += usage
