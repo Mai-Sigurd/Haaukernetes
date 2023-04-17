@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: kali
-          image: kali
-          imagePullPolicy: Never
+          image: localhost:5000/kali
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 13389
