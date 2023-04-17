@@ -56,7 +56,6 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 		secrets.CreateImageRepositorySecret(*c.ClientSet, body.Name)
 		ctx.JSON(200, body)
 	}
-
 }
 
 // DeleteNamespace godoc
