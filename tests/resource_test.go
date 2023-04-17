@@ -94,7 +94,7 @@ func logCPUContiously(c chan string) {
 		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
 		thing := fmt.Sprintf("%f\n", actualCPU[0])
-		log.Printf(thing)
+		log.Print(thing)
 	}
 }
 
