@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/goccy/go-json v0.9.7
-	github.com/mackerelio/go-osstat v0.2.4
 	github.com/shirou/gopsutil/v3 v3.23.3
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.5.3
