@@ -1,16 +1,17 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin"
 	"k8-project/deployments"
 	"k8-project/services"
+
+	"github.com/gin-gonic/gin"
 	"k8s.io/client-go/kubernetes"
 )
 
 type Challenge struct {
-	Port          int32  `json:"port"`
-	ChallengeName string `json:"challengeName"`
-	Namespace     string `json:"namespace"`
+	Ports         []int32 `json:"ports"`
+	ChallengeName string  `json:"challengeName"`
+	Namespace     string  `json:"namespace"`
 }
 
 type DelChallenge struct {
@@ -39,8 +40,8 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		podLabels := make(map[string]string)
 		podLabels["app"] = body.ChallengeName
 		podLabels["type"] = "challenge"
-		deployments.CreateDeployment(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port, podLabels)
-		services.CreateService(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port)
+		deployments.CreateDeployment(*c.ClientSet, body.Namespace, body.ChallengeName, body.Ports, podLabels)
+		services.CreateService(*c.ClientSet, body.Namespace, body.ChallengeName, body.Ports)
 
 		ctx.JSON(200, body)
 	}
