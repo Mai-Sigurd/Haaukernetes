@@ -3,10 +3,11 @@ package api
 import (
 	"bytes"
 	"fmt"
-	"github.com/goccy/go-json"
 	"io"
 	"k8-project/apis"
 	"net/http"
+
+	"github.com/goccy/go-json"
 )
 
 var ipPort = "5113"
@@ -78,9 +79,9 @@ func DeleteChallenge(namespace string, challengeName string) {
 	generalResponse(resp)
 }
 
-func PostChallenge(namespace string, challengeName string, port int32) {
+func PostChallenge(namespace string, challengeName string, ports []int32) {
 	reqBody := apis.Challenge{
-		Port:          port,
+		Ports:         ports,
 		ChallengeName: challengeName,
 		Namespace:     namespace,
 	}
