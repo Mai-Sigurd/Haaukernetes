@@ -1,16 +1,17 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin"
 	"k8-project/deployments"
 	"k8-project/services"
+
+	"github.com/gin-gonic/gin"
 	"k8s.io/client-go/kubernetes"
 )
 
 type Challenge struct {
-	Port          int32  `json:"port"`
-	ChallengeName string `json:"challengeName"`
-	Namespace     string `json:"namespace"`
+	Ports         []int32 `json:"ports"`
+	ChallengeName string  `json:"challengeName"`
+	Namespace     string  `json:"namespace"`
 }
 
 type DelChallenge struct {
@@ -36,14 +37,18 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		podLabels := make(map[string]string)
-		podLabels["app"] = body.ChallengeName
-		podLabels["type"] = "challenge"
-		deployments.CreateDeployment(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port, podLabels)
-		services.CreateService(*c.ClientSet, body.Namespace, body.ChallengeName, body.Port)
+		PostChallengeKubernetes(*c.ClientSet, body.Namespace, body.ChallengeName, body.Ports)
 
 		ctx.JSON(200, body)
 	}
+}
+
+func PostChallengeKubernetes(clientSet kubernetes.Clientset, namespace string, challengeName string, ports []int32) {
+	podLabels := make(map[string]string)
+	podLabels["app"] = challengeName
+	podLabels["type"] = "challenge"
+	deployments.CreateDeployment(clientSet, namespace, challengeName, ports, podLabels)
+	services.CreateService(clientSet, namespace, challengeName, ports)
 }
 
 // DeleteChallenge godoc
@@ -61,14 +66,13 @@ func (c Controller) DeleteChallenge(ctx *gin.Context) {
 	deleteChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, ctx, body)
 }
 
-func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeName string, ctx *gin.Context, body DelChallenge) {
+func deleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string, ctx *gin.Context, body DelChallenge) {
 	ctx.JSON(200, body)
-	if !deployments.CheckIfDeploymentExists(clientSet, teamName, challengeName) {
+	if !deployments.CheckIfDeploymentExists(clientSet, namespace, challengeName) {
 		message := "Challenge " + challengeName + " is not turned on"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		deploymentDeleteStatus := deployments.DeleteDeployment(clientSet, teamName, challengeName)
-		serviceDeleteStatus := services.DeleteService(clientSet, teamName, challengeName)
+		deploymentDeleteStatus, serviceDeleteStatus := DeleteChallengeKubernetes(clientSet, namespace, challengeName)
 		if deploymentDeleteStatus && serviceDeleteStatus {
 			message := "Challenge " + challengeName + " turned off"
 			resp := DelRespChallenge{
@@ -82,4 +86,10 @@ func deleteChallenge(clientSet kubernetes.Clientset, teamName string, challengeN
 			ctx.JSON(400, ErrorResponse{Message: message})
 		}
 	}
+}
+
+func DeleteChallengeKubernetes(clientSet kubernetes.Clientset, namespace string, challengeName string) (bool, bool) {
+	deploymentDeleteStatus := deployments.DeleteDeployment(clientSet, namespace, challengeName)
+	serviceDeleteStatus := services.DeleteService(clientSet, namespace, challengeName)
+	return deploymentDeleteStatus, serviceDeleteStatus
 }

@@ -18,8 +18,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-//clientpublickey should come from caller i.e. api call
-//clientprivatekey should be inserted to file by client itself
+// clientpublickey should come from caller i.e. api call
+// clientprivatekey should be inserted to file by client itself
 func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string) string {
 	serverPrivateKey, serverPublicKey := createKeys()
 	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, clientPublicKey)
@@ -31,12 +31,14 @@ func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPubli
 	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
+	// TODO write that this exist with the 5 secs
+
 	time.Sleep(5 * time.Second)
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", teamName)
 	return clientConf
 }
 
-//this works but is not pretty TODO
+// this works but is not pretty TODO
 func createKeys() (string, string) {
 	priv, err := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
 	if err != nil {
@@ -79,7 +81,7 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 	return service
 }
 
-//move to separate file? TODO
+// move to separate file? TODO
 func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
