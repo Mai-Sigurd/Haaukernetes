@@ -6,6 +6,7 @@ import (
 	"k8-project/utils"
 	"log"
 	"regexp"
+	"strings"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,7 +22,7 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	}
 	namespace := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name: strings.ToLower(name),
 		},
 	}
 	newNamespace, err := clientSet.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})

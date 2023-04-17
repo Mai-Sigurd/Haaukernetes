@@ -2,9 +2,10 @@ package apis
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"k8-project/deployments"
 	"k8-project/services"
+
+	"github.com/gin-gonic/gin"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -45,17 +46,19 @@ func (c Controller) GetKali(ctx *gin.Context) {
 func (c Controller) PostKali(ctx *gin.Context) {
 
 	name := ctx.Param("namespace")
-	startKali(*c.ClientSet, name)
+	StartKali(*c.ClientSet, name)
 	message := "You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <namespace>`"
 	kali := Kali{Namespace: name, Ip: "ip addreess", Message: message}
 	ctx.JSON(200, kali)
 }
 
-func startKali(clientSet kubernetes.Clientset, namespace string) {
+// TODO maybe port 5900 with new image?! if no work, check this
+func StartKali(clientSet kubernetes.Clientset, namespace string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali-vnc"
-	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", 5901, podLabels)
-	services.CreateService(clientSet, namespace, "kali-vnc", 5901)
-	services.CreateExposeService(clientSet, namespace, "kali-vnc", 5901)
+	ports := []int32{5901}
+	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", ports, podLabels)
+	services.CreateService(clientSet, namespace, "kali-vnc", ports)
+	services.CreateExposeService(clientSet, namespace, "kali-vnc", 5901) //TODO: deprecated, no nodeport for kali?
 }
