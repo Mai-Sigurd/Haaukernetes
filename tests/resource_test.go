@@ -127,7 +127,7 @@ func TestGeneralLoad(t *testing.T) {
 	setUpKubernetesResources(*clientSet, personA)
 
 	startAllChallenges(*clientSet, personA)
-	apis.StartKali(*clientSet, personA)
+	apis.PostKaliKubernetes(*clientSet, personA)
 
 	time.Sleep(10 * time.Second)
 	comChannel <- "stop"
