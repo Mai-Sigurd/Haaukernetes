@@ -1,10 +1,12 @@
 # Haaukins-Kubernetes-bachelor-project
 
 # Requirements
-- Go-Swagger
+Go-Swagger
   https://goswagger.io/install.html
--  ``go get github.com/gorilla/mux``
--  ``go get github.com/go-openapi/runtime/middleware``
+
+``go get github.com/gorilla/mux``
+
+``go get github.com/go-openapi/runtime/middleware``
 
 
 # Run 
@@ -12,15 +14,14 @@
 
 ``go run main.go``
 
-# generating new swagger
-## requirements
+# Generating New Swagger
+## Requirements
 ``go install github.com/swaggo/swag/cmd/swag@latest``
 
-## run
+## Run
 ``swag init ``
 
-## Swagger UI can be seen at
-localhost:5000/docs/index.html#/
+Swagger UI can be seen at: localhost:5000/docs/index.html#/
 
 # Frontend
 Navigate to the terminal_frontend folder and run
