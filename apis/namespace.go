@@ -47,7 +47,10 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 		message := "Sorry namespace " + body.Name + " already exists"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		namespaces.CreateNamespace(*c.ClientSet, body.Name)
+		err := namespaces.CreateNamespace(*c.ClientSet, body.Name)
+		if err != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		}
 		netpol.CreateEgressPolicy(*c.ClientSet, body.Name)
 		netpol.CreateChallengeIngressPolicy(*c.ClientSet, body.Name)
 		secrets.CreateImageRepositorySecret(*c.ClientSet, body.Name)
