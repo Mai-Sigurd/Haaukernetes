@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"k8-project/utils"
 	"log"
 
@@ -20,8 +21,20 @@ func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, serv
 	return result
 }
 
+func portArray(ports []int32) []apiv1.ServicePort {
+	result := make([]apiv1.ServicePort, len(ports))
+	for i := 0; i < len(ports); i++ {
+		result[i] = apiv1.ServicePort{
+			Name:       fmt.Sprintf("port%d", i),
+			Port:       ports[i],
+			TargetPort: intstr.FromInt(int(ports[i])), // intstr.FromInt(32000)
+		}
+	}
+	return result
+}
+
 // CreateService creates an internal service in the given namespace.
-func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPort int32) *apiv1.Service {
+func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPorts []int32) *apiv1.Service {
 	log.Println("Creating service client")
 	serviceClient := clientSet.CoreV1().Services(namespace)
 
@@ -34,12 +47,7 @@ func CreateService(clientSet kubernetes.Clientset, namespace string, challengeNa
 			},
 		},
 		Spec: apiv1.ServiceSpec{
-			Ports: []apiv1.ServicePort{
-				{
-					Port:       containerPort,
-					TargetPort: intstr.FromInt(int(containerPort)), // intstr.FromInt(32000)
-				},
-			},
+			Ports: portArray(containerPorts),
 			Selector: map[string]string{
 				"app": challengeName,
 			},

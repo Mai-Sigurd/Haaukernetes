@@ -13,6 +13,7 @@ import (
 )
 
 const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
+const localImageRegistryUrl = "localhost:5000/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	log.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
@@ -24,8 +25,8 @@ func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, d
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
-	deployment := configureDeployment(teamName, challengeName, containerPort, podLabels)
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPorts []int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, challengeName, containerPorts, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -33,8 +34,21 @@ func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challenge
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
+func portArray(ports []int32) []apiv1.ContainerPort {
+	result := make([]apiv1.ContainerPort, len(ports))
+	for i := 0; i < len(ports); i++ {
+		result[i] = apiv1.ContainerPort{
+			//Name:          "http",
+			Name:          fmt.Sprintf("port%d", i), //not optimal but works
+			Protocol:      apiv1.ProtocolTCP,
+			ContainerPort: ports[i],
+		}
+	}
+	return result
+}
+
 // configureDeployment makes a deployment configuration for a pod and replicaset
-func configureDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
+func configureDeployment(nameSpace string, name string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -59,13 +73,7 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 						{
 							Name:  name,
 							Image: imageRepoUrl + name,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: containerPort,
-								},
-							},
+							Ports: portArray(containerPorts),
 						},
 					},
 					ImagePullSecrets: []apiv1.LocalObjectReference{
@@ -130,8 +138,8 @@ func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deployme
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace, using a local docker image instead of an imagerepo
-func CreateLocalDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
-	deployment := configureLocalDeployment(teamName, challengeName, containerPort, podLabels)
+func CreateLocalDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPorts []int32, podLabels map[string]string) {
+	deployment := configureLocalDeployment(teamName, challengeName, containerPorts, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -140,7 +148,7 @@ func CreateLocalDeployment(clientSet kubernetes.Clientset, teamName string, chal
 }
 
 // configureDeployment makes a deployment configuration for a pod and replicaset, but using a local docker image
-func configureLocalDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
+func configureLocalDeployment(nameSpace string, name string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -164,15 +172,9 @@ func configureLocalDeployment(nameSpace string, name string, containerPort int32
 					Containers: []apiv1.Container{
 						{
 							Name:            name,
-							Image:           name,
+							Image:           localImageRegistryUrl + name,
 							ImagePullPolicy: apiv1.PullIfNotPresent, //PullNever also an option
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: containerPort,
-								},
-							},
+							Ports:           portArray(containerPorts),
 						},
 					},
 				},

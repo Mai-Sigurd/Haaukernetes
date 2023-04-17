@@ -29,16 +29,11 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
+
 //BASIC INFO
 //use "t.SkipNow()"" in a test to skip it
 //use "go test -v -run FUNCTIONNAME" to only test a single function i.e. "go test -v -run TestResourceUse"
-
-//make sure to run the docker related script before starting tests, to avoid hitting pull limit
-func init() {
-	result, err := exec.Command("/bin/sh", "-c", "../docker/pull.sh").Output()
-	utils.ErrHandler(err)
-	fmt.Println("result " + string(result))
-}
 
 func getClientSet() *kubernetes.Clientset {
 	home := homedir.HomeDir()
@@ -79,8 +74,8 @@ func TestCreateAndDeleteNamespace(t *testing.T) {
 	}
 }
 
-//waitgroups are used to have concurrency while avoiding using a timer or infinite loop, as goroutines will be killed
-//when function returns
+// waitgroups are used to have concurrency while avoiding using a timer or infinite loop, as goroutines will be killed
+// when function returns
 func TestResourceUse(t *testing.T) {
 	clientSet := getClientSet()
 	var wg sync.WaitGroup
@@ -90,7 +85,7 @@ func TestResourceUse(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			setUpKubernetesResources(*clientSet, teamName)
+			setUpKubernetesResourcesWithLogon(*clientSet, teamName)
 		}()
 	}
 	wg.Wait()
@@ -108,9 +103,9 @@ func TestResourceUse(t *testing.T) {
 	//can we do any assertion that actually makes sense in this case?
 }
 
-func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
+func setUpKubernetesResourcesWithLogon(clientSet kubernetes.Clientset, teamName string) {
 	challengeName := "logon"
-	port := int32(80)
+	challengePorts := ports[challengeName]
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeName
 	podLabels["type"] = "challenge"
@@ -120,8 +115,8 @@ func setUpKubernetesResources(clientSet kubernetes.Clientset, teamName string) {
 	netpol.CreateEgressPolicy(clientSet, teamName)
 	wireguard.StartWireguard(clientSet, teamName, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
-	deployments.CreateLocalDeployment(clientSet, teamName, challengeName, port, podLabels)
-	services.CreateService(clientSet, teamName, challengeName, port)
+	deployments.CreateLocalDeployment(clientSet, teamName, challengeName, challengePorts, podLabels)
+	services.CreateService(clientSet, teamName, challengeName, challengePorts)
 }
 
 func TestPing(t *testing.T) {
@@ -130,9 +125,9 @@ func TestPing(t *testing.T) {
 	teamA := "team-a"
 	teamB := "team-b"
 
-	setUpKubernetesResources(*clientSet, teamA)
+	setUpKubernetesResourcesWithLogon(*clientSet, teamA)
 	time.Sleep(10 * time.Second)
-	setUpKubernetesResources(*clientSet, teamB)
+	setUpKubernetesResourcesWithLogon(*clientSet, teamB)
 	time.Sleep(10 * time.Second)
 
 	podClientA := clientSet.CoreV1().Pods(teamA)
