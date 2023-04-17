@@ -92,7 +92,7 @@ func logCPUContiously(c chan string) {
 		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
 		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
 		thing := fmt.Sprintf("%f\n", actualCPU[0])
-		log.Printf(thing)
+		log.Print(thing)
 	}
 }
 
@@ -125,7 +125,7 @@ func TestGeneralLoad(t *testing.T) {
 	setUpKubernetesResources(*clientSet, personA)
 
 	startAllChallenges(*clientSet, personA)
-	apis.StartKali(*clientSet, personA)
+	apis.PostKaliKubernetes(*clientSet, personA)
 
 	time.Sleep(10 * time.Second)
 	comChannel <- "stop"
