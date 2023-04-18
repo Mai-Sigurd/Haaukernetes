@@ -3,22 +3,20 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"k8-project/utils"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
 
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/homedir"
-
-	"k8-project/apis"
-	_ "k8-project/docs"
-	"k8-project/utils"
-
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8-project/apis"
+	_ "k8-project/docs"
 )
 
 func main() {
@@ -59,8 +57,14 @@ func main() {
 	namespace := r.Group("/namespace/")
 	{
 		namespace.GET("/:name", controller.GetNamespace)
+		namespace.GET("/pods/:name", controller.GetNamespacePods)
 		namespace.POST("/", controller.PostNamespace)
 		namespace.DELETE("/", controller.DeleteNamespace)
+	}
+
+	namespaces := r.Group("/namespaces/")
+	{
+		namespaces.GET("", controller.GetNamespaces)
 	}
 
 	challenge := r.Group("/challenge/")
