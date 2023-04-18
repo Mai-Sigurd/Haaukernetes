@@ -1,13 +1,8 @@
-package apis
+package api_endpoints
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"k8-project/namespaces"
-	"k8-project/netpol"
-	"k8-project/secrets"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 type Namespace struct {
@@ -49,25 +44,13 @@ func (c Controller) GetNamespace(ctx *gin.Context) {
 // @Success 200 {object} Namespaces
 // @Router /namespaces [get]
 func (c Controller) GetNamespaces(ctx *gin.Context) {
-	result, err := GetNamespacesKubernetes(*c.ClientSet)
+	result, err := namespaces.GetNamespaces(*c.ClientSet)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
 
 		ctx.JSON(200, Namespaces{Names: result})
 	}
-}
-
-func GetNamespacesKubernetes(clientSet kubernetes.Clientset) ([]string, error) {
-	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	var result []string
-	for _, n := range namespaceList.Items {
-		result = append(result, n.Name)
-	}
-	return result, nil
 }
 
 // GetNamespacePods godoc
@@ -78,24 +61,11 @@ func GetNamespacesKubernetes(clientSet kubernetes.Clientset) ([]string, error) {
 // @Router /namespace/pods/{name} [get]
 func (c Controller) GetNamespacePods(ctx *gin.Context) {
 	name := ctx.Param("name")
-	result, err := GetNamespacePodsKubernetes(*c.ClientSet, name)
+	result, err := namespaces.GetNamespacePods(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	}
 	ctx.JSON(200, Pods{Names: result})
-}
-
-func GetNamespacePodsKubernetes(clientSet kubernetes.Clientset, name string) ([]string, error) {
-	podList, err := clientSet.CoreV1().Pods(name).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	var result []string
-	for _, n := range podList.Items {
-		result = append(result, n.Name)
-	}
-	return result, nil
-
 }
 
 // PostNamespace godoc
@@ -113,23 +83,12 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 		message := "Sorry namespace " + body.Name + " already exists"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		errKubernetes := PostNamespaceKubernetes(*c.ClientSet, body.Name)
+		errKubernetes := namespaces.PostNamespace(*c.ClientSet, body.Name)
 		if errKubernetes != nil {
 			ctx.JSON(400, ErrorResponse{Message: err.Error()})
 		}
 		ctx.JSON(200, body)
 	}
-}
-
-func PostNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error {
-	err := namespaces.CreateNamespace(clientSet, name)
-	if err != nil {
-		return err
-	}
-	netpol.CreateEgressPolicy(clientSet, name)
-	netpol.CreateChallengeIngressPolicy(clientSet, name)
-	secrets.CreateImageRepositorySecret(clientSet, name)
-	return nil
 }
 
 // DeleteNamespace godoc
@@ -140,15 +99,10 @@ func PostNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error 
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	err := DeleteNamespaceKubernetes(*c.ClientSet, name)
+	err := namespaces.DeleteNamespaceWithError(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
 		ctx.JSON(200, "Namespace "+name+" Deleted")
 	}
-}
-
-func DeleteNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error {
-	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
-	return err
 }

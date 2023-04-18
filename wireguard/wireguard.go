@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"k8-project/configmap"
 	"k8-project/deployments"
+	"k8-project/netpol"
 	"k8-project/secrets"
 	"k8-project/services"
 	"k8-project/utils"
@@ -18,24 +19,31 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// StartWireguard
 // clientpublickey should come from caller i.e. api call
 // clientprivatekey should be inserted to file by client itself
-func StartWireguard(clientSet kubernetes.Clientset, teamName string, clientPublicKey string, endpoint string, subnet string) string {
+func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPublicKey string, endpoint string, subnet string) string {
 	serverPrivateKey, serverPublicKey := createKeys()
-	configmap.CreateWireGuardConfigMap(clientSet, teamName, serverPrivateKey, clientPublicKey)
-	secrets.CreateWireGuardSecret(clientSet, teamName, serverPrivateKey)
-	deployment := configureWireGuardDeployment(teamName)
-	deployments.CreatePrebuiltDeployment(clientSet, teamName, deployment)
-	service := configureWireguardNodePortService(teamName)
-	createdService := services.CreatePrebuiltService(clientSet, teamName, *service)
+	configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
+	secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
+	deployment := configureWireGuardDeployment(namespace)
+	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
+	service := configureWireguardNodePortService(namespace)
+	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
 	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
 	// TODO write that this exist with the 5 secs
 
 	time.Sleep(5 * time.Second)
-	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", teamName)
+	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", namespace)
 	return clientConf
+}
+
+func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string) string {
+	config := StartWireguard(clientSet, namespace, key)
+	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
+	return config
 }
 
 // this works but is not pretty TODO
@@ -53,11 +61,11 @@ func createKeys() (string, string) {
 	return string(priv), string(pub)
 }
 
-func configureWireguardNodePortService(teamName string) *apiv1.Service {
+func configureWireguardNodePortService(namespace string) *apiv1.Service {
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wireguard",
-			Namespace: teamName,
+			Namespace: namespace,
 			Labels: map[string]string{
 				"vpn": "wireguard",
 			},
@@ -82,7 +90,7 @@ func configureWireguardNodePortService(teamName string) *apiv1.Service {
 }
 
 // move to separate file? TODO
-func configureWireGuardDeployment(teamName string) *appsv1.Deployment {
+func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "wireguard",

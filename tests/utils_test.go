@@ -2,7 +2,9 @@ package tests
 
 import (
 	"fmt"
-	"k8-project/apis"
+	"k8-project/challenge"
+	"k8-project/namespaces"
+	"k8-project/wireguard"
 	"k8-project/utils"
 	"log"
 	"os"
@@ -30,12 +32,12 @@ func getClientSet() *kubernetes.Clientset {
 
 // The test uses a random public key
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
-	_ = apis.PostNamespaceKubernetes(clientSet, namespace)
-	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+	_ = namespaces.PostNamespaceKubernetes(clientSet, namespace)
+	wireguard.PostWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
-	apis.PostChallengeKubernetes(clientSet, namespace, name, imageName, challengePorts)
+	challenge.CreateChallenge(clientSet, namespace, name, imageName, challengePorts)
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
