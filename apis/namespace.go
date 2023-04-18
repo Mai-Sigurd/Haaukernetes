@@ -15,6 +15,17 @@ type Namespace struct {
 	// in: string
 	Name string `json:"name"`
 }
+type Namespaces struct {
+	// Namespaces names
+	// in: array
+	Names []string `json:"names"`
+}
+
+type Pods struct {
+	// Pods names
+	// in: array
+	Names []string `json:"names"`
+}
 
 // GetNamespace godoc
 // @Summary Retrieves namespace based on given name
@@ -30,6 +41,61 @@ func (c Controller) GetNamespace(ctx *gin.Context) {
 	} else {
 		ctx.JSON(200, Namespace{name})
 	}
+}
+
+// GetNamespaces godoc
+// @Summary Retrieves all namespaces
+// @Produce json
+// @Success 200 {object} Namespaces
+// @Router /namespaces [get]
+func (c Controller) GetNamespaces(ctx *gin.Context) {
+	result, err := GetNamespacesKubernetes(*c.ClientSet)
+	if err != nil {
+		ctx.JSON(400, ErrorResponse{Message: err.Error()})
+	} else {
+
+		ctx.JSON(200, Namespaces{Names: result})
+	}
+}
+
+func GetNamespacesKubernetes(clientSet kubernetes.Clientset) ([]string, error) {
+	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var result []string
+	for _, n := range namespaceList.Items {
+		result = append(result, n.Name)
+	}
+	return result, nil
+}
+
+// GetNamespacePods godoc
+// @Summary Retrieves all pods in a namespace
+// @Produce json
+// @Param name path string true "Namespace name"
+// @Success 200 {object} Pods
+// @Router /namespace/pods/{name} [get]
+func (c Controller) GetNamespacePods(ctx *gin.Context) {
+	name := ctx.Param("name")
+	result, err := GetNamespacePodsKubernetes(*c.ClientSet, name)
+	if err != nil {
+		ctx.JSON(400, ErrorResponse{Message: err.Error()})
+	}
+	ctx.JSON(200, Pods{Names: result})
+}
+
+func GetNamespacePodsKubernetes(clientSet kubernetes.Clientset, name string) ([]string, error) {
+	podList, err := clientSet.CoreV1().Pods(name).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var result []string
+	for _, n := range podList.Items {
+		result = append(result, n.Name)
+	}
+	return result, nil
+
 }
 
 // PostNamespace godoc
