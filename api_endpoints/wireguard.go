@@ -1,11 +1,8 @@
-package apis
+package api_endpoints
 
 import (
-	"k8-project/netpol"
-	"k8-project/wireguard"
-	"k8s.io/client-go/kubernetes"
-
 	"github.com/gin-gonic/gin"
+	"k8-project/wireguard"
 )
 
 type Wireguard struct {
@@ -29,12 +26,6 @@ func (c Controller) StartWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	file := StartWireguardKubernetes(*c.ClientSet, body.Namespace, body.Key)
+	file := wireguard.PostWireguard(*c.ClientSet, body.Namespace, body.Key)
 	ctx.JSON(200, file)
-}
-
-func StartWireguardKubernetes(clientSet kubernetes.Clientset, namespace string, key string) ConfigFile {
-	config := wireguard.StartWireguard(clientSet, namespace, key)
-	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
-	return ConfigFile{File: config}
 }

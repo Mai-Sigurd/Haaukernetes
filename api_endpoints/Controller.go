@@ -1,4 +1,4 @@
-package apis
+package api_endpoints
 
 import "k8s.io/client-go/kubernetes"
 

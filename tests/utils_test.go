@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	"k8-project/apis"
+	"k8-project/api_endpoints"
 	"log"
 	"os"
 	"time"
@@ -17,12 +17,12 @@ var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-
 // Kubernetes
 
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string) {
-	_ = apis.PostNamespaceKubernetes(clientSet, namespace)
-	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
+	_ = api_endpoints.PostNamespaceKubernetes(clientSet, namespace)
+	api_endpoints.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
-	apis.PostChallengeKubernetes(clientSet, namespace, name, imageName, challengePorts)
+	api_endpoints.PostChallengeKubernetes(clientSet, namespace, name, imageName, challengePorts)
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {

@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"k8-project/apis"
+	"k8-project/api_endpoints"
 	_ "k8-project/docs"
 )
 
@@ -41,7 +41,7 @@ func main() {
 	utils.ErrHandler(err)
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrHandler(err)
-	controller := apis.Controller{ClientSet: clientSet}
+	controller := api_endpoints.Controller{ClientSet: clientSet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
