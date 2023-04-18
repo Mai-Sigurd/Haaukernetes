@@ -28,7 +28,8 @@ func TestGeneralLoad(t *testing.T) {
 	clientSet := getClientSet()
 	personA := "persona"
 
-	setUpKubernetesResourcesWithWireguard(*clientSet, personA)
+	settings := utils.ReadYaml("settings-test.yaml")
+	setUpKubernetesResourcesWithWireguard(*clientSet, personA, settings.Endpoint, settings.Subnet)
 
 	startAllChallenges(*clientSet, personA)
 	time.Sleep(10 * time.Second)
@@ -69,11 +70,13 @@ func TestChampionshipLoad(t *testing.T) {
 	const amountOfPeople = 350
 	people := [amountOfPeople]string{}
 
+	settings := utils.ReadYaml("settings-test.yaml")
+
 	for i := 0; i < amountOfPeople; i++ {
 		is := strconv.Itoa(i)
 		personI := "person" + is
 		people[i] = personI
-		setUpKubernetesResourcesWithWireguard(*clientSet, personI)
+		setUpKubernetesResourcesWithWireguard(*clientSet, personI, settings.Endpoint, settings.Subnet)
 		startAllChallenges(*clientSet, personI)
 	}
 	time.Sleep(30 * time.Second)
@@ -121,7 +124,8 @@ func TestChallengeLoad(t *testing.T) {
 	go logCPUWithStoredResult(comChannel, &sixchallengeslog)
 	go logMemoryWithStoredResult(memChannel, &sixChallengesMemLog)
 
-	setUpKubernetesResourcesWithWireguard(*clientSet, teamName)
+	settings := utils.ReadYaml("settings-test.yaml")
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamName, settings.Endpoint, settings.Subnet)
 	startAllChallenges(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
@@ -143,7 +147,7 @@ func TestChallengeLoad(t *testing.T) {
 	var thirtyChallengesMemLog string
 	go logCPUWithStoredResult(comChannel, &thirtyChallengeslog)
 	go logMemoryWithStoredResult(memChannel, &thirtyChallengesMemLog)
-	setUpKubernetesResourcesWithWireguard(*clientSet, teamName)
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamName, settings.Endpoint, settings.Subnet)
 	startAllChallengesWithDuplicates(*clientSet, teamName)
 
 	time.Sleep(30 * time.Second)
