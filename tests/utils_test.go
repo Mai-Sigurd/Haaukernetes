@@ -3,22 +3,49 @@ package tests
 import (
 	"fmt"
 	"k8-project/apis"
+	"k8-project/namespaces"
+	"k8-project/netpol"
+	"k8-project/secrets"
+	"k8-project/utils"
+	"k8-project/wireguard"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
+
+func getClientSet() *kubernetes.Clientset {
+	home := homedir.HomeDir()
+	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	utils.ErrHandler(err)
+	clientSet, err := kubernetes.NewForConfig(config)
+	utils.ErrHandler(err)
+	return clientSet
+}
 
 // Kubernetes
 
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string) {
 	_ = apis.PostNamespaceKubernetes(clientSet, namespace)
 	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
+}
+
+func setUpKubernetesNetworkResources(clientSet kubernetes.Clientset, teamName string) {
+	namespaces.CreateNamespace(clientSet, teamName)
+	secrets.CreateImageRepositorySecret(clientSet, teamName)
+	netpol.CreateChallengeIngressPolicy(clientSet, teamName)
+	netpol.CreateEgressPolicy(clientSet, teamName)
+	wireguard.StartWireguard(clientSet, teamName, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
+	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
