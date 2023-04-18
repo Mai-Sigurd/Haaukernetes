@@ -26,6 +26,7 @@ func (c Controller) PostWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	file := wireguardK8s.PostWireguard(*c.ClientSet, body.Namespace, body.Key)
-	ctx.JSON(200, file)
+	str := wireguardK8s.PostWireguard(*c.ClientSet, body.Namespace, body.Key)
+
+	ctx.JSON(200, ConfigFile{File: str})
 }

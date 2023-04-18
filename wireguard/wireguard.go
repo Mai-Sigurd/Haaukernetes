@@ -2,7 +2,6 @@ package wireguard
 
 import (
 	"fmt"
-	api "k8-project/api_endpoints"
 	"k8-project/configmap"
 	"k8-project/deployments"
 	"k8-project/netpol"
@@ -41,10 +40,10 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	return clientConf
 }
 
-func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string) api.ConfigFile {
+func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string) string {
 	config := StartWireguard(clientSet, namespace, key)
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
-	return api.ConfigFile{File: config}
+	return config
 }
 
 // this works but is not pretty TODO
