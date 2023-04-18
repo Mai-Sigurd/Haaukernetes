@@ -173,6 +173,11 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 							},
 						},
 					},
+					ImagePullSecrets: []apiv1.LocalObjectReference{
+						{
+							Name: "regcred",
+						},
+					},
 					Volumes: []apiv1.Volume{
 						{
 							Name: "cfgmap",
