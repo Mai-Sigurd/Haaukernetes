@@ -12,7 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
+const imageRepoUrl = "registry.digitalocean.com/haaukins-bsc/"
 const localImageRegistryUrl = "localhost:5000/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
