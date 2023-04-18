@@ -5,12 +5,6 @@ import (
 	"strconv"
 )
 
-// public endpoint for k8s cluster
-const endpoint = "164.92.194.69:"
-
-// pod CIDR for cluster
-const subnet = "10.96.0.0/12"
-
 const clientConfig = `
 [Interface]
 # Assign you an IP (that's not in use) and add it to server configmap
@@ -42,23 +36,13 @@ PublicKey =
 AllowedIPs = 10.33.0.2/32
 `
 
-func GetClientConfig(serverPublicKey string, nodeport int32) string {
+func GetClientConfig(serverPublicKey string, nodeport int32, endpoint string, subnet string) string {
 	configWithIPsAndEndpoint := addAllowedIpsAndEndpointToClientConfig(addNodePort(nodeport, endpoint), subnet)
 	return replacePublicKey(serverPublicKey, configWithIPsAndEndpoint)
 }
 
 func GetServerConfig(privateKey string, publicKey string) string {
 	return addKeysToConfig(privateKey, publicKey, serverConfig)
-}
-
-// Todo Purpose?
-func GetEndpoint() string {
-	return endpoint
-}
-
-// Todo Purpose?
-func GetSubnet() string {
-	return subnet
 }
 
 func addAllowedIpsAndEndpointToClientConfig(endpoint string, subnet string) string {
