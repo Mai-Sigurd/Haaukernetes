@@ -22,7 +22,7 @@ import (
 // StartWireguard
 // clientpublickey should come from caller i.e. api call
 // clientprivatekey should be inserted to file by client itself
-func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPublicKey string) string {
+func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPublicKey string, endpoint string, subnet string) string {
 	serverPrivateKey, serverPublicKey := createKeys()
 	configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
 	secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
@@ -30,7 +30,7 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
 	service := configureWireguardNodePortService(namespace)
 	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
-	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort)
+	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
 	// TODO write that this exist with the 5 secs
@@ -40,8 +40,8 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	return clientConf
 }
 
-func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string) string {
-	config := StartWireguard(clientSet, namespace, key)
+func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string, endpoint string, subnet string) string {
+	config := StartWireguard(clientSet, namespace, key, endpoint, subnet)
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
 	return config
 }
