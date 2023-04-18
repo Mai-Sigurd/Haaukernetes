@@ -11,7 +11,7 @@ import (
 const kaliRDPPort = 13389
 const kaliImageName = "kali"
 
-func PostKaliKubernetes(clientSet kubernetes.Clientset, namespace string) {
+func StartKali(clientSet kubernetes.Clientset, namespace string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali"
