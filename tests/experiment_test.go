@@ -29,8 +29,6 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
-
 //BASIC INFO
 //use "t.SkipNow()"" in a test to skip it
 //use "go test -v -run FUNCTIONNAME" to only test a single function i.e. "go test -v -run TestResourceUse"
