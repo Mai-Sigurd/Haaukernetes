@@ -40,8 +40,8 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	return clientConf
 }
 
-func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string) string {
-	config := StartWireguard(clientSet, namespace, key)
+func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string, endpoint string, subnet string) string {
+	config := StartWireguard(clientSet, namespace, key, endpoint, subnet)
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
 	return config
 }
