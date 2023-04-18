@@ -3,11 +3,7 @@ package tests
 import (
 	"fmt"
 	"k8-project/apis"
-	"k8-project/namespaces"
-	"k8-project/netpol"
-	"k8-project/secrets"
 	"k8-project/utils"
-	"k8-project/wireguard"
 	"log"
 	"os"
 	"path/filepath"
@@ -37,15 +33,6 @@ func getClientSet() *kubernetes.Clientset {
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string) {
 	_ = apis.PostNamespaceKubernetes(clientSet, namespace)
 	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
-}
-
-func setUpKubernetesNetworkResources(clientSet kubernetes.Clientset, teamName string) {
-	namespaces.CreateNamespace(clientSet, teamName)
-	secrets.CreateImageRepositorySecret(clientSet, teamName)
-	netpol.CreateChallengeIngressPolicy(clientSet, teamName)
-	netpol.CreateEgressPolicy(clientSet, teamName)
-	wireguard.StartWireguard(clientSet, teamName, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
-	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
