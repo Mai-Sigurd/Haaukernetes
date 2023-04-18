@@ -29,12 +29,12 @@ func (c Controller) StartWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	file := StartWireguardKubernetes(*c.ClientSet, body.Namespace, body.Key)
+	file := StartWireguardKubernetes(*c.ClientSet, body.Namespace, body.Key, c.Endpoint, c.Subnet)
 	ctx.JSON(200, file)
 }
 
-func StartWireguardKubernetes(clientSet kubernetes.Clientset, namespace string, key string) ConfigFile {
-	config := wireguard.StartWireguard(clientSet, namespace, key)
+func StartWireguardKubernetes(clientSet kubernetes.Clientset, namespace string, key string, endpoint string, subnet string) ConfigFile {
+	config := wireguard.StartWireguard(clientSet, namespace, key, endpoint, subnet)
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
 	return ConfigFile{File: config}
 }
