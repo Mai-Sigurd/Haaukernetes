@@ -43,7 +43,9 @@ func main() {
 	utils.ErrHandler(err)
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrHandler(err)
-	controller := apis.Controller{ClientSet: clientSet}
+
+	settings := utils.ReadYaml("settings.yaml")
+	controller := apis.Controller{ClientSet: clientSet, Endpoint: settings.Endpoint, Subnet: settings.Subnet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -83,5 +85,4 @@ func main() {
 	//TODO guac api?
 
 	r.Run(port)
-
 }
