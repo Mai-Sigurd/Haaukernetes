@@ -50,7 +50,7 @@ func main() {
 	r.Run(port)
 }
 
-func createRouterGroups(r *gin.Engine, controller apis.Controller) *gin.Engine {
+func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
 	namespace := r.Group("/namespace/")
 	{
 		namespace.GET("/:name", controller.GetNamespace)
