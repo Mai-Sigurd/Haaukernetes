@@ -37,17 +37,17 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		PostChallengeKubernetes(*c.ClientSet, body.Namespace, body.ChallengeName, body.Ports)
+		PostChallengeKubernetes(*c.ClientSet, body.Namespace, body.ChallengeName, body.ChallengeName, body.Ports)
 
 		ctx.JSON(200, body)
 	}
 }
 
-func PostChallengeKubernetes(clientSet kubernetes.Clientset, namespace string, challengeName string, ports []int32) {
+func PostChallengeKubernetes(clientSet kubernetes.Clientset, namespace string, challengeName string, imageName string, ports []int32) {
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeName
 	podLabels["type"] = "challenge"
-	deployments.CreateDeployment(clientSet, namespace, challengeName, ports, podLabels)
+	deployments.CreateDeployment(clientSet, namespace, challengeName, imageName, ports, podLabels)
 	services.CreateService(clientSet, namespace, challengeName, ports)
 }
 

@@ -102,10 +102,11 @@ func TestResourceUse(t *testing.T) {
 }
 
 func setUpKubernetesResourcesWithLogon(clientSet kubernetes.Clientset, teamName string) {
-	challengeName := "logon"
-	challengePorts := ports[challengeName]
+	name := "logon"
+	imageName := "logon"
+	challengePorts := ports[imageName]
 	podLabels := make(map[string]string)
-	podLabels["app"] = challengeName
+	podLabels["app"] = imageName
 	podLabels["type"] = "challenge"
 	namespaces.CreateNamespace(clientSet, teamName)
 	secrets.CreateImageRepositorySecret(clientSet, teamName)
@@ -113,8 +114,8 @@ func setUpKubernetesResourcesWithLogon(clientSet kubernetes.Clientset, teamName 
 	netpol.CreateEgressPolicy(clientSet, teamName)
 	wireguard.StartWireguard(clientSet, teamName, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
-	deployments.CreateLocalDeployment(clientSet, teamName, challengeName, challengePorts, podLabels)
-	services.CreateService(clientSet, teamName, challengeName, challengePorts)
+	deployments.CreateDeployment(clientSet, teamName, name, imageName, challengePorts, podLabels)
+	services.CreateService(clientSet, teamName, name, challengePorts)
 }
 
 func TestPing(t *testing.T) {

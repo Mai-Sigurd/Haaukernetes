@@ -12,8 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
-const localImageRegistryUrl = "localhost:5000/"
+const imageRepoUrl = "registry.digitalocean.com/haaukins-bsc/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	log.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
@@ -25,8 +24,14 @@ func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, d
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPorts []int32, podLabels map[string]string) {
-	deployment := configureDeployment(teamName, challengeName, containerPorts, podLabels)
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, name string, imageName string, containerPorts []int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, name, imageName, containerPorts, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -48,7 +53,13 @@ func portArray(ports []int32) []apiv1.ContainerPort {
 }
 
 // configureDeployment makes a deployment configuration for a pod and replicaset
-func configureDeployment(nameSpace string, name string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func configureDeployment(nameSpace string, name string, imageName string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -72,7 +83,7 @@ func configureDeployment(nameSpace string, name string, containerPorts []int32, 
 					Containers: []apiv1.Container{
 						{
 							Name:  name,
-							Image: imageRepoUrl + name,
+							Image: imageRepoUrl + imageName,
 							Ports: portArray(containerPorts),
 						},
 					},
@@ -132,54 +143,4 @@ func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deployme
 		fmt.Println("Deployment successfully deleted")
 		return true
 	}
-}
-
-//Functions for using local images while testing, as to not hit the docker pull limit of ~ 100 images / 6 hours
-
-// CreateDeployment configures a deployment and then creates a deployment from that configuration
-// in the given namespace, using a local docker image instead of an imagerepo
-func CreateLocalDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPorts []int32, podLabels map[string]string) {
-	deployment := configureLocalDeployment(teamName, challengeName, containerPorts, podLabels)
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
-	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
-	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-}
-
-// configureDeployment makes a deployment configuration for a pod and replicaset, but using a local docker image
-func configureLocalDeployment(nameSpace string, name string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
-			Labels: map[string]string{
-				"app": name,
-			},
-			Namespace: nameSpace,
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: utils.Int32Ptr(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": name,
-				},
-			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: podLabels,
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:            name,
-							Image:           localImageRegistryUrl + name,
-							ImagePullPolicy: apiv1.PullIfNotPresent, //PullNever also an option
-							Ports:           portArray(containerPorts),
-						},
-					},
-				},
-			},
-		},
-	}
-	return *deployment
 }
