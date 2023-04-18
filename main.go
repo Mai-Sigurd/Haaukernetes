@@ -25,6 +25,7 @@ func main() {
 	fmt.Println("Write the port you want the web app to run on")
 	scanner.Scan()
 	port := scanner.Text()
+	port = ":" + port
 
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
