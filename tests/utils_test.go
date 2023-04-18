@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"k8-project/challenge"
 	"k8-project/namespaces"
-	"k8-project/wireguard"
 	"k8-project/utils"
+	"k8-project/wireguard"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,7 +32,7 @@ func getClientSet() *kubernetes.Clientset {
 
 // The test uses a random public key
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
-	_ = namespaces.PostNamespaceKubernetes(clientSet, namespace)
+	_ = namespaces.PostNamespace(clientSet, namespace)
 	wireguard.PostWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
 }
 
