@@ -28,7 +28,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 ],
@@ -36,7 +36,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 }
@@ -53,7 +53,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.DelChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelChallenge"
                         }
                     }
                 ],
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.DelRespChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelRespChallenge"
                         }
                     }
                 }
@@ -86,7 +86,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -109,7 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -128,7 +128,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 ],
@@ -136,7 +136,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 }
@@ -161,7 +161,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Pods"
+                            "$ref": "#/definitions/api_endpoints.Pods"
                         }
                     }
                 }
@@ -186,7 +186,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 }
@@ -222,7 +222,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespaces"
+                            "$ref": "#/definitions/api_endpoints.Namespaces"
                         }
                     }
                 }
@@ -241,7 +241,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Wireguard"
+                            "$ref": "#/definitions/api_endpoints.Wireguard"
                         }
                     }
                 ],
@@ -249,7 +249,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.ConfigFile"
+                            "$ref": "#/definitions/api_endpoints.ConfigFile"
                         }
                     }
                 }
@@ -257,7 +257,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "apis.Challenge": {
+        "api_endpoints.Challenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -274,7 +274,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.ConfigFile": {
+        "api_endpoints.ConfigFile": {
             "type": "object",
             "properties": {
                 "file": {
@@ -282,7 +282,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.DelChallenge": {
+        "api_endpoints.DelChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -293,7 +293,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.DelRespChallenge": {
+        "api_endpoints.DelRespChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -307,7 +307,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Kali": {
+        "api_endpoints.Kali": {
             "type": "object",
             "properties": {
                 "ip": {
@@ -324,7 +324,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Namespace": {
+        "api_endpoints.Namespace": {
             "type": "object",
             "properties": {
                 "name": {
@@ -333,7 +333,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Namespaces": {
+        "api_endpoints.Namespaces": {
             "type": "object",
             "properties": {
                 "names": {
@@ -345,7 +345,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Pods": {
+        "api_endpoints.Pods": {
             "type": "object",
             "properties": {
                 "names": {
@@ -357,7 +357,7 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Wireguard": {
+        "api_endpoints.Wireguard": {
             "type": "object",
             "properties": {
                 "key": {

@@ -1,4 +1,4 @@
-package apis
+package api_endpoints
 
 import (
 	"fmt"
@@ -53,6 +53,7 @@ func (c Controller) PostKali(ctx *gin.Context) {
 }
 
 // TODO maybe port 5900 with new image?! if no work, check this
+// TODO this should go in a kali/kali.go file
 func PostKaliKubernetes(clientSet kubernetes.Clientset, namespace string) {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)

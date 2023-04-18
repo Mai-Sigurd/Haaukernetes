@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"k8-project/apis"
+	"k8-project/api_endpoints"
 	_ "k8-project/docs"
 	"k8-project/utils"
 
@@ -34,7 +34,7 @@ func main() {
 	utils.ErrHandler(err)
 
 	settings := utils.ReadYaml("settings.yaml")
-	controller := apis.Controller{ClientSet: clientSet, Endpoint: settings.Endpoint, Subnet: settings.Subnet}
+	controller := api_endpoints.Controller{ClientSet: clientSet, Endpoint: settings.Endpoint, Subnet: settings.Subnet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -78,7 +78,7 @@ func createRouterGroups(r *gin.Engine, controller apis.Controller) *gin.Engine {
 
 	wireguard := r.Group("/wireguard/")
 	{
-		wireguard.POST("/", controller.StartWireguard)
+		wireguard.POST("/", controller.PostWireguard)
 	}
 	return r
 }
