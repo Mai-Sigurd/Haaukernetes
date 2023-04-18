@@ -79,16 +79,15 @@ func logMemoryWithStoredResult(c chan string, results *string) {
 	}
 }
 
-func logCPUContiously(c chan string) {
-	input := ""
-	go func() {
-		input = <-c
-	}()
-	for input == "" {
-		//actualCPU := (1.0 - float64(cpuNow.Idle)/float64(cpuNow.Total)) * 100
-		//actualCPU := float64(cpuNow.User) / float64(cpuNow.Total) * 100
-		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-		thing := fmt.Sprintf("%f\n", actualCPU[0])
-		log.Print(thing)
-	}
-}
+// TODO use or delete
+//func logCPUContiously(c chan string) {
+//	input := ""
+//	go func() {
+//		input = <-c
+//	}()
+//	for input == "" {
+//		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
+//		thing := fmt.Sprintf("%f\n", actualCPU[0])
+//		log.Print(thing)
+//	}
+//}
