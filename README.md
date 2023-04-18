@@ -23,5 +23,5 @@
 localhost:5000/docs/index.html#/
 
 # Frontend
-Navigate to the terminal_frontend folder and run
+Navigate to the commandline_frontend folder and run
 ``go run main.go``
