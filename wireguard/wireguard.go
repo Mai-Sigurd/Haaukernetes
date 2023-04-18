@@ -127,7 +127,7 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 					Containers: []apiv1.Container{
 						{
 							Name:    "wireguard",
-							Image:   "registry.digitalocean.com/haaukins-bsc/" + "/wireguard-go", //TODO: use const string from deployment.go?
+							Image:   "registry.digitalocean.com/haaukins-bsc/" + "wireguard-go", //TODO: use const string from deployment.go?
 							Command: []string{"sh", "-c", "echo 'Public key '$(wg pubkey < /etc/wireguard/privatekey)'' && /entrypoint.sh"},
 							Ports: []apiv1.ContainerPort{
 								{
