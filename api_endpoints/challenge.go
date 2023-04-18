@@ -2,7 +2,7 @@ package api_endpoints
 
 import (
 	"github.com/gin-gonic/gin"
-	challengeK8s "k8-project/challenge"
+	"k8-project/challenge"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -35,7 +35,7 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		challengeK8s.CreateChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, body.ChallengeName, body.Ports)
+		challenge.CreateChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, body.ChallengeName, body.Ports)
 		ctx.JSON(200, body)
 	}
 }
@@ -57,11 +57,11 @@ func (c Controller) DeleteChallenge(ctx *gin.Context) {
 
 func deleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string, ctx *gin.Context, body DelChallenge) {
 	ctx.JSON(200, body)
-	if !challengeK8s.Challenge_exists(clientSet, namespace, challengeName) {
+	if !challenge.Challenge_exists(clientSet, namespace, challengeName) {
 		message := "Challenge " + challengeName + " is not turned on"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		deploymentDeleteStatus, serviceDeleteStatus := challengeK8s.DeleteChallenge(clientSet, namespace, challengeName)
+		deploymentDeleteStatus, serviceDeleteStatus := challenge.DeleteChallenge(clientSet, namespace, challengeName)
 		if deploymentDeleteStatus && serviceDeleteStatus {
 			message := "Challenge " + challengeName + " turned off"
 			resp := DelRespChallenge{
