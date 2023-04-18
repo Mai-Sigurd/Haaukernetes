@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"k8-project/apis"
 	"k8-project/namespaces"
 	"k8-project/utils"
 	"log"
@@ -32,8 +31,6 @@ func TestGeneralLoad(t *testing.T) {
 	setUpKubernetesResourcesWithWireguard(*clientSet, personA)
 
 	startAllChallenges(*clientSet, personA)
-	apis.PostKaliKubernetes(*clientSet, personA)
-
 	time.Sleep(10 * time.Second)
 	comChannel <- "stop"
 	log.Println(results)

@@ -58,7 +58,7 @@ func PostKaliKubernetes(clientSet kubernetes.Clientset, namespace string) {
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali-vnc"
 	ports := []int32{5901}
-	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", ports, podLabels)
+	deployments.CreateDeployment(clientSet, namespace, "kali-vnc", "kali-vnc", ports, podLabels)
 	services.CreateService(clientSet, namespace, "kali-vnc", ports)
 	services.CreateExposeService(clientSet, namespace, "kali-vnc", 5901) //TODO: deprecated, no nodeport for kali?
 }
