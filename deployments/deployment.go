@@ -24,8 +24,14 @@ func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, d
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPorts []int32, podLabels map[string]string) {
-	deployment := configureDeployment(teamName, challengeName, containerPorts, podLabels)
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, name string, imageName string, containerPorts []int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, name, imageName, containerPorts, podLabels)
 	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
@@ -47,7 +53,13 @@ func portArray(ports []int32) []apiv1.ContainerPort {
 }
 
 // configureDeployment makes a deployment configuration for a pod and replicaset
-func configureDeployment(nameSpace string, name string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func configureDeployment(nameSpace string, name string, imageName string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -71,7 +83,7 @@ func configureDeployment(nameSpace string, name string, containerPorts []int32, 
 					Containers: []apiv1.Container{
 						{
 							Name:  name,
-							Image: imageRepoUrl + name,
+							Image: imageRepoUrl + imageName,
 							Ports: portArray(containerPorts),
 						},
 					},
