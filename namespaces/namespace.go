@@ -21,7 +21,7 @@ const haaukins = "Haaukins"
 const participant = "Participant"
 
 // CreateNamespace
-// This is purely for creating namespaces for participants in haaukins contests
+// Haaukins namespace
 func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	nameIsNotOk := !regexp.MustCompile(k8sNamespaceRegex).MatchString(name)
 	if nameIsNotOk {
