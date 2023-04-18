@@ -8,12 +8,6 @@ Go-Swagger
 
 ``go get github.com/go-openapi/runtime/middleware``
 
-
-# Run 
-`` minikube start ``
-
-``go run main.go``
-
 # Generating New Swagger
 ## Requirements
 ``go install github.com/swaggo/swag/cmd/swag@latest``
