@@ -2,13 +2,14 @@ package tests
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/mem"
 	"k8-project/apis"
-	"k8s.io/client-go/kubernetes"
 	"log"
 	"os"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/mem"
+	"k8s.io/client-go/kubernetes"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
@@ -20,14 +21,14 @@ func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, names
 	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
 }
 
-func startChallenge(challengeNameI string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
-	apis.PostChallengeKubernetes(clientSet, namespace, challengeNameI, challengePorts)
+func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
+	apis.PostChallengeKubernetes(clientSet, namespace, name, imageName, challengePorts)
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
 	log.Printf("Start 6 challenges")
 	for key := range ports {
-		startChallenge(fmt.Sprintf(key+"%d", 1), clientSet, namespace, ports[key])
+		startChallenge(key, key, clientSet, namespace, ports[key])
 	}
 }
 
@@ -36,7 +37,7 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	for key := range ports {
 		for i := 1; i < 6; i++ {
 			challengePorts := ports[key]
-			startChallenge(fmt.Sprintf(key+"%d", i), clientSet, namespace, challengePorts)
+			startChallenge(fmt.Sprintf(key+"%d", i), key, clientSet, namespace, challengePorts)
 		}
 	}
 }
