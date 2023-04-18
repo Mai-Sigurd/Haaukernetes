@@ -44,7 +44,7 @@ func (c Controller) PostKali(ctx *gin.Context) {
 
 	name := ctx.Param("namespace")
 	kali.StartKali(*c.ClientSet, name)
-	message := "You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <namespace>`"
-	kali := Kali{Namespace: name, Ip: "ip addreess", Message: message}
+	message := "You can now rdp into your Kali."
+	kali := Kali{Namespace: name, Ip: "ip address", Message: message}
 	ctx.JSON(200, kali)
 }
