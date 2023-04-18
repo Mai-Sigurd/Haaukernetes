@@ -1,11 +1,8 @@
 package api_endpoints
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"k8-project/namespaces"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 type Namespace struct {
@@ -102,15 +99,10 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	err := DeleteNamespaceKubernetes(*c.ClientSet, name)
+	err := namespaces.DeleteNamespaceWithError(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
 		ctx.JSON(200, "Namespace "+name+" Deleted")
 	}
-}
-
-func DeleteNamespaceKubernetes(clientSet kubernetes.Clientset, name string) error {
-	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
-	return err
 }
