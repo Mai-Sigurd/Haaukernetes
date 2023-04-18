@@ -17,6 +17,11 @@ import (
 
 const k8sNamespaceRegex = "[a-z0-9]([-a-z0-9]*[a-z0-9])?"
 
+const haaukins = "Haaukins"
+const participant = "Participant"
+
+// CreateNamespace
+// This is purely for creating namespaces for participants in haaukins contests
 func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	nameIsNotOk := !regexp.MustCompile(k8sNamespaceRegex).MatchString(name)
 	if nameIsNotOk {
@@ -25,6 +30,9 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	namespace := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: strings.ToLower(name),
+			Labels: map[string]string{
+				haaukins: "",
+			},
 		},
 	}
 	newNamespace, err := clientSet.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
@@ -45,13 +53,15 @@ func PostNamespace(clientSet kubernetes.Clientset, name string) error {
 }
 
 func GetNamespaces(clientSet kubernetes.Clientset) ([]string, error) {
-	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{LabelSelector: haaukins})
 	if err != nil {
 		return nil, err
 	}
 	var result []string
 	for _, n := range namespaceList.Items {
+		//label := n.Labels[haaukins]
 		result = append(result, n.Name)
+
 	}
 	return result, nil
 }
