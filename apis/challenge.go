@@ -47,7 +47,7 @@ func PostChallengeKubernetes(clientSet kubernetes.Clientset, namespace string, c
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeName
 	podLabels["type"] = "challenge"
-	deployments.CreateDeployment(clientSet, namespace, challengeName, ports, podLabels)
+	deployments.CreateDeployment(clientSet, namespace, challengeName, challengeName, ports, podLabels)
 	services.CreateService(clientSet, namespace, challengeName, ports)
 }
 
