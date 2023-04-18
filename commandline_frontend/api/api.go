@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"k8-project/apis"
+	"k8-project/api_endpoints"
 	"net/http"
 
 	"github.com/goccy/go-json"
@@ -26,7 +26,7 @@ func GetNamespace(name string) {
 }
 
 func PostNamespace(name string) {
-	reqBody := apis.Namespace{Name: name}
+	reqBody := api_endpoints.Namespace{Name: name}
 	jsonBody, _ := json.Marshal(reqBody)
 
 	url := "http://localhost:" + ipPort + "/namespace/"
@@ -66,7 +66,7 @@ func PostKali(namespace string) {
 }
 
 func DeleteChallenge(namespace string, challengeName string) {
-	reqBody := apis.DelChallenge{
+	reqBody := api_endpoints.DelChallenge{
 		ChallengeName: challengeName,
 		Namespace:     namespace,
 	}
@@ -80,7 +80,7 @@ func DeleteChallenge(namespace string, challengeName string) {
 }
 
 func PostChallenge(namespace string, challengeName string, ports []int32) {
-	reqBody := apis.Challenge{
+	reqBody := api_endpoints.Challenge{
 		Ports:         ports,
 		ChallengeName: challengeName,
 		Namespace:     namespace,
