@@ -13,7 +13,6 @@ import (
 )
 
 const imageRepoUrl = "registry.digitalocean.com/haaukins-bsc/"
-const localImageRegistryUrl = "localhost:5000/"
 
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	log.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
