@@ -81,7 +81,7 @@ func main() {
 
 	wireguard := r.Group("/wireguard/")
 	{
-		wireguard.POST("/", controller.StartWireguard)
+		wireguard.POST("/", controller.PostWireguard)
 	}
 
 	//TODO guac api?

@@ -17,7 +17,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 ],
@@ -25,7 +25,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 }
@@ -42,7 +42,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.DelChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelChallenge"
                         }
                     }
                 ],
@@ -50,7 +50,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.DelRespChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelRespChallenge"
                         }
                     }
                 }
@@ -75,7 +75,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -98,7 +98,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -117,7 +117,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 ],
@@ -125,7 +125,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 }
@@ -150,7 +150,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Pods"
+                            "$ref": "#/definitions/api_endpoints.Pods"
                         }
                     }
                 }
@@ -175,7 +175,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Namespace"
                         }
                     }
                 }
@@ -211,7 +211,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespaces"
+                            "$ref": "#/definitions/api_endpoints.Namespaces"
                         }
                     }
                 }
@@ -230,7 +230,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Wireguard"
+                            "$ref": "#/definitions/api_endpoints.Wireguard"
                         }
                     }
                 ],
@@ -238,7 +238,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.ConfigFile"
+                            "$ref": "#/definitions/api_endpoints.ConfigFile"
                         }
                     }
                 }
@@ -246,7 +246,7 @@
         }
     },
     "definitions": {
-        "apis.Challenge": {
+        "api_endpoints.Challenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -263,7 +263,7 @@
                 }
             }
         },
-        "apis.ConfigFile": {
+        "api_endpoints.ConfigFile": {
             "type": "object",
             "properties": {
                 "file": {
@@ -271,7 +271,7 @@
                 }
             }
         },
-        "apis.DelChallenge": {
+        "api_endpoints.DelChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -282,7 +282,7 @@
                 }
             }
         },
-        "apis.DelRespChallenge": {
+        "api_endpoints.DelRespChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -296,7 +296,7 @@
                 }
             }
         },
-        "apis.Kali": {
+        "api_endpoints.Kali": {
             "type": "object",
             "properties": {
                 "ip": {
@@ -313,7 +313,7 @@
                 }
             }
         },
-        "apis.Namespace": {
+        "api_endpoints.Namespace": {
             "type": "object",
             "properties": {
                 "name": {
@@ -322,7 +322,7 @@
                 }
             }
         },
-        "apis.Namespaces": {
+        "api_endpoints.Namespaces": {
             "type": "object",
             "properties": {
                 "names": {
@@ -334,7 +334,7 @@
                 }
             }
         },
-        "apis.Pods": {
+        "api_endpoints.Pods": {
             "type": "object",
             "properties": {
                 "names": {
@@ -346,7 +346,7 @@
                 }
             }
         },
-        "apis.Wireguard": {
+        "api_endpoints.Wireguard": {
             "type": "object",
             "properties": {
                 "key": {
