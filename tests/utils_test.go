@@ -28,11 +28,10 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
-// Kubernetes
-
-func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string) {
+// The test uses a random public key
+func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
 	_ = apis.PostNamespaceKubernetes(clientSet, namespace)
-	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
+	apis.StartWireguardKubernetes(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
