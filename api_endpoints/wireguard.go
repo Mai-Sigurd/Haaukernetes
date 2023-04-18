@@ -2,7 +2,7 @@ package api_endpoints
 
 import (
 	"github.com/gin-gonic/gin"
-	wireguardK8s "k8-project/wireguard"
+	"k8-project/wireguard"
 )
 
 type Wireguard struct {
@@ -26,7 +26,7 @@ func (c Controller) PostWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	str := wireguardK8s.PostWireguard(*c.ClientSet, body.Namespace, body.Key)
+	str := wireguard.PostWireguard(*c.ClientSet, body.Namespace, body.Key)
 
 	ctx.JSON(200, ConfigFile{File: str})
 }
