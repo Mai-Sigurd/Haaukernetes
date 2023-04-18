@@ -142,6 +142,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/namespace/pods/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all pods in a namespace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Namespace name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Pods"
+                        }
+                    }
+                }
+            }
+        },
         "/namespace/{name}": {
             "get": {
                 "produces": [
@@ -183,6 +208,22 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/namespaces": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all namespaces",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.Namespaces"
+                        }
                     }
                 }
             }
@@ -289,6 +330,30 @@ const docTemplate = `{
                 "name": {
                     "description": "Namespace name\nin: string",
                     "type": "string"
+                }
+            }
+        },
+        "apis.Namespaces": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "description": "Namespaces names\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "apis.Pods": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "description": "Pods names\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
