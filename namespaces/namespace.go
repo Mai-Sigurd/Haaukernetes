@@ -78,3 +78,9 @@ func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) {
 	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), namespace, *metav1.NewDeleteOptions(0))
 	utils.ErrHandler(err)
 }
+
+// I dont know what the difference is between the upper and lower methods. We like erros in api cuz then we can return it
+func DeleteNamespaceWithError(clientSet kubernetes.Clientset, name string) error {
+	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return err
+}
