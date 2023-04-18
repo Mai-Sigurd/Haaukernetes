@@ -34,6 +34,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	port := scanner.Text()
+	port = ":" + port
 
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
