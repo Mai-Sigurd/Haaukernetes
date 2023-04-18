@@ -3,6 +3,8 @@ package namespaces
 import (
 	"context"
 	"errors"
+	"k8-project/netpol"
+	"k8-project/secrets"
 	"k8-project/utils"
 	"log"
 	"regexp"
@@ -31,14 +33,45 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	return nil
 }
 
+func PostNamespace(clientSet kubernetes.Clientset, name string) error {
+	err := CreateNamespace(clientSet, name)
+	if err != nil {
+		return err
+	}
+	netpol.CreateEgressPolicy(clientSet, name)
+	netpol.CreateChallengeIngressPolicy(clientSet, name)
+	secrets.CreateImageRepositorySecret(clientSet, name)
+	return nil
+}
+
+func GetNamespaces(clientSet kubernetes.Clientset) ([]string, error) {
+	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var result []string
+	for _, n := range namespaceList.Items {
+		result = append(result, n.Name)
+	}
+	return result, nil
+}
+
 func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 	_, err := clientSet.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
 	return err == nil
 }
 
-func GetAllNamespaces(clientSet kubernetes.Clientset) *apiv1.NamespaceList {
-	list, _ := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-	return list
+func GetNamespacePods(clientSet kubernetes.Clientset, name string) ([]string, error) {
+	podList, err := clientSet.CoreV1().Pods(name).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var result []string
+	for _, n := range podList.Items {
+		result = append(result, n.Name)
+	}
+	return result, nil
+
 }
 
 func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) {
