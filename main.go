@@ -54,8 +54,14 @@ func createRouterGroups(r *gin.Engine, controller apis.Controller) *gin.Engine {
 	namespace := r.Group("/namespace/")
 	{
 		namespace.GET("/:name", controller.GetNamespace)
+		namespace.GET("/pods/:name", controller.GetNamespacePods)
 		namespace.POST("/", controller.PostNamespace)
 		namespace.DELETE("/", controller.DeleteNamespace)
+	}
+
+	namespaces := r.Group("/namespaces/")
+	{
+		namespaces.GET("", controller.GetNamespaces)
 	}
 
 	challenge := r.Group("/challenge/")

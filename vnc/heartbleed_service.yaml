@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: heartbleed
-spec:
-  ports:
-  - port: 443
-  selector:
-    app: heartbleed
