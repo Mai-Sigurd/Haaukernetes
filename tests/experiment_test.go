@@ -113,7 +113,7 @@ func setUpKubernetesResourcesWithLogon(clientSet kubernetes.Clientset, teamName 
 	netpol.CreateEgressPolicy(clientSet, teamName)
 	wireguard.StartWireguard(clientSet, teamName, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=") //random publickey
 	netpol.AddWireguardToChallengeIngressPolicy(clientSet, teamName)
-	deployments.CreateLocalDeployment(clientSet, teamName, challengeName, challengePorts, podLabels)
+	deployments.CreateDeployment(clientSet, teamName, challengeName, challengePorts, podLabels)
 	services.CreateService(clientSet, teamName, challengeName, challengePorts)
 }
 
