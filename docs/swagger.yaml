@@ -57,6 +57,26 @@ definitions:
           in: string
         type: string
     type: object
+  apis.Namespaces:
+    properties:
+      names:
+        description: |-
+          Namespaces names
+          in: array
+        items:
+          type: string
+        type: array
+    type: object
+  apis.Pods:
+    properties:
+      names:
+        description: |-
+          Pods names
+          in: array
+        items:
+          type: string
+        type: array
+    type: object
   apis.Wireguard:
     properties:
       key:
@@ -177,6 +197,32 @@ paths:
           schema:
             $ref: '#/definitions/apis.Namespace'
       summary: Retrieves namespace based on given name
+  /namespace/pods/{name}:
+    get:
+      parameters:
+      - description: Namespace name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Pods'
+      summary: Retrieves all pods in a namespace
+  /namespaces:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.Namespaces'
+      summary: Retrieves all namespaces
   /wireguard/:
     post:
       parameters:
