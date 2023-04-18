@@ -45,6 +45,6 @@ func (c Controller) PostKali(ctx *gin.Context) {
 	name := ctx.Param("namespace")
 	kali.StartKali(*c.ClientSet, name)
 	message := "You can now rdp into your Kali."
-	kali := Kali{Namespace: name, Ip: "ip address", Message: message}
+	kali := Kali{Namespace: name, Ip: "ip address", Message: message} //TODO: ip address?
 	ctx.JSON(200, kali)
 }
