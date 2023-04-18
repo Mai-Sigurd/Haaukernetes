@@ -2,7 +2,7 @@ package api_endpoints
 
 import (
 	"github.com/gin-gonic/gin"
-	"k8-project/namespaces"
+	namespaceK8s "k8-project/namespaces"
 )
 
 type Namespace struct {
@@ -30,7 +30,7 @@ type Pods struct {
 // @Router /namespace/{name} [get]
 func (c Controller) GetNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	if !namespaces.NamespaceExists(*c.ClientSet, name) {
+	if !namespaceK8s.NamespaceExists(*c.ClientSet, name) {
 		message := "Sorry namespace " + name + " does not exist"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
@@ -44,7 +44,7 @@ func (c Controller) GetNamespace(ctx *gin.Context) {
 // @Success 200 {object} Namespaces
 // @Router /namespaces [get]
 func (c Controller) GetNamespaces(ctx *gin.Context) {
-	result, err := namespaces.GetNamespaces(*c.ClientSet)
+	result, err := namespaceK8s.GetNamespaces(*c.ClientSet)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
@@ -61,7 +61,7 @@ func (c Controller) GetNamespaces(ctx *gin.Context) {
 // @Router /namespace/pods/{name} [get]
 func (c Controller) GetNamespacePods(ctx *gin.Context) {
 	name := ctx.Param("name")
-	result, err := namespaces.GetNamespacePods(*c.ClientSet, name)
+	result, err := namespaceK8s.GetNamespacePods(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	}
@@ -79,11 +79,11 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 	if err := ctx.BindJSON(&body); err != nil {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
-	} else if namespaces.NamespaceExists(*c.ClientSet, body.Name) {
+	} else if namespaceK8s.NamespaceExists(*c.ClientSet, body.Name) {
 		message := "Sorry namespace " + body.Name + " already exists"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		errKubernetes := namespaces.PostNamespace(*c.ClientSet, body.Name)
+		errKubernetes := namespaceK8s.PostNamespace(*c.ClientSet, body.Name)
 		if errKubernetes != nil {
 			ctx.JSON(400, ErrorResponse{Message: err.Error()})
 		}
@@ -99,7 +99,7 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	err := namespaces.DeleteNamespaceWithError(*c.ClientSet, name)
+	err := namespaceK8s.DeleteNamespaceWithError(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
