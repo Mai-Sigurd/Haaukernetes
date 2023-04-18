@@ -20,12 +20,12 @@ func TestPing(t *testing.T) {
 	teamA := "team-a"
 	teamB := "team-b"
 
-	setUpKubernetesNetworkResources(*clientSet, teamA)
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamA)
 	name := "logon"
 	imageName := "logon"
 	startChallenge(name, imageName, *clientSet, teamA, ports[imageName])
 	time.Sleep(10 * time.Second)
-	setUpKubernetesNetworkResources(*clientSet, teamB)
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamB)
 	startChallenge(name, imageName, *clientSet, teamB, ports[imageName])
 	time.Sleep(10 * time.Second)
 
