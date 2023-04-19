@@ -18,7 +18,7 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
-	matchLabels["app"] = "kali-vnc"
+	matchLabels["app"] = "kali"
 	matchLabels["vpn"] = "wireguard"
 	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, egress, nil, matchLabels)
 }
@@ -108,7 +108,7 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 				{
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"app": "kali-vnc",
+							"app": "kali",
 							"vpn": "wireguard",
 						},
 					},
