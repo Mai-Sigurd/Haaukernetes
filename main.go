@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/homedir"
 	"os"
-	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
 
 	"k8-project/api_endpoints"
 	_ "k8-project/docs"
@@ -21,14 +18,11 @@ import (
 func main() {
 	utils.SetLog()
 
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Write the port you want the web app to run on")
-	scanner.Scan()
-	port := scanner.Text()
-	port = ":" + port
+	port := ":33333" //hardcoded because getting user input in docker is not convenient
 
-	home := homedir.HomeDir()
-	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	//home := homedir.HomeDir()
+	//kubeConfigPath := filepath.Join(home, ".kube", "config")
+	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrHandler(err)
 	clientSet, err := kubernetes.NewForConfig(config)
