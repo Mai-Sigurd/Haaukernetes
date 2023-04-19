@@ -11,10 +11,6 @@ type Kali struct {
 	// in: string
 	Namespace string `json:"namespace"`
 
-	// Ipaddress ip
-	// in: string
-	Ip string `json:"ip"`
-
 	// Message m
 	// in: string
 	Message string `json:"message"`
@@ -27,10 +23,9 @@ type Kali struct {
 // @Success 200 {object} Kali
 // @Router /kali/{namespace} [get]
 func (c Controller) GetKali(ctx *gin.Context) {
-	// TODO get the kali ip - is deprecated, and will become guac based instead
 	name := ctx.Param("name")
-	message := "You can now vnc into your Kali. If on Mac first do `minikube service kali-vnc-expose -n <namespace>`"
-	kali := Kali{Namespace: name, Ip: "ip addreess", Message: message}
+	message := "You can now rdp into your Kali."
+	kali := Kali{Namespace: name, Message: message}
 	ctx.JSON(200, kali)
 }
 
@@ -43,8 +38,8 @@ func (c Controller) GetKali(ctx *gin.Context) {
 func (c Controller) PostKali(ctx *gin.Context) {
 
 	name := ctx.Param("namespace")
-	kaliSocketAddress := kali.StartKali(*c.ClientSet, name)
+	kali.StartKali(*c.ClientSet, name)
 	message := "You can now rdp into your Kali."
-	kali := Kali{Namespace: name, Ip: kaliSocketAddress, Message: message} //TODO: ip address?
+	kali := Kali{Namespace: name, Message: message}
 	ctx.JSON(200, kali)
 }
