@@ -1,5 +1,21 @@
 # Haaukins-Kubernetes-bachelor-project
 
+# Running
+## Without docker
+Make sure that you have a valid k8s config file and export it's path to KUBECONFIG env variable, like so
+``export $KUBECONFIG='$HOME/.kube/config'``
+Run the program from the root directory
+``go run main.go``
+
+## With docker
+Build the docker image from the provided Dockerfile
+``docker build -t haaukins-revamp .``
+Run the image, providing the k8s config through a bind mounted volume and exposing the app on the hosts port 33333
+``docker run -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config -p 33333:33333 haaukins-revamp``
+OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
+be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
+
+
 # Requirements
 Go-Swagger
   https://goswagger.io/install.html
@@ -15,7 +31,8 @@ Go-Swagger
 ## Run
 ``swag init ``
 
-Swagger UI can be seen at: localhost:5000/docs/index.html#/
+Swagger UI can be seen at: URL/docs/index.html#/
+Where URL is either localhost:33333 or public url:33333
 
 # Frontend
 Navigate to the commandline_frontend folder and run
