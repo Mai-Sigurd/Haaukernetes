@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"k8-project/deployments"
 	"k8-project/services"
+	"strconv"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -11,11 +12,13 @@ import (
 const kaliRDPPort = 13389
 const kaliImageName = "kali"
 
-func StartKali(clientSet kubernetes.Clientset, namespace string) {
+func StartKali(clientSet kubernetes.Clientset, namespace string) string {
 	fmt.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali"
 	ports := []int32{kaliRDPPort}
 	deployments.CreateDeployment(clientSet, namespace, "kali", kaliImageName, ports, podLabels)
-	services.CreateService(clientSet, namespace, "kali", ports)
+	service := services.CreateService(clientSet, namespace, "kali", ports)
+	kaliSocketAddress := service.Spec.ClusterIP + ":" + strconv.Itoa(kaliRDPPort)
+	return kaliSocketAddress
 }
