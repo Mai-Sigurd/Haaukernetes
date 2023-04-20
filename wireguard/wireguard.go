@@ -33,17 +33,13 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
-	// TODO write that this exist with the 5 secs
-
+	// TODO wireguard waits for kubernetes to be sure that the pod exists, maybe this can be done in another way
 	time.Sleep(5 * time.Second)
+
+	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
+
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", namespace)
 	return clientConf
-}
-
-func PostWireguard(clientSet kubernetes.Clientset, namespace string, key string, endpoint string, subnet string) string {
-	config := StartWireguard(clientSet, namespace, key, endpoint, subnet)
-	netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
-	return config
 }
 
 // this works but is not pretty TODO

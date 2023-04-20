@@ -1,3 +1,5 @@
+[![go-static-check](https://github.com/Mai-Sigurd/Haaukins-Kubernetes-bachelor-project/actions/workflows/go-static-check.yml/badge.svg)](https://github.com/Mai-Sigurd/Haaukins-Kubernetes-bachelor-project/actions/workflows/go-static-check.yml)
+
 # Haaukins-Kubernetes-bachelor-project
 
 # Running
@@ -17,7 +19,6 @@ Run the image, providing the k8s config and digitalocean secret through bind mou
 ``docker run -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config -v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret -p 33333:33333 -d haaukins-revamp``
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
-
 
 # Requirements
 Go-Swagger

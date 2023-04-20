@@ -2,20 +2,21 @@ package tests
 
 import (
 	"fmt"
+	"github.com/shirou/gopsutil/v3/cpu"
 	"k8-project/challenge"
+	"k8-project/kali"
 	"k8-project/namespaces"
 	"k8-project/utils"
 	"k8-project/wireguard"
-	"log"
-	"os"
-	"path/filepath"
-	"time"
-
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/mem"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
@@ -33,7 +34,11 @@ func getClientSet() *kubernetes.Clientset {
 // The test uses a random public key
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
 	_ = namespaces.PostNamespace(clientSet, namespace)
-	wireguard.PostWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+	wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+}
+func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) {
+	_ = namespaces.PostNamespace(clientSet, namespace)
+	kali.StartKaliImage(clientSet, namespace, "kali-firefox-test")
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
@@ -57,6 +62,15 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	}
 }
 
+func findPodIp(pods *v1.PodList) string {
+	for i := range pods.Items {
+		if strings.Contains(pods.Items[i].Name, "logon") {
+			return pods.Items[i].Status.PodIP
+		}
+	}
+	return "IP of wireguard pod not found"
+}
+
 // Logs
 func setupLog(filename string) *os.File {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -69,6 +83,7 @@ func setupLog(filename string) *os.File {
 	return file
 }
 
+// TODO delete
 func logCPUWithStoredResult(c chan string, results *string) {
 	*results += "\n"
 	input := ""
@@ -82,28 +97,3 @@ func logCPUWithStoredResult(c chan string, results *string) {
 		*results += usage
 	}
 }
-func logMemoryWithStoredResult(c chan string, results *string) {
-	input := ""
-	go func() {
-		input = <-c
-	}()
-	for input == "" {
-		time.Sleep(500 * time.Millisecond)
-		memory, _ := mem.VirtualMemory()
-		usage := fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", memory.Total, memory.Free, memory.UsedPercent)
-		*results += usage
-	}
-}
-
-// TODO use or delete
-//func logCPUContiously(c chan string) {
-//	input := ""
-//	go func() {
-//		input = <-c
-//	}()
-//	for input == "" {
-//		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-//		thing := fmt.Sprintf("%f\n", actualCPU[0])
-//		log.Print(thing)
-//	}
-//}
