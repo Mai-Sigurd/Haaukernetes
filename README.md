@@ -3,15 +3,18 @@
 # Running
 ## Without docker
 Make sure that you have a valid k8s config file and export it's path to KUBECONFIG env variable, like so
-``export $KUBECONFIG='$HOME/.kube/config'``
+``export KUBECONFIG=$HOME/.kube/config``
+and that you have a valid digitalocean secret (in dockerconfig.json format - for image repository) in a DO_SECRET_PATH env variable, like so
+``export DO_SECRET_PATH=$HOME/do_secret``
 Run the program from the root directory
 ``go run main.go``
+
 
 ## With docker
 Build the docker image from the provided Dockerfile
 ``docker build -t haaukins-revamp .``
-Run the image, providing the k8s config through a bind mounted volume and exposing the app on the hosts port 33333
-``docker run -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config -p 33333:33333 haaukins-revamp``
+Run the image, providing the k8s config and digitalocean secret through bind mounted volumes and exposing the app on the hosts port 33333
+``docker run -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config -v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret -p 33333:33333 -d haaukins-revamp``
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
 

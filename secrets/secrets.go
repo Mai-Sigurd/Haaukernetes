@@ -5,12 +5,10 @@ import (
 	"k8-project/utils"
 	"log"
 	"os"
-	"path/filepath"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/homedir"
 )
 
 func CreateWireGuardSecret(clientSet kubernetes.Clientset, teamName string, privatekey string) {
@@ -21,8 +19,8 @@ func CreateWireGuardSecret(clientSet kubernetes.Clientset, teamName string, priv
 }
 
 func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string) {
-	home := homedir.HomeDir()
-	dockerconfigjson, err := os.ReadFile(filepath.Join(home, "do_secret"))
+	secretPath := os.Getenv("DO_SECRET_PATH") //running without docker requires 'export DO_SECRET_PATH="$HOME/do_secret"'
+	dockerconfigjson, err := os.ReadFile(secretPath)
 	utils.ErrHandler(err)
 	data := make(map[string][]byte)
 	data[".dockerconfigjson"] = dockerconfigjson
