@@ -1,5 +1,7 @@
 # Haaukins-Kubernetes-bachelor-project
 
+[![go-static-check](https://github.com/Mai-Sigurd/Haaukins-Kubernetes-bachelor-project/actions/workflows/go-static-check.yml/badge.svg)](https://github.com/Mai-Sigurd/Haaukins-Kubernetes-bachelor-project/actions/workflows/go-static-check.yml)
+
 # Requirements
 Go-Swagger
   https://goswagger.io/install.html
