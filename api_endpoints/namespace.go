@@ -99,7 +99,7 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 // @Router /namespace/{name} [delete]
 func (c Controller) DeleteNamespace(ctx *gin.Context) {
 	name := ctx.Param("name")
-	err := namespaces.DeleteNamespaceWithError(*c.ClientSet, name)
+	err := namespaces.DeleteNamespace(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {

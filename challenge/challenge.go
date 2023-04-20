@@ -20,6 +20,6 @@ func DeleteChallenge(clientSet kubernetes.Clientset, namespace string, challenge
 	return deploymentDeleteStatus, serviceDeleteStatus
 }
 
-func Challenge_exists(clientSet kubernetes.Clientset, namespace string, challengeName string) bool {
+func ChallengeExists(clientSet kubernetes.Clientset, namespace string, challengeName string) bool {
 	return deployments.CheckIfDeploymentExists(clientSet, namespace, challengeName)
 }

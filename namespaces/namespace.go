@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const haaukins = "Haaukins"
 const k8sNamespaceRegex = "[a-z0-9]([-a-z0-9]*[a-z0-9])?"
 
 func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
@@ -25,6 +26,9 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 	namespace := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: strings.ToLower(name),
+			Labels: map[string]string{
+				haaukins: "",
+			},
 		},
 	}
 	newNamespace, err := clientSet.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
@@ -45,7 +49,7 @@ func PostNamespace(clientSet kubernetes.Clientset, name string) error {
 }
 
 func GetNamespaces(clientSet kubernetes.Clientset) ([]string, error) {
-	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{LabelSelector: haaukins})
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +78,7 @@ func GetNamespacePods(clientSet kubernetes.Clientset, name string) ([]string, er
 
 }
 
-func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) {
+func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) error {
 	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), namespace, *metav1.NewDeleteOptions(0))
-	utils.ErrHandler(err)
-}
-
-// I dont know what the difference is between the upper and lower methods. We like erros in api cuz then we can return it
-func DeleteNamespaceWithError(clientSet kubernetes.Clientset, name string) error {
-	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
 	return err
 }
