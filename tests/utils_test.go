@@ -3,6 +3,7 @@ package tests
 import (
 	"fmt"
 	"k8-project/challenge"
+	"k8-project/kali"
 	"k8-project/namespaces"
 	"k8-project/utils"
 	"k8-project/wireguard"
@@ -36,6 +37,10 @@ func getClientSet() *kubernetes.Clientset {
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
 	_ = namespaces.PostNamespace(clientSet, namespace)
 	wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+}
+func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) {
+	_ = namespaces.PostNamespace(clientSet, namespace)
+	kali.StartKaliImage(clientSet, namespace, "kali-firefox-test")
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
