@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/shirou/gopsutil/v3/cpu"
 	"k8-project/challenge"
 	"k8-project/kali"
 	"k8-project/namespaces"
@@ -15,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
@@ -79,4 +81,19 @@ func setupLog(filename string) *os.File {
 	log.SetOutput(file)
 	log.Printf("Testing started ")
 	return file
+}
+
+// TODO delete
+func logCPUWithStoredResult(c chan string, results *string) {
+	*results += "\n"
+	input := ""
+	go func() {
+		input = <-c
+	}()
+	for input == "" {
+		time.Sleep(500 * time.Millisecond)
+		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
+		usage := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
+		*results += usage
+	}
 }
