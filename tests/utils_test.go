@@ -8,17 +8,13 @@ import (
 	"k8-project/utils"
 	"k8-project/wireguard"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
-
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/mem"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
@@ -84,44 +80,3 @@ func setupLog(filename string) *os.File {
 	log.Printf("Testing started ")
 	return file
 }
-
-func logCPUWithStoredResult(c chan string, results *string) {
-	*results += "\n"
-	input := ""
-	go func() {
-		input = <-c
-	}()
-	for input == "" {
-		time.Sleep(500 * time.Millisecond)
-		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-		usage := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
-		*results += usage
-	}
-}
-func logMemoryWithStoredResult(c chan string, results *string) {
-	input := ""
-	go func() {
-		input = <-c
-	}()
-	for input == "" {
-		time.Sleep(500 * time.Millisecond)
-		memory, _ := mem.VirtualMemory()
-		usage := fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", memory.Total, memory.Free, memory.UsedPercent)
-		*results += usage
-	}
-}
-
-//
-
-// TODO use or delete
-//func logCPUContiously(c chan string) {
-//	input := ""
-//	go func() {
-//		input = <-c
-//	}()
-//	for input == "" {
-//		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-//		thing := fmt.Sprintf("%f\n", actualCPU[0])
-//		log.Print(thing)
-//	}
-//}
