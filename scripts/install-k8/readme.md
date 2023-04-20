@@ -32,3 +32,11 @@ Read more [here](https://kubernetes.io/docs/setup/production-environment/tools/k
 ## Check Setup
 - Run `kubectl get po -n kube-system` to check the general setup.
 - Run `kubectl get nodes` to check if the worker node has been joined.
+
+## Running kubectl on a Worker-Node
+To be able to run `kubectl` commands on other nodes than the control-plane, they must have the kubeconfig file: 
+
+- On the control-plane node run `cat $HOME/.kube/config` and copy the output.
+- On a worker-node run `mkdir -p $HOME/.kube` and cd into the new directory.
+- Create a `config` file and paste the output from the first step. 
+- You should now be able to e.g. run `kubectl get nodes` on the worker-node.
