@@ -57,7 +57,7 @@ func (c Controller) DeleteChallenge(ctx *gin.Context) {
 
 func deleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string, ctx *gin.Context, body DelChallenge) {
 	ctx.JSON(200, body)
-	if !challenge.Challenge_exists(clientSet, namespace, challengeName) {
+	if !challenge.ChallengeExists(clientSet, namespace, challengeName) {
 		message := "Challenge " + challengeName + " is not turned on"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {

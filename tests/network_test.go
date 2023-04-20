@@ -67,8 +67,10 @@ func TestPing(t *testing.T) {
 		t.Error("100% of the packets should be lost during inter-namespace pinging")
 	}
 
-	namespaces.DeleteNamespace(*clientSet, teamA)
-	namespaces.DeleteNamespace(*clientSet, teamB)
+	err1 := namespaces.DeleteNamespace(*clientSet, teamA)
+	err2 := namespaces.DeleteNamespace(*clientSet, teamB)
+	utils.ErrHandler(err1)
+	utils.ErrHandler(err2)
 }
 
 func findPodIp(pods *v1.PodList) string {
