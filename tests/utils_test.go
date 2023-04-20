@@ -6,9 +6,11 @@ import (
 	"k8-project/namespaces"
 	"k8-project/utils"
 	"k8-project/wireguard"
+	v1 "k8s.io/api/core/v1"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -57,6 +59,15 @@ func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace 
 	}
 }
 
+func findPodIp(pods *v1.PodList) string {
+	for i := range pods.Items {
+		if strings.Contains(pods.Items[i].Name, "logon") {
+			return pods.Items[i].Status.PodIP
+		}
+	}
+	return "IP of wireguard pod not found"
+}
+
 // Logs
 func setupLog(filename string) *os.File {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -94,6 +105,8 @@ func logMemoryWithStoredResult(c chan string, results *string) {
 		*results += usage
 	}
 }
+
+//
 
 // TODO use or delete
 //func logCPUContiously(c chan string) {

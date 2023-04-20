@@ -2,22 +2,20 @@ package tests
 
 import (
 	"fmt"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/mem"
 	"k8-project/namespaces"
 	"k8-project/utils"
 	"log"
 	"os/exec"
-	"strconv"
 	"testing"
 	"time"
-
-	"github.com/shirou/gopsutil/v3/mem"
-
-	"github.com/shirou/gopsutil/v3/cpu"
 )
 
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
-func TestGeneralLoad(t *testing.T) {
-	file := setupLog("General-load")
+func Test6ChallengesAndWireguardOneUser(t *testing.T) {
+	file := setupLog("6ChallengesAndWireguardOneUser")
+	//TODO should also log memory
 	defer file.Close()
 	// CPU Load before starting
 	comChannel := make(chan string)
@@ -37,67 +35,20 @@ func TestGeneralLoad(t *testing.T) {
 	log.Println(results)
 
 	namespaces.DeleteNamespace(*clientSet, personA)
-
 }
 
-// Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
-// TODO mememory might be relevant
-func TestMinimalKubernetesSetup(t *testing.T) {
-	file := setupLog("Minimal-k8s-den-anden")
+func Test6ChallengesAndKaliOneUser(t *testing.T) {
+	file := setupLog("6ChallengesAndKaliOneUser")
+	//TODO do it
 	defer file.Close()
-	//
-}
-
-// Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
-// TODO mememory might be relevant
-func TestMinimalKubernetesSetupStartup(t *testing.T) {
-	file := setupLog("Minimal-k8s-den-ene")
-	defer file.Close()
-	//
-}
-
-// Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
-func TestChampionshipLoad(t *testing.T) {
-
-	file := setupLog("Championship")
-	defer file.Close()
-	clientSet := getClientSet()
-
-	comChannel := make(chan string)
-	var results string
-	go logCPUWithStoredResult(comChannel, &results)
-
-	const amountOfPeople = 350
-	people := [amountOfPeople]string{}
-
-	settings := utils.ReadYaml("settings-test.yaml")
-
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		setUpKubernetesResourcesWithWireguard(*clientSet, personI, settings.Endpoint, settings.Subnet)
-		startAllChallenges(*clientSet, personI)
-	}
-	time.Sleep(30 * time.Second)
-	comChannel <- "stop"
-	log.Println(results)
-
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		namespaces.DeleteNamespace(*clientSet, personI)
-	}
-	time.Sleep(5 * time.Second)
-
 }
 
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
-func TestChallengeLoad(t *testing.T) {
+func Test30ChallengesWireguardOneUser(t *testing.T) {
 	file := setupLog("challenge-load")
 	defer file.Close()
 
+	// TODO remove run 6 challenges
 	v, _ := mem.VirtualMemory()
 	// almost every return value is a struct
 	//TODO incooperate mem in function
@@ -165,4 +116,10 @@ func TestChallengeLoad(t *testing.T) {
 
 	namespaces.DeleteNamespace(*clientSet, teamName)
 	time.Sleep(30 * time.Second)
+}
+
+func Test30ChallengesKaliOneUser(t *testing.T) {
+	//TODO
+	file := setupLog("challenge-load")
+	defer file.Close()
 }

@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -71,13 +70,4 @@ func TestPing(t *testing.T) {
 	err2 := namespaces.DeleteNamespace(*clientSet, teamB)
 	utils.ErrHandler(err1)
 	utils.ErrHandler(err2)
-}
-
-func findPodIp(pods *v1.PodList) string {
-	for i := range pods.Items {
-		if strings.Contains(pods.Items[i].Name, "logon") {
-			return pods.Items[i].Status.PodIP
-		}
-	}
-	return "IP of wireguard pod not found"
 }
