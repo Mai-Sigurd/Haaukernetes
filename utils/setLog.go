@@ -15,7 +15,7 @@ var (
 func SetLog() {
 	currentTime := time.Now()
 
-	fileName := "logs/" + currentTime.Format("2006.01.02 15:04:05")
+	fileName := "logs/" + currentTime.Format("15:04:05")
 
 	f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -29,7 +29,7 @@ func SetLog() {
 
 func SetLogTest(fileName string, normalLogging bool) {
 
-	f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("logs/"+fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}

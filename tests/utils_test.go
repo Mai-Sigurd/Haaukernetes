@@ -24,9 +24,9 @@ func getClientSet() *kubernetes.Clientset {
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	return clientSet
 }
 
