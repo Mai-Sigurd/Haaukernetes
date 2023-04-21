@@ -4,7 +4,6 @@ import (
 	"context"
 	"k8-project/namespaces"
 	"k8-project/utils"
-	"log"
 	"os/exec"
 	"strings"
 	"testing"
@@ -33,11 +32,11 @@ func TestPing(t *testing.T) {
 
 	podClientA := clientSet.CoreV1().Pods(teamA)
 	podsA, errA := podClientA.List(context.TODO(), metav1.ListOptions{})
-	log.Printf(errA.Error())
+	utils.TestLogger.Println(errA.Error())
 
 	podClientB := clientSet.CoreV1().Pods(teamB)
 	podsB, errB := podClientB.List(context.TODO(), metav1.ListOptions{})
-	log.Printf(errB.Error())
+	utils.TestLogger.Println(errB.Error())
 
 	logonIPA := findPodIp(podsA)
 	outA, err := exec.Command("/bin/sh", "-c", "kubectl -n team-a exec -it deployment/wireguard -- ping -c 5 "+logonIPA).Output()
