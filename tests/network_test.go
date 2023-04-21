@@ -2,9 +2,9 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"k8-project/namespaces"
 	"k8-project/utils"
+	"log"
 	"os/exec"
 	"strings"
 	"testing"
@@ -14,6 +14,7 @@ import (
 )
 
 func TestPing(t *testing.T) {
+	utils.SetLogTest("Ping-test", false)
 	clientSet := getClientSet()
 
 	teamA := "team-a"
@@ -31,43 +32,43 @@ func TestPing(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	podClientA := clientSet.CoreV1().Pods(teamA)
-	podsA, err := podClientA.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrHandler(err)
+	podsA, errA := podClientA.List(context.TODO(), metav1.ListOptions{})
+	log.Printf(errA.Error())
 
 	podClientB := clientSet.CoreV1().Pods(teamB)
-	podsB, err := podClientB.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrHandler(err)
+	podsB, errB := podClientB.List(context.TODO(), metav1.ListOptions{})
+	log.Printf(errB.Error())
 
 	logonIPA := findPodIp(podsA)
 	outA, err := exec.Command("/bin/sh", "-c", "kubectl -n team-a exec -it deployment/wireguard -- ping -c 5 "+logonIPA).Output()
 	if err != nil {
-		fmt.Println(err.Error())
+		utils.TestLogger.Println(err.Error())
 		t.Error("Intra-namespace pinging should not fail")
 	}
-	fmt.Println("Output from A pinging A:\n" + string(outA))
+	utils.TestLogger.Println("Output from A pinging A:\n" + string(outA))
 
 	logonIPB := findPodIp(podsB)
 	outB, err := exec.Command("/bin/sh", "-c", "kubectl -n team-b exec -it deployment/wireguard -- ping -c 5 "+logonIPB).Output()
 	if err != nil {
-		fmt.Println(err.Error())
+		utils.TestLogger.Println(err.Error())
 		t.Error("Intra-namespace pinging should not fail")
 	}
-	fmt.Println("Output from B pinging B:\n" + string(outB))
+	utils.TestLogger.Println("Output from B pinging B:\n" + string(outB))
 
 	crossB, _ := exec.Command("/bin/sh", "-c", "kubectl -n team-a exec -it deployment/wireguard -- ping -c 5 "+logonIPB).Output()
-	fmt.Println("Output from A pinging B\n" + string(crossB))
+	utils.TestLogger.Println("Output from A pinging B\n" + string(crossB))
 	if !strings.Contains(string(crossB), "100% packet loss") {
 		t.Error("100% of the packets should be lost during inter-namespace pinging")
 	}
 
 	crossA, _ := exec.Command("/bin/sh", "-c", "kubectl -n team-b exec -it deployment/wireguard -- ping -c 5 "+logonIPA).Output()
-	fmt.Println("Output from B pinging A\n" + string(crossA))
+	utils.TestLogger.Println("Output from B pinging A\n" + string(crossA))
 	if !strings.Contains(string(crossA), "100% packet loss") {
 		t.Error("100% of the packets should be lost during inter-namespace pinging")
 	}
 
 	err1 := namespaces.DeleteNamespace(*clientSet, teamA)
 	err2 := namespaces.DeleteNamespace(*clientSet, teamB)
-	utils.ErrHandler(err1)
-	utils.ErrHandler(err2)
+	utils.TestLogger.Println(err1.Error())
+	utils.TestLogger.Println(err2.Error())
 }
