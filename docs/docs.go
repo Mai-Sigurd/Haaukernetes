@@ -124,7 +124,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User name",
+                        "description": "Username",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -212,7 +212,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User name",
+                        "description": "Username",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -336,7 +336,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "User name\nin: string",
+                    "description": "Username\nin: string",
                     "type": "string"
                 }
             }

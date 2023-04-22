@@ -58,7 +58,7 @@ definitions:
     properties:
       name:
         description: |-
-          User name
+          Username
           in: string
         type: string
     type: object
@@ -162,7 +162,7 @@ paths:
       summary: Deletes user based on given name
     get:
       parameters:
-      - description: User name
+      - description: Username
         in: path
         name: name
         required: true
@@ -205,7 +205,7 @@ paths:
   /user/challenges/{name}:
     get:
       parameters:
-      - description: User name
+      - description: Username
         in: path
         name: name
         required: true
