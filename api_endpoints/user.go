@@ -5,82 +5,82 @@ import (
 	"k8-project/namespaces"
 )
 
-type Namespace struct {
-	// Namespace name
+type User struct {
+	// Username
 	// in: string
 	Name string `json:"name"`
 }
-type Namespaces struct {
-	// Namespaces names
+type Users struct {
+	// Users names
 	// in: array
 	Names []string `json:"names"`
 }
 
-type Pods struct {
-	// Pods names
+type Challenges struct {
+	// Challenges names
 	// in: array
 	Names []string `json:"names"`
 }
 
-// GetNamespace godoc
+// GetUser godoc
 // @Summary Retrieves namespace based on given name
 // @Produce json
-// @Param name path string true "Namespace name"
-// @Success 200 {object} Namespace
+// @Param name path string true "Username"
+// @Success 200 {object} User
 // @Router /namespace/{name} [get]
-func (c Controller) GetNamespace(ctx *gin.Context) {
+func (c Controller) GetUser(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if !namespaces.NamespaceExists(*c.ClientSet, name) {
-		message := "Sorry namespace " + name + " does not exist"
+		message := "Sorry user " + name + " does not exist"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		ctx.JSON(200, Namespace{name})
+		ctx.JSON(200, User{name})
 	}
 }
 
-// GetNamespaces godoc
+// GetUsers godoc
 // @Summary Retrieves all namespaces
 // @Produce json
-// @Success 200 {object} Namespaces
+// @Success 200 {object} Users
 // @Router /namespaces [get]
-func (c Controller) GetNamespaces(ctx *gin.Context) {
+func (c Controller) GetUsers(ctx *gin.Context) {
 	result, err := namespaces.GetNamespaces(*c.ClientSet)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
 
-		ctx.JSON(200, Namespaces{Names: result})
+		ctx.JSON(200, Users{Names: result})
 	}
 }
 
-// GetNamespacePods godoc
-// @Summary Retrieves all pods in a namespace
+// GetUserChallenges godoc
+// @Summary Retrieves all challenges, as well as Kalis or wireguards running for a user
 // @Produce json
-// @Param name path string true "Namespace name"
-// @Success 200 {object} Pods
-// @Router /namespace/pods/{name} [get]
-func (c Controller) GetNamespacePods(ctx *gin.Context) {
+// @Param name path string true "Username"
+// @Success 200 {object} Challenges
+// @Router /user/challenges/{name} [get]
+func (c Controller) GetUserChallenges(ctx *gin.Context) {
 	name := ctx.Param("name")
 	result, err := namespaces.GetNamespacePods(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	}
-	ctx.JSON(200, Pods{Names: result})
+	ctx.JSON(200, Challenges{Names: result})
 }
 
-// PostNamespace godoc
-// @Summary Creates namespace based on given name
+// PostUser godoc
+// @Summary Creates user based on given name
 // @Produce json
-// @Param namespace body Namespace true "Namespace"
-// @Success 200 {object} Namespace
-// @Router /namespace/ [post]
-func (c Controller) PostNamespace(ctx *gin.Context) {
-	var body Namespace
+// @Param user body User true "User"
+// @Success 200 {object} User
+// @Router /user/ [post]
+func (c Controller) PostUser(ctx *gin.Context) {
+	var body User
 	if err := ctx.BindJSON(&body); err != nil {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else if namespaces.NamespaceExists(*c.ClientSet, body.Name) {
-		message := "Sorry namespace " + body.Name + " already exists"
+		message := "Sorry user " + body.Name + " already exists"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		errKubernetes := namespaces.PostNamespace(*c.ClientSet, body.Name)
@@ -91,18 +91,18 @@ func (c Controller) PostNamespace(ctx *gin.Context) {
 	}
 }
 
-// DeleteNamespace godoc
-// @Summary Deletes namespace based on given name
+// DeleteUser godoc
+// @Summary Deletes user based on given name
 // @Produce json
-// @Param name path string true "Namespace name"
+// @Param name path string true "User name"
 // @Success 200
 // @Router /namespace/{name} [delete]
-func (c Controller) DeleteNamespace(ctx *gin.Context) {
+func (c Controller) DeleteUser(ctx *gin.Context) {
 	name := ctx.Param("name")
 	err := namespaces.DeleteNamespace(*c.ClientSet, name)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	} else {
-		ctx.JSON(200, "Namespace "+name+" Deleted")
+		ctx.JSON(200, "User "+name+" Deleted")
 	}
 }

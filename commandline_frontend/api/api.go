@@ -26,7 +26,7 @@ func GetNamespace(name string) {
 }
 
 func PostNamespace(name string) {
-	reqBody := api_endpoints.Namespace{Name: name}
+	reqBody := api_endpoints.User{Name: name}
 	jsonBody, _ := json.Marshal(reqBody)
 
 	url := "http://localhost:" + ipPort + "/namespace/"

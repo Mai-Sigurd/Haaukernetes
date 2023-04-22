@@ -52,17 +52,17 @@ func main() {
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
-	namespace := r.Group("/namespace/")
+	namespace := r.Group("/user/")
 	{
-		namespace.GET("/:name", controller.GetNamespace)
-		namespace.GET("/pods/:name", controller.GetNamespacePods)
-		namespace.POST("/", controller.PostNamespace)
-		namespace.DELETE("/", controller.DeleteNamespace)
+		namespace.GET("/:name", controller.GetUser)
+		namespace.GET("/challenges/:name", controller.GetUserChallenges)
+		namespace.POST("/", controller.PostUser)
+		namespace.DELETE("/", controller.DeleteUser)
 	}
 
-	namespaces := r.Group("/namespaces/")
+	namespaces := r.Group("/users/")
 	{
-		namespaces.GET("", controller.GetNamespaces)
+		namespaces.GET("", controller.GetUsers)
 	}
 
 	challenge := r.Group("/challenge/")
@@ -73,8 +73,8 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 
 	kali := r.Group("/kali/")
 	{
-		kali.POST("/:namespace", controller.PostKali)
-		kali.GET("/:namespace", controller.GetKali)
+		kali.POST("/:user", controller.PostKali)
+		kali.GET("/:user", controller.GetKali)
 	}
 
 	wireguard := r.Group("/wireguard/")
