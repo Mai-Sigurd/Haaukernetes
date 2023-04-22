@@ -52,12 +52,12 @@ func main() {
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
-	namespace := r.Group("/user/")
+	user := r.Group("/user/")
 	{
-		namespace.GET("/:name", controller.GetUser)
-		namespace.GET("/challenges/:name", controller.GetUserChallenges)
-		namespace.POST("/", controller.PostUser)
-		namespace.DELETE("/", controller.DeleteUser)
+		user.GET("/:name", controller.GetUser)
+		user.GET("/challenges/:name", controller.GetUserChallenges)
+		user.POST("/", controller.PostUser)
+		user.DELETE("/", controller.DeleteUser)
 	}
 
 	namespaces := r.Group("/users/")
