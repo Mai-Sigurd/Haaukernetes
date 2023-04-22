@@ -23,7 +23,7 @@ func CreateWireGuardSecret(clientSet kubernetes.Clientset, teamName string, priv
 func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string) {
 	home := homedir.HomeDir()
 	dockerconfigjson, err := os.ReadFile(filepath.Join(home, "do_secret"))
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	data := make(map[string][]byte)
 	data[".dockerconfigjson"] = dockerconfigjson
 	secret := configureSecret("regcred", teamName, v1.SecretTypeDockerConfigJson, data)
@@ -33,7 +33,7 @@ func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string
 func CreateSecret(clientSet kubernetes.Clientset, teamName string, secret v1.Secret) {
 	secretsClient := clientSet.CoreV1().Secrets(teamName)
 	result, err := secretsClient.Create(context.TODO(), &secret, metav1.CreateOptions{})
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	log.Printf("Created secret %q.\n", result.GetObjectMeta().GetName())
 }
 
@@ -41,7 +41,7 @@ func configureSecret(name string, namespace string, secretType v1.SecretType, da
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
-			// Labels: map[string]string{
+			// Labels: map[string]string{ //TODO
 			// 	"app": name,
 			// },
 			Namespace: namespace,

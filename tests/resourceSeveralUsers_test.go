@@ -14,8 +14,8 @@ import (
 func TestMaximumLoad(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	file := setupLog("Minimal-k8s-den-anden")
-	defer file.Close()
+	utils.SetLogTest("Minimal-k8s-den-anden", false)
+
 	//
 }
 
@@ -24,8 +24,8 @@ func TestMaximumLoad(t *testing.T) {
 func TestMaximumStartUp(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	file := setupLog("Minimal-k8s-den-ene")
-	defer file.Close()
+	utils.SetLogTest("Minimal-k8s-den-ene", false)
+
 	//
 }
 
@@ -33,8 +33,8 @@ func TestMaximumStartUp(t *testing.T) {
 func TestDeprecatedFocusOnAboveTESTS(t *testing.T) {
 	//TODO DeprecatedFocusOnAboveTESTS but reuse code maybe
 
-	file := setupLog("Championship")
-	defer file.Close()
+	utils.SetLogTest("Championship", false)
+
 	clientSet := getClientSet()
 
 	comChannel := make(chan string)
