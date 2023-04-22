@@ -3,11 +3,21 @@ definitions:
     properties:
       challengeName:
         type: string
-      namespace:
-        type: string
       ports:
         items:
           type: integer
+        type: array
+      user:
+        type: string
+    type: object
+  api_endpoints.Challenges:
+    properties:
+      names:
+        description: |-
+          Challenges names
+          in: array
+        items:
+          type: string
         type: array
     type: object
   api_endpoints.ConfigFile:
@@ -19,7 +29,7 @@ definitions:
     properties:
       challengeName:
         type: string
-      namespace:
+      user:
         type: string
     type: object
   api_endpoints.DelRespChallenge:
@@ -28,16 +38,11 @@ definitions:
         type: string
       message:
         type: string
-      namespace:
+      user:
         type: string
     type: object
   api_endpoints.Kali:
     properties:
-      ip:
-        description: |-
-          Ipaddress ip
-          in: string
-        type: string
       message:
         description: |-
           Message m
@@ -49,29 +54,19 @@ definitions:
           in: string
         type: string
     type: object
-  api_endpoints.Namespace:
+  api_endpoints.User:
     properties:
       name:
         description: |-
-          Namespace name
+          User name
           in: string
         type: string
     type: object
-  api_endpoints.Namespaces:
+  api_endpoints.Users:
     properties:
       names:
         description: |-
-          Namespaces names
-          in: array
-        items:
-          type: string
-        type: array
-    type: object
-  api_endpoints.Pods:
-    properties:
-      names:
-        description: |-
-          Pods names
+          Users names
           in: array
         items:
           type: string
@@ -103,12 +98,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api_endpoints.DelRespChallenge'
-      summary: Deletes challenge in a namespace
+      summary: Deletes challenge in a user
     post:
       parameters:
       - description: Challenge
         in: body
-        name: namespace
+        name: user
         required: true
         schema:
           $ref: '#/definitions/api_endpoints.Challenge'
@@ -119,11 +114,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api_endpoints.Challenge'
-      summary: Creates challenge based in a given namespace
+      summary: Creates challenge based in a given user
   /kali/{namespace}:
     get:
       parameters:
-      - description: Namespace name
+      - description: User name
         in: path
         name: name
         required: true
@@ -138,7 +133,7 @@ paths:
       summary: Retrieves kali ip based on namespace name
     post:
       parameters:
-      - description: Namespace name
+      - description: User name
         in: path
         name: name
         required: true
@@ -151,27 +146,10 @@ paths:
           schema:
             $ref: '#/definitions/api_endpoints.Kali'
       summary: Creates Kali based on given namespace name
-  /namespace/:
-    post:
-      parameters:
-      - description: Namespace
-        in: body
-        name: namespace
-        required: true
-        schema:
-          $ref: '#/definitions/api_endpoints.Namespace'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api_endpoints.Namespace'
-      summary: Creates namespace based on given name
   /namespace/{name}:
     delete:
       parameters:
-      - description: Namespace name
+      - description: User name
         in: path
         name: name
         required: true
@@ -181,10 +159,10 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Deletes namespace based on given name
+      summary: Deletes user based on given name
     get:
       parameters:
-      - description: Namespace name
+      - description: User name
         in: path
         name: name
         required: true
@@ -195,24 +173,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api_endpoints.Namespace'
+            $ref: '#/definitions/api_endpoints.User'
       summary: Retrieves namespace based on given name
-  /namespace/pods/{name}:
-    get:
-      parameters:
-      - description: Namespace name
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api_endpoints.Pods'
-      summary: Retrieves all pods in a namespace
   /namespaces:
     get:
       produces:
@@ -221,8 +183,42 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api_endpoints.Namespaces'
+            $ref: '#/definitions/api_endpoints.Users'
       summary: Retrieves all namespaces
+  /user/:
+    post:
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api_endpoints.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_endpoints.User'
+      summary: Creates user based on given name
+  /user/challenges/{name}:
+    get:
+      parameters:
+      - description: User name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_endpoints.Challenges'
+      summary: Retrieves all challenges, as well as Kalis or wireguards running for
+        a user
   /wireguard/:
     post:
       parameters:

@@ -20,11 +20,11 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Creates challenge based in a given namespace",
+                "summary": "Creates challenge based in a given user",
                 "parameters": [
                     {
                         "description": "Challenge",
-                        "name": "namespace",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -45,7 +45,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Deletes challenge in a namespace",
+                "summary": "Deletes challenge in a user",
                 "parameters": [
                     {
                         "description": "Challenge",
@@ -76,7 +76,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -99,7 +99,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -115,58 +115,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/namespace/": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Creates namespace based on given name",
-                "parameters": [
-                    {
-                        "description": "Namespace",
-                        "name": "namespace",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Namespace"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Namespace"
-                        }
-                    }
-                }
-            }
-        },
-        "/namespace/pods/{name}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Retrieves all pods in a namespace",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Namespace name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Pods"
-                        }
-                    }
-                }
-            }
-        },
         "/namespace/{name}": {
             "get": {
                 "produces": [
@@ -176,7 +124,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -186,7 +134,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api_endpoints.Namespace"
+                            "$ref": "#/definitions/api_endpoints.User"
                         }
                     }
                 }
@@ -195,11 +143,11 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Deletes namespace based on given name",
+                "summary": "Deletes user based on given name",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -222,7 +170,59 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api_endpoints.Namespaces"
+                            "$ref": "#/definitions/api_endpoints.Users"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates user based on given name",
+                "parameters": [
+                    {
+                        "description": "User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/challenges/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all challenges, as well as Kalis or wireguards running for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.Challenges"
                         }
                     }
                 }
@@ -263,13 +263,25 @@ const docTemplate = `{
                 "challengeName": {
                     "type": "string"
                 },
-                "namespace": {
-                    "type": "string"
-                },
                 "ports": {
                     "type": "array",
                     "items": {
                         "type": "integer"
+                    }
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_endpoints.Challenges": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "description": "Challenges names\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 }
             }
@@ -288,7 +300,7 @@ const docTemplate = `{
                 "challengeName": {
                     "type": "string"
                 },
-                "namespace": {
+                "user": {
                     "type": "string"
                 }
             }
@@ -302,7 +314,7 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
-                "namespace": {
+                "user": {
                     "type": "string"
                 }
             }
@@ -310,10 +322,6 @@ const docTemplate = `{
         "api_endpoints.Kali": {
             "type": "object",
             "properties": {
-                "ip": {
-                    "description": "Ipaddress ip\nin: string",
-                    "type": "string"
-                },
                 "message": {
                     "description": "Message m\nin: string",
                     "type": "string"
@@ -324,32 +332,20 @@ const docTemplate = `{
                 }
             }
         },
-        "api_endpoints.Namespace": {
+        "api_endpoints.User": {
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Namespace name\nin: string",
+                    "description": "User name\nin: string",
                     "type": "string"
                 }
             }
         },
-        "api_endpoints.Namespaces": {
+        "api_endpoints.Users": {
             "type": "object",
             "properties": {
                 "names": {
-                    "description": "Namespaces names\nin: array",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "api_endpoints.Pods": {
-            "type": "object",
-            "properties": {
-                "names": {
-                    "description": "Pods names\nin: array",
+                    "description": "Users names\nin: array",
                     "type": "array",
                     "items": {
                         "type": "string"

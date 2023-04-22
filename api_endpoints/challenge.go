@@ -9,24 +9,24 @@ import (
 type Challenge struct {
 	Ports         []int32 `json:"ports"`
 	ChallengeName string  `json:"challengeName"`
-	Namespace     string  `json:"namespace"`
+	User          string  `json:"user"`
 }
 
 type DelChallenge struct {
 	ChallengeName string `json:"challengeName"`
-	Namespace     string `json:"namespace"`
+	User          string `json:"user"`
 }
 
 type DelRespChallenge struct {
 	ChallengeName string `json:"challengeName"`
-	Namespace     string `json:"namespace"`
+	User          string `json:"user"`
 	Message       string `json:"message"`
 }
 
 // PostChallenge godoc
-// @Summary Creates challenge based in a given namespace
+// @Summary Creates challenge based in a given user
 // @Produce json
-// @Param namespace body Challenge true "Challenge"
+// @Param user body Challenge true "Challenge"
 // @Success 200 {object} Challenge
 // @Router /challenge/ [post]
 func (c Controller) PostChallenge(ctx *gin.Context) {
@@ -35,13 +35,13 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		challenge.CreateChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, body.ChallengeName, body.Ports)
+		challenge.CreateChallenge(*c.ClientSet, body.User, body.ChallengeName, body.ChallengeName, body.Ports)
 		ctx.JSON(200, body)
 	}
 }
 
 // DeleteChallenge godoc
-// @Summary Deletes challenge in a namespace
+// @Summary Deletes challenge in a user
 // @Produce json
 // @Param challenge body DelChallenge true "Challenge"
 // @Success 200 {object} DelRespChallenge
@@ -52,21 +52,21 @@ func (c Controller) DeleteChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	deleteChallenge(*c.ClientSet, body.Namespace, body.ChallengeName, ctx, body)
+	deleteChallenge(*c.ClientSet, body.User, body.ChallengeName, ctx, body)
 }
 
-func deleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string, ctx *gin.Context, body DelChallenge) {
+func deleteChallenge(clientSet kubernetes.Clientset, user string, challengeName string, ctx *gin.Context, body DelChallenge) {
 	ctx.JSON(200, body)
-	if !challenge.ChallengeExists(clientSet, namespace, challengeName) {
+	if !challenge.ChallengeExists(clientSet, user, challengeName) {
 		message := "Challenge " + challengeName + " is not turned on"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		deploymentDeleteStatus, serviceDeleteStatus := challenge.DeleteChallenge(clientSet, namespace, challengeName)
+		deploymentDeleteStatus, serviceDeleteStatus := challenge.DeleteChallenge(clientSet, user, challengeName)
 		if deploymentDeleteStatus && serviceDeleteStatus {
 			message := "Challenge " + challengeName + " turned off"
 			resp := DelRespChallenge{
 				ChallengeName: body.ChallengeName,
-				Namespace:     body.ChallengeName,
+				User:          body.User,
 				Message:       message,
 			}
 			ctx.JSON(200, resp)
