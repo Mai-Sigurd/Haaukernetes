@@ -22,9 +22,9 @@ func main() {
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 
 	settings := utils.ReadYaml("settings.yaml")
 	controller := api_endpoints.Controller{ClientSet: clientSet, Endpoint: settings.Endpoint, Subnet: settings.Subnet}

@@ -22,7 +22,7 @@ func ReadYaml(filename string) Settings {
 
 	// Unmarshal input YAML file into empty Settings
 	if err := yaml.Unmarshal(f, &s); err != nil {
-		log.Fatal(err)
+		ErrorLogger.Fatal(err)
 	}
 
 	// : needed for the wireguard config

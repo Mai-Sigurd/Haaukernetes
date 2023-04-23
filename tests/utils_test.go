@@ -13,7 +13,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"log"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -25,9 +24,9 @@ func getClientSet() *kubernetes.Clientset {
 	home := homedir.HomeDir()
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	return clientSet
 }
 
@@ -72,16 +71,6 @@ func findPodIp(pods *v1.PodList) string {
 }
 
 // Logs
-func setupLog(filename string) *os.File {
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-
-	log.SetOutput(file)
-	log.Printf("Testing started ")
-	return file
-}
 
 // TODO delete
 func logCPUWithStoredResult(c chan string, results *string) {

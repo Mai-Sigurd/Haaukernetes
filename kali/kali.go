@@ -1,9 +1,9 @@
 package kali
 
 import (
-	"fmt"
 	"k8-project/deployments"
 	"k8-project/services"
+	"k8-project/utils"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -16,7 +16,7 @@ func StartKali(clientSet kubernetes.Clientset, namespace string) {
 }
 
 func StartKaliImage(clientSet kubernetes.Clientset, namespace string, kaliImage string) {
-	fmt.Println("Starting Kali")
+	utils.InfoLogger.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels["app"] = "kali"
 	ports := []int32{kaliRDPPort}
