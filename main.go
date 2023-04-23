@@ -20,8 +20,6 @@ func main() {
 
 	port := ":33333" //hardcoded because getting user input in docker is not convenient
 
-	//home := homedir.HomeDir()
-	//kubeConfigPath := filepath.Join(home, ".kube", "config")
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrHandler(err)
