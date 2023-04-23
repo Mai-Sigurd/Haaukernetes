@@ -6,7 +6,6 @@ import (
 	"k8-project/netpol"
 	"k8-project/secrets"
 	"k8-project/utils"
-	"log"
 	"regexp"
 	"strings"
 
@@ -32,8 +31,8 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 		},
 	}
 	newNamespace, err := clientSet.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	log.Printf("Created namespace with name %s\n", newNamespace.Name)
+	utils.ErrLogger(err)
+	utils.InfoLogger.Printf("Created namespace with name %s\n", newNamespace.Name)
 	return nil
 }
 
