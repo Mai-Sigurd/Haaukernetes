@@ -4,8 +4,6 @@ import (
 	"context"
 	"k8-project/utils"
 	"k8-project/wireguardconfigs"
-	"log"
-
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,7 +13,6 @@ import (
 func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, serverPrivateKey string, clientPublicKey string) {
 	data := make(map[string]string)
 	data["wg0.conf"] = wireguardconfigs.GetServerConfig(serverPrivateKey, clientPublicKey)
-	log.Println(data["wg0.conf"])
 	configMap := configureConfigMap("wg-configmap", teamName, data)
 	CreateConfigMap(clientSet, teamName, configMap)
 }
@@ -23,8 +20,8 @@ func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, s
 func CreateConfigMap(clientSet kubernetes.Clientset, teamName string, configMap v1.ConfigMap) {
 	configMapClient := clientSet.CoreV1().ConfigMaps(teamName)
 	result, err := configMapClient.Create(context.TODO(), &configMap, metav1.CreateOptions{})
-	utils.ErrHandler(err) // TODO is this a fatal error? or can we continue
-	log.Printf("Created configmap %q.\n", result.GetObjectMeta().GetName())
+	utils.ErrLogger(err) // TODO is this a fatal error? or can we continue
+	utils.InfoLogger.Printf("Created configmap %q.\n", result.GetObjectMeta().GetName())
 }
 
 func configureConfigMap(name string, namespace string, data map[string]string) v1.ConfigMap {
