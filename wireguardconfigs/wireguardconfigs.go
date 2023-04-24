@@ -82,7 +82,7 @@ func addNodePort(nodePort int32, endpoint string) string {
 
 func getKubeDnsIP(clientSet kubernetes.Clientset) string {
 	dnsService, err := clientSet.CoreV1().Services("kube-system").Get(context.TODO(), "kube-dns", metav1.GetOptions{})
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	return dnsService.Spec.ClusterIP
 }
 
