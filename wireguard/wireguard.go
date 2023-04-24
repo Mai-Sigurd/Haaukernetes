@@ -29,7 +29,7 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
 	service := configureWireguardNodePortService(namespace)
 	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
-	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
+	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
 	// TODO wireguard waits for kubernetes to be sure that the pod exists, maybe this can be done in another way

@@ -1,8 +1,13 @@
 package wireguardconfigs
 
 import (
+	"context"
+	"k8-project/utils"
 	"regexp"
 	"strconv"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const clientConfig = `
@@ -10,7 +15,7 @@ const clientConfig = `
 # Assign you an IP (that's not in use) and add it to server configmap
 Address = 10.33.0.2/32
 PrivateKey =
-#DNS = 10.96.0.10
+DNS =
 
 [Peer]
 # Wireguard server public key
@@ -36,8 +41,8 @@ PublicKey =
 AllowedIPs = 10.33.0.2/32
 `
 
-func GetClientConfig(serverPublicKey string, nodeport int32, endpoint string, subnet string) string {
-	configWithIPsAndEndpoint := addAllowedIpsAndEndpointToClientConfig(addNodePort(nodeport, endpoint), subnet)
+func GetClientConfig(clientSet kubernetes.Clientset, serverPublicKey string, nodeport int32, endpoint string, subnet string) string {
+	configWithIPsAndEndpoint := addAllowedIpsAndEndpointToClientConfig(clientSet, addNodePort(nodeport, endpoint), subnet)
 	return replacePublicKey(serverPublicKey, configWithIPsAndEndpoint)
 }
 
@@ -45,12 +50,14 @@ func GetServerConfig(privateKey string, publicKey string) string {
 	return addKeysToConfig(privateKey, publicKey, serverConfig)
 }
 
-func addAllowedIpsAndEndpointToClientConfig(endpoint string, subnet string) string {
+func addAllowedIpsAndEndpointToClientConfig(clientSet kubernetes.Clientset, endpoint string, subnet string) string {
 	endpointRegex := regexp.MustCompile("Endpoint =")
 	endpointReplaced := endpointRegex.ReplaceAllString(clientConfig, "Endpoint = "+endpoint)
 	allowedIpsRegex := regexp.MustCompile("AllowedIPs =")
 	allowedIpsReplaced := allowedIpsRegex.ReplaceAllString(endpointReplaced, "AllowedIPs = "+subnet)
-	return allowedIpsReplaced
+
+	dnsIPReplaced := replaceKubeDNSIP(clientSet, allowedIpsReplaced)
+	return dnsIPReplaced
 }
 
 func addKeysToConfig(privateKey string, publicKey string, conf string) string {
@@ -71,4 +78,15 @@ func replacePublicKey(publicKey string, conf string) string {
 
 func addNodePort(nodePort int32, endpoint string) string {
 	return endpoint + strconv.Itoa(int(nodePort))
+}
+
+func getKubeDnsIP(clientSet kubernetes.Clientset) string {
+	dnsService, err := clientSet.CoreV1().Services("kube-system").Get(context.TODO(), "kube-dns", metav1.GetOptions{})
+	utils.ErrHandler(err)
+	return dnsService.Spec.ClusterIP
+}
+
+func replaceKubeDNSIP(clientSet kubernetes.Clientset, conf string) string {
+	DNSRegex := regexp.MustCompile("DNS =")
+	return DNSRegex.ReplaceAllString(conf, "DNS = "+getKubeDnsIP(clientSet))
 }
