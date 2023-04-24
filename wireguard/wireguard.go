@@ -9,7 +9,6 @@ import (
 	"k8-project/utils"
 	"k8-project/wireguardconfigs"
 	"os/exec"
-	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -30,12 +29,6 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	service := configureWireguardNodePortService(namespace)
 	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
 	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
-
-	fmt.Println("Sleeping 5 seconds to let pods start")
-	// TODO wireguard waits for kubernetes to be sure that the pod exists, maybe this can be done in another way
-	time.Sleep(5 * time.Second)
-
-	//netpol.AddWireguardToChallengeIngressPolicy(clientSet, namespace)
 
 	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", namespace)
 	return clientConf
