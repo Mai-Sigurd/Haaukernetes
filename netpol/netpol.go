@@ -96,17 +96,12 @@ func buildEgressRules() []networking.NetworkPolicyEgressRule {
 					Port:     &intstr.IntOrString{Type: intstr.Type(intstr.Int), IntVal: 53},
 					Protocol: getAddress(v1.ProtocolUDP),
 				},
-				{
-					Port:     &intstr.IntOrString{Type: intstr.Type(intstr.Int), IntVal: 53},
-					Protocol: getAddress(v1.ProtocolTCP),
-				},
 			},
 		},
 	}
 }
 
 func buildIngressRules() []networking.NetworkPolicyIngressRule {
-	getAddress := func(s v1.Protocol) *v1.Protocol { return &s }
 	return []networking.NetworkPolicyIngressRule{
 		{
 			From: []networking.NetworkPolicyPeer{
@@ -127,14 +122,6 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 							"vpn": "wireguard",
 						},
 					},
-				},
-			},
-			Ports: []networking.NetworkPolicyPort{
-				{
-					Protocol: getAddress(v1.ProtocolUDP),
-				},
-				{
-					Protocol: getAddress(v1.ProtocolTCP),
 				},
 			},
 		},

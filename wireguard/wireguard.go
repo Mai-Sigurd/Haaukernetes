@@ -27,14 +27,9 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
 	deployment := configureWireGuardDeployment(namespace)
 	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
-	internalService := configureWireguardService(namespace)
-	services.CreatePrebuiltService(clientSet, namespace, *internalService)
 	service := configureWireguardNodePortService(namespace)
 	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
 	clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
-	//clientConf := wireguardconfigs.GetClientConfig(serverPublicKey, 900, endpoint, subnet)
-
-	fmt.Println(clientConf)
 
 	fmt.Println("Sleeping 5 seconds to let pods start")
 	// TODO wireguard waits for kubernetes to be sure that the pod exists, maybe this can be done in another way
@@ -59,33 +54,6 @@ func createKeys() (string, string) {
 	}
 	fmt.Println("Generated publickey: " + string(pub))
 	return string(priv), string(pub)
-}
-
-func configureWireguardService(namespace string) *apiv1.Service {
-	service := &apiv1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "internal-wireguard",
-			Namespace: namespace,
-			Labels: map[string]string{
-				"vpn": "wireguard",
-			},
-		},
-		Spec: apiv1.ServiceSpec{
-			Ports: []apiv1.ServicePort{
-				{
-					//Name:       "wg",
-					Protocol:   apiv1.ProtocolUDP,
-					Port:       51820,
-					TargetPort: intstr.FromInt(51820),
-				},
-			},
-			Selector: map[string]string{
-				"vpn": "wireguard",
-			},
-			ClusterIP: "",
-		},
-	}
-	return service
 }
 
 func configureWireguardNodePortService(namespace string) *apiv1.Service {
