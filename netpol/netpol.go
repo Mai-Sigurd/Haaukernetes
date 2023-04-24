@@ -3,7 +3,6 @@ package netpol
 import (
 	"context"
 	utils "k8-project/utils"
-	"log"
 
 	v1 "k8s.io/api/core/v1"
 	networking "k8s.io/api/networking/v1"
@@ -12,24 +11,24 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreateEgressPolicy(clientSet kubernetes.Clientset, teamName string) {
+func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	policyName := "egress-policy"
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
 	matchLabels["app"] = "kali"
 	matchLabels["vpn"] = "wireguard"
-	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, egress, nil, matchLabels)
+	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
-func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, teamName string) {
+func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	policyName := "ingress-policy"
 	policyTypes := []networking.PolicyType{"Ingress"}
 
 	ingress := buildIngressRules()
 	matchLabels := make(map[string]string)
 	matchLabels["type"] = "challenge"
-	createNetworkPolicy(clientSet, policyName, teamName, policyTypes, nil, ingress, matchLabels)
+	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, ingress, matchLabels)
 }
 
 func buildEgressRules() []networking.NetworkPolicyEgressRule {
@@ -94,21 +93,21 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 	}
 }
 
-// many params not very pretty
-func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
-	netpol := configureNetworkPolicy(policyName, teamName, policyTypes, egress, ingress, matchLabels)
-	networkClient := clientSet.NetworkingV1().NetworkPolicies(teamName)
+// todo many params not very pretty
+func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
+	netpol := configureNetworkPolicy(policyName, namespace, policyTypes, egress, ingress, matchLabels)
+	networkClient := clientSet.NetworkingV1().NetworkPolicies(namespace)
 	result, err := networkClient.Create(context.TODO(), &netpol, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	log.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), teamName)
+	utils.ErrLogger(err)
+	utils.InfoLogger.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), namespace)
 }
 
 // many params not very pretty
-func configureNetworkPolicy(policyName string, teamName string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
+func configureNetworkPolicy(policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
 	netpol := &networking.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      policyName,
-			Namespace: teamName,
+			Namespace: namespace,
 		},
 		Spec: networking.NetworkPolicySpec{
 			PodSelector: metav1.LabelSelector{

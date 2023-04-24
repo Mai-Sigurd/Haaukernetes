@@ -3,16 +3,15 @@ package tests
 import (
 	"k8-project/namespaces"
 	"k8-project/utils"
-	"log"
 	"testing"
 	"time"
 )
 
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func Test6ChallengesAndWireguard(t *testing.T) {
-	file := setupLog("6ChallengesAndWireguardOneUser")
-	defer file.Close()
-	log.Printf("Test started")
+	utils.SetLogTest("6ChallengesAndWireguardOneUser", false)
+
+	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -25,14 +24,13 @@ func Test6ChallengesAndWireguard(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.ErrHandler(err1)
-	log.Printf("Test ended")
+	utils.TestLogger.Println(err1.Error())
+	utils.TestLogger.Println("Test ended")
 }
 
 func Test6ChallengesAndKali(t *testing.T) {
-	file := setupLog("6ChallengesAndKaliOneUser")
-	defer file.Close()
-	log.Printf("Test started")
+	utils.SetLogTest("6ChallengesAndKaliOneUser", false)
+	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -43,15 +41,14 @@ func Test6ChallengesAndKali(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.ErrHandler(err1)
-	log.Printf("Test ended")
+	utils.TestLogger.Println(err1.Error())
+	utils.TestLogger.Println("Test ended")
 }
 
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func Test30ChallengesWireguard(t *testing.T) {
-	file := setupLog("30challengesWireguardOneUser")
-	defer file.Close()
-	log.Printf("Test started")
+	utils.SetLogTest("30challengesWireguardOneUser", false)
+	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -64,15 +61,15 @@ func Test30ChallengesWireguard(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.ErrHandler(err1)
+	utils.TestLogger.Println(err1.Error())
 	time.Sleep(30 * time.Second)
-	log.Printf("Test ended")
+	utils.TestLogger.Println("Test ended")
+
 }
 
 func Test30ChallengesKali(t *testing.T) {
-	file := setupLog("30challengesKaliOneUser")
-	defer file.Close()
-	log.Printf("Test started")
+	utils.SetLogTest("30challengesKaliOneUser", false)
+	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
@@ -84,7 +81,7 @@ func Test30ChallengesKali(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.ErrHandler(err1)
+	utils.TestLogger.Println(err1.Error())
 	time.Sleep(30 * time.Second)
-	log.Printf("Test ended")
+	utils.TestLogger.Println("Test ended")
 }
