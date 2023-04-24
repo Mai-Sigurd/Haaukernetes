@@ -16,7 +16,7 @@ func SetIpPort(port string) {
 	ipPort = port
 }
 
-func GetNamespace(name string) {
+func GetUser(name string) {
 	url := "http://localhost:" + ipPort + "/namespace/" + name
 	resp, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -25,8 +25,8 @@ func GetNamespace(name string) {
 	generalResponse(resp)
 }
 
-func PostNamespace(name string) {
-	reqBody := api_endpoints.Namespace{Name: name}
+func PostUser(name string) {
+	reqBody := api_endpoints.User{Name: name}
 	jsonBody, _ := json.Marshal(reqBody)
 
 	url := "http://localhost:" + ipPort + "/namespace/"
@@ -38,7 +38,7 @@ func PostNamespace(name string) {
 
 }
 
-func DeleteNamespace(name string) {
+func DeleteUser(name string) {
 	url := "http://localhost:" + ipPort + "/namespace/" + name
 	resp, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
@@ -65,10 +65,10 @@ func PostKali(namespace string) {
 	generalResponse(resp)
 }
 
-func DeleteChallenge(namespace string, challengeName string) {
+func DeleteChallenge(user string, challengeName string) {
 	reqBody := api_endpoints.DelChallenge{
 		ChallengeName: challengeName,
-		Namespace:     namespace,
+		User:          user,
 	}
 	jsonBody, _ := json.Marshal(reqBody)
 	url := "http://localhost:" + ipPort + "/challenge/"
@@ -79,11 +79,11 @@ func DeleteChallenge(namespace string, challengeName string) {
 	generalResponse(resp)
 }
 
-func PostChallenge(namespace string, challengeName string, ports []int32) {
+func PostChallenge(user string, challengeName string, ports []int32) {
 	reqBody := api_endpoints.Challenge{
 		Ports:         ports,
 		ChallengeName: challengeName,
-		Namespace:     namespace,
+		User:          user,
 	}
 	jsonBody, _ := json.Marshal(reqBody)
 

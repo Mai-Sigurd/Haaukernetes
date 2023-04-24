@@ -19,7 +19,7 @@ type Kali struct {
 // GetKali godoc
 // @Summary Retrieves kali ip based on namespace name
 // @Produce json
-// @Param name path string true "Namespace name"
+// @Param name path string true "User name"
 // @Success 200 {object} Kali
 // @Router /kali/{namespace} [get]
 func (c Controller) GetKali(ctx *gin.Context) {
@@ -32,7 +32,7 @@ func (c Controller) GetKali(ctx *gin.Context) {
 // PostKali godoc
 // @Summary Creates Kali based on given namespace name
 // @Produce json
-// @Param name path string true "Namespace name"
+// @Param name path string true "User name"
 // @Success 200 {object} Kali
 // @Router /kali/{namespace} [post]
 func (c Controller) PostKali(ctx *gin.Context) {

@@ -6,8 +6,8 @@ import (
 )
 
 type Wireguard struct {
-	Key       string `json:"key"`
-	Namespace string `json:"namespace"`
+	Key  string `json:"key"`
+	User string `json:"namespace"`
 }
 
 type ConfigFile struct {
@@ -26,7 +26,7 @@ func (c Controller) PostWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	str := wireguard.StartWireguard(*c.ClientSet, body.Namespace, body.Key, c.Endpoint, c.Subnet)
+	str := wireguard.StartWireguard(*c.ClientSet, body.User, body.Key, c.Endpoint, c.Subnet)
 
 	ctx.JSON(200, ConfigFile{File: str})
 }
