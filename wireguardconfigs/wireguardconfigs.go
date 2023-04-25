@@ -12,13 +12,11 @@ import (
 
 const clientConfig = `
 [Interface]
-# Assign you an IP (that's not in use) and add it to server configmap
 Address = 10.33.0.2/32
 PrivateKey =
 DNS =
 
 [Peer]
-# Wireguard server public key
 PublicKey =
 Endpoint =
 AllowedIPs =
@@ -34,8 +32,8 @@ Address = 10.33.0.1/24
 ListenPort = 51820
 PrivateKey =
 PostUp = iptables -t nat -A POSTROUTING -s 10.33.0.0/24 -o eth0 -j MASQUERADE
-#PostUp = wg set wg0 private-key /etc/wireguard/privatekey && iptables -t nat -A POSTROUTING -s 10.33.0.0/24 -o eth0 -j MASQUERADE
 PostDown = iptables -t nat -D POSTROUTING -s 10.33.0.0/24 -o eth0 -j MASQUERADE
+
 [Peer]
 PublicKey =
 AllowedIPs = 10.33.0.2/32
