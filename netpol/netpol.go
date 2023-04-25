@@ -3,7 +3,6 @@ package netpol
 import (
 	"context"
 	utils "k8-project/utils"
-	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	networking "k8s.io/api/networking/v1"
@@ -22,29 +21,6 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
-func AddWireguardToChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) {
-	// todo dynamic handling of pod ip because label selectors are not working for wierd reasons
-	podClient := clientSet.CoreV1().Pods(namespace)
-	pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrLogger(err)
-
-	//TODO tried to be upfront about not necessarily knowing which index the pod is at (we could make sure that it's at 0 always but meh)
-	podIP := findPodIp(pods)
-
-	ingress := buildIngressRulesAddWireguard(podIP)
-	matchLabels := make(map[string]string)
-	matchLabels["type"] = "challenge"
-
-	networkClient := clientSet.NetworkingV1().NetworkPolicies(namespace)
-	existingNetpol, err := networkClient.Get(context.TODO(), "ingress-policy", metav1.GetOptions{})
-	utils.ErrLogger(err)
-	existingNetpol.Spec.Ingress = append(existingNetpol.Spec.Ingress, ingress...)
-	updated, err := networkClient.Update(context.TODO(), existingNetpol, metav1.UpdateOptions{})
-	utils.ErrLogger(err)
-	utils.InfoLogger.Printf("Updated ingress policy for namespace: %s with wireguard ip. %q\n", namespace, updated)
-
-}
-
 func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	policyName := "ingress-policy"
 	policyTypes := []networking.PolicyType{"Ingress"}
@@ -53,15 +29,6 @@ func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace stri
 	matchLabels := make(map[string]string)
 	matchLabels["type"] = "challenge"
 	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, ingress, matchLabels)
-}
-
-func findPodIp(pods *v1.PodList) string {
-	for i := range pods.Items {
-		if strings.Contains(pods.Items[i].Name, "wireguard") {
-			return pods.Items[i].Status.PodIP
-		}
-	}
-	return "IP of wireguard pod not found"
 }
 
 func buildEgressRules() []networking.NetworkPolicyEgressRule {
@@ -107,23 +74,18 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
 							"app": "kali",
-							"vpn": "wireguard",
 						},
 					},
 				},
 			},
 		},
-	}
-}
-
-func buildIngressRulesAddWireguard(podIP string) []networking.NetworkPolicyIngressRule {
-	return []networking.NetworkPolicyIngressRule{
 		{
 			From: []networking.NetworkPolicyPeer{
-				//todo the labelselector in the other function does not work for wireguard, for unknown reasons... so we use ip directly instead
 				{
-					IPBlock: &networking.IPBlock{
-						CIDR: podIP + "/32",
+					PodSelector: &metav1.LabelSelector{
+						MatchLabels: map[string]string{
+							"vpn": "wireguard",
+						},
 					},
 				},
 			},
