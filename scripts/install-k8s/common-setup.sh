@@ -110,8 +110,11 @@ apt-get update -y
 apt-get install -y kubelet kubeadm kubectl
 
 echo "##### Adding node IP to KUBELET_EXTRA_ARGS"
-apt-get install -y jq
-local_ip="$(ip --json a s | jq -r '.[] | if .ifname == "eth1" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
+IFACE=eth1  # change to eth1 for DO's private network
+DROPLET_IP_ADDRESS=$(ip addr show dev $IFACE | awk 'match($0,/inet (([0-9]|\.)+).* scope global/,a) { print a[1]; exit }')
 cat > /etc/default/kubelet << EOF
-KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+KUBELET_EXTRA_ARGS=--node-ip=$DROPLET_IP_ADDRESS
 EOF
+
+systemctl daemon-reload
+systemctl restart kubelet
