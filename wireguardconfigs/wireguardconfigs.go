@@ -72,7 +72,7 @@ func replacePublicKey(publicKey string, conf string) string {
 }
 
 func addNodePort(nodePort int32, endpoint string) string {
-	return endpoint + strconv.Itoa(int(nodePort))
+	return endpoint + ":" + strconv.Itoa(int(nodePort))
 }
 
 func getKubeDnsIP(clientSet kubernetes.Clientset) string {
