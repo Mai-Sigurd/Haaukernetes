@@ -3,7 +3,7 @@
 The script installs the Kube-prometheus stack (including Grafana), which can be used for monitoring a Kubernetes cluster. 
 
 ## Requirements
-- Running kubernetes cluster
+- Running Kubernetes cluster
 - Access to running kubectl commands 
 
 Read more about the Helm chart [here](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
