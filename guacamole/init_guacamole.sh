@@ -37,10 +37,13 @@ kubectl apply -f mariadb-service.yaml
 # echo "Setting up guacamole database"
 # Create guacamole db
 # kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "create database if not exists guacamole;"
+
 # Create and configure the guacamole user
 # kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "GRANT ALL ON guacamole.* TO 'guacamole'@'%' IDENTIFIED BY '$DB_PASSWORD';"
+
 # Flush mariadb privileges
 # kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -e "flush privileges;"
+
 # Run initdb.sql script
 # kubectl exec --namespace=guacamole "$POD" -- mariadb -uroot -p"$DB_PASSWORD" -Dguacamole < initdb.sql
 
