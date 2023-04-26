@@ -3,7 +3,8 @@ package deployments
 import (
 	"context"
 	"fmt"
-	utils "k8-project/utils"
+	utils "k8s-project/utils"
+
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

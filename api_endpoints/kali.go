@@ -1,7 +1,7 @@
 package api_endpoints
 
 import (
-	"k8-project/kali"
+	"k8s-project/kali"
 
 	"github.com/gin-gonic/gin"
 )

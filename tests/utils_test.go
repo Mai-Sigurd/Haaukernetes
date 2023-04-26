@@ -2,20 +2,21 @@ package tests
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/v3/cpu"
-	"k8-project/challenge"
-	"k8-project/kali"
-	"k8-project/namespaces"
-	"k8-project/utils"
-	"k8-project/wireguard"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
+	"k8s-project/challenge"
+	"k8s-project/kali"
+	"k8s-project/namespaces"
+	"k8s-project/utils"
+	"k8s-project/wireguard"
 	"log"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/cpu"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
