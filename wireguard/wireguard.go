@@ -44,10 +44,10 @@ func createKeys() (string, string) {
 func configureWireguardNodePortService(namespace string) *apiv1.Service {
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "wireguard",
+			Name:      utils.WireguardPodLabelValue,
 			Namespace: namespace,
 			Labels: map[string]string{
-				"vpn": "wireguard",
+				utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
@@ -61,7 +61,7 @@ func configureWireguardNodePortService(namespace string) *apiv1.Service {
 				},
 			},
 			Selector: map[string]string{
-				"vpn": "wireguard",
+				utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 			},
 			ClusterIP: "",
 		},
@@ -72,19 +72,19 @@ func configureWireguardNodePortService(namespace string) *apiv1.Service {
 func configureWireGuardDeployment() *appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "wireguard",
+			Name: utils.WireguardPodLabelValue,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: utils.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"vpn": "wireguard",
+					utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"vpn": "wireguard",
+						utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 					},
 				},
 				Spec: apiv1.PodSpec{
@@ -112,7 +112,7 @@ func configureWireGuardDeployment() *appsv1.Deployment {
 								{
 									ContainerPort: 51820,
 									Protocol:      apiv1.ProtocolUDP,
-									Name:          "wireguard",
+									Name:          utils.WireguardPodLabelValue,
 								},
 							},
 							Env: []apiv1.EnvVar{
