@@ -15,22 +15,20 @@ The server needs to have the required resources for kubeadm:
 Read more [here](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 
 ## Setup Control-Plane Node
-- Move the `control-plane-setup.sh` and `common-setup.sh` scripts to the server that will act as the control-plane node.
+- Move the `control-plane-setup.sh` script to the server that will act as the control-plane node.
 - Run `chmod +x control-plane-setup.sh` to make it executable.
-- Run `./control-plane-setup.sh` (this script will also run `common-setup.sh`).
-  - You will be asked to enter the server's IP and whether you want to use the default OS and crio version.
+- Run `./control-plane-setup.sh`.
 - Save the `kubeadm join` command at the end of the script for the worker node setup. 
 
 ## Setup Worker Node(s)
-- Move the `worker-node-setup.sh` and `common-setup.sh` scripts to the server that will act as the worker node.
+- Move the `worker-node-setup.sh`script to the server that will act as the worker node.
 - Run `chmod +x worker-node-setup.sh` to make it executable.
-- Run `./worker-node-setup.sh` (this script will also run `common-setup.sh`)
-  - Use the same (default) OS and crio version as the control-plane.
+- Run `./worker-node-setup.sh`.
 - Run the saved `kubeadm join` command from the control-plane setup to initialize and join the worker node.
 - The process can be repeated for additional worker nodes. 
 
 ## Check Setup
-- Run `kubectl get po -n kube-system` to check the general setup.
+- Run `kubectl get pods -n kube-system` to check the general setup.
 - Run `kubectl get nodes` to check if the worker node has been joined.
 
 ## Running kubectl on a Worker-Node
