@@ -3,9 +3,9 @@ package namespaces
 import (
 	"context"
 	"errors"
-	"k8-project/netpol"
-	"k8-project/secrets"
-	"k8-project/utils"
+	"k8s-project/netpol"
+	"k8s-project/secrets"
+	"k8s-project/utils"
 	"regexp"
 	"strings"
 

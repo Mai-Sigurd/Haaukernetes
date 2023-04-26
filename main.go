@@ -5,9 +5,9 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
-	"k8-project/api_endpoints"
-	_ "k8-project/docs"
-	"k8-project/utils"
+	"k8s-project/api_endpoints"
+	_ "k8s-project/docs"
+	"k8s-project/utils"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
