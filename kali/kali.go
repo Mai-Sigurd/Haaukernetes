@@ -1,9 +1,9 @@
 package kali
 
 import (
-	"k8-project/deployments"
-	"k8-project/services"
-	"k8-project/utils"
+	"k8s-project/deployments"
+	"k8s-project/services"
+	"k8s-project/utils"
 
 	"k8s.io/client-go/kubernetes"
 )

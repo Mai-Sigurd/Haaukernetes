@@ -2,8 +2,9 @@ package configmap
 
 import (
 	"context"
-	"k8-project/utils"
-	"k8-project/wireguardconfigs"
+	"k8s-project/utils"
+	"k8s-project/wireguardconfigs"
+
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"

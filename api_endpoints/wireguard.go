@@ -1,8 +1,9 @@
 package api_endpoints
 
 import (
+	"k8s-project/wireguard"
+
 	"github.com/gin-gonic/gin"
-	"k8-project/wireguard"
 )
 
 type Wireguard struct {

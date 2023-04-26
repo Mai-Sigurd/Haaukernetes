@@ -1,12 +1,13 @@
 package wireguard
 
 import (
-	"k8-project/configmap"
-	"k8-project/deployments"
-	"k8-project/secrets"
-	"k8-project/services"
-	"k8-project/utils"
-	"k8-project/wireguardconfigs"
+	"fmt"
+	"k8s-project/configmap"
+	"k8s-project/deployments"
+	"k8s-project/secrets"
+	"k8s-project/services"
+	"k8s-project/utils"
+	"k8s-project/wireguardconfigs"
 	"os/exec"
 
 	appsv1 "k8s.io/api/apps/v1"

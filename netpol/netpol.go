@@ -2,7 +2,7 @@ package netpol
 
 import (
 	"context"
-	utils "k8-project/utils"
+	utils "k8s-project/utils"
 
 	v1 "k8s.io/api/core/v1"
 	networking "k8s.io/api/networking/v1"
