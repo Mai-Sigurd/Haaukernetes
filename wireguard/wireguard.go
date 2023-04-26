@@ -1,7 +1,6 @@
 package wireguard
 
 import (
-	"fmt"
 	"k8s-project/configmap"
 	"k8s-project/deployments"
 	"k8s-project/secrets"
