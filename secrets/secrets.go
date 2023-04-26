@@ -2,7 +2,7 @@ package secrets
 
 import (
 	"context"
-	"k8-project/utils"
+	"k8s-project/utils"
 	"log"
 	"os"
 

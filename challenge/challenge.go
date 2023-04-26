@@ -1,8 +1,9 @@
 package challenge
 
 import (
-	"k8-project/deployments"
-	"k8-project/services"
+	"k8s-project/deployments"
+	"k8s-project/services"
+
 	"k8s.io/client-go/kubernetes"
 )
 

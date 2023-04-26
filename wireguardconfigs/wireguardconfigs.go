@@ -2,7 +2,7 @@ package wireguardconfigs
 
 import (
 	"context"
-	"k8-project/utils"
+	"k8s-project/utils"
 	"regexp"
 	"strconv"
 

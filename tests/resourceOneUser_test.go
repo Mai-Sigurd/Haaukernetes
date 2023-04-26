@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"k8-project/namespaces"
-	"k8-project/utils"
+	"k8s-project/namespaces"
+	"k8s-project/utils"
 	"testing"
 	"time"
 )

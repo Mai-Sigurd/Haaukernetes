@@ -1,8 +1,9 @@
 package api_endpoints
 
 import (
+	"k8s-project/namespaces"
+
 	"github.com/gin-gonic/gin"
-	"k8-project/namespaces"
 )
 
 type User struct {
