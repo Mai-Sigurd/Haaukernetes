@@ -10,7 +10,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// should possibly live somewhere else :)) TODO what dis mean
 func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, serverPrivateKey string, clientPublicKey string) {
 	data := make(map[string]string)
 	data["wg0.conf"] = wireguardconfigs.GetServerConfig(serverPrivateKey, clientPublicKey)
@@ -21,7 +20,7 @@ func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, s
 func CreateConfigMap(clientSet kubernetes.Clientset, teamName string, configMap v1.ConfigMap) {
 	configMapClient := clientSet.CoreV1().ConfigMaps(teamName)
 	result, err := configMapClient.Create(context.TODO(), &configMap, metav1.CreateOptions{})
-	utils.ErrLogger(err) // TODO is this a fatal error? or can we continue
+	utils.ErrLogger(err)
 	utils.InfoLogger.Printf("Created configmap %q.\n", result.GetObjectMeta().GetName())
 }
 

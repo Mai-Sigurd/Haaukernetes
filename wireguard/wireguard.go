@@ -1,7 +1,6 @@
 package wireguard
 
 import (
-	"fmt"
 	"k8s-project/configmap"
 	"k8s-project/deployments"
 	"k8s-project/secrets"
@@ -24,38 +23,31 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	serverPrivateKey, serverPublicKey := createKeys()
 	configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
 	secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
-	deployment := configureWireGuardDeployment(namespace)
+	deployment := configureWireGuardDeployment()
 	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
 	service := configureWireguardNodePortService(namespace)
 	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
 	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
-	fmt.Printf("Wireguard successfully started for team/namespace: %s\n", namespace)
+	utils.InfoLogger.Printf("Wireguard successfully started for user: %s\n", namespace)
 	return clientConf
 }
 
-// this works but is not pretty TODO
 func createKeys() (string, string) {
 	priv, err := exec.Command("/bin/sh", "-c", "docker run --rm -i masipcat/wireguard-go wg genkey").Output()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Generated privatekey: " + string(priv))
+	utils.ErrLogger(err)
 	pub, err := exec.Command("/bin/sh", "-c", "echo '"+string(priv)+"' | docker run --rm -i masipcat/wireguard-go wg pubkey").Output()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Generated publickey: " + string(pub))
+	utils.ErrLogger(err)
 	return string(priv), string(pub)
 }
 
 func configureWireguardNodePortService(namespace string) *apiv1.Service {
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "wireguard",
+			Name:      utils.WireguardPodLabelValue,
 			Namespace: namespace,
 			Labels: map[string]string{
-				"vpn": "wireguard",
+				utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
@@ -69,7 +61,7 @@ func configureWireguardNodePortService(namespace string) *apiv1.Service {
 				},
 			},
 			Selector: map[string]string{
-				"vpn": "wireguard",
+				utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 			},
 			ClusterIP: "",
 		},
@@ -77,23 +69,22 @@ func configureWireguardNodePortService(namespace string) *apiv1.Service {
 	return service
 }
 
-// move to separate file? TODO
-func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
+func configureWireGuardDeployment() *appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "wireguard",
+			Name: utils.WireguardPodLabelValue,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: utils.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"vpn": "wireguard",
+					utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"vpn": "wireguard",
+						utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 					},
 				},
 				Spec: apiv1.PodSpec{
@@ -105,7 +96,7 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 							SecurityContext: &apiv1.SecurityContext{
 								Capabilities: &apiv1.Capabilities{
 									Add: []apiv1.Capability{
-										("NET_ADMIN"),
+										"NET_ADMIN",
 									},
 								},
 								Privileged: utils.BoolPtr(true),
@@ -114,14 +105,14 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 					},
 					Containers: []apiv1.Container{
 						{
-							Name:    "wireguard",
-							Image:   "registry.digitalocean.com/haaukins-bsc/" + "wireguard-go", //TODO: use const string from deployment.go?
+							Name:    utils.WireguardPodLabelValue,
+							Image:   utils.ImageRepoUrl + utils.WireguardImage,
 							Command: []string{"sh", "-c", "echo 'Public key '$(wg pubkey < /etc/wireguard/privatekey)'' && /entrypoint.sh"},
 							Ports: []apiv1.ContainerPort{
 								{
 									ContainerPort: 51820,
 									Protocol:      apiv1.ProtocolUDP,
-									Name:          "wireguard",
+									Name:          utils.WireguardPodLabelValue,
 								},
 							},
 							Env: []apiv1.EnvVar{
@@ -133,20 +124,11 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 							SecurityContext: &apiv1.SecurityContext{
 								Capabilities: &apiv1.Capabilities{
 									Add: []apiv1.Capability{
-										("NET_ADMIN"),
+										"NET_ADMIN",
 									},
 								},
 								Privileged: utils.BoolPtr(true),
 							},
-							// Resources: apiv1.ResourceRequirements{
-							// 	Requests: apiv1.ResourceList{
-							// 		apiv1.ResourceCPU:    returnFirst(resource.ParseQuantity("100m")),
-							// 		apiv1.ResourceMemory: returnFirst(resource.ParseQuantity("64Mi")),
-							// 	},
-							// 	Limits: apiv1.ResourceList{
-							// 		apiv1.ResourceLimitsMemory: returnFirst(resource.ParseQuantity("256Mi")),
-							// 	},
-							// }, TODO ?
 							VolumeMounts: []apiv1.VolumeMount{
 								{
 									Name:      "cfgmap",
@@ -192,5 +174,3 @@ func configureWireGuardDeployment(namespace string) *appsv1.Deployment {
 	}
 	return deployment
 }
-
-//func returnFirst(quantity resource.Quantity, err error) resource.Quantity { return quantity } TODO ?
