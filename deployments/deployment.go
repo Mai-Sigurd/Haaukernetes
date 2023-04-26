@@ -3,47 +3,57 @@ package deployments
 import (
 	"context"
 	"fmt"
-	utils "k8-project/utils"
+	utils "k8s-project/utils"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	//ovenstående er for at bringe v1.DeploymentInterface typen ind til brug som argument i func
-	//-> var selv nødt til at finde den på docs, autoimport virkede ikke
-	//
-	// Uncomment to load all auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth"
-	//
-	// Or uncomment to load specific auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 )
 
-const imageRepoUrl = "registry.digitalocean.com/haaukins-kubernetes-bsc/"
-
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+	utils.ErrLogger(err)
+	utils.InfoLogger.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
 // CreateDeployment configures a deployment and then creates a deployment from that configuration
 // in the given namespace.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, challengeName string, containerPort int32, podLabels map[string]string) {
-	deployment := configureDeployment(teamName, challengeName, containerPort, podLabels)
-	fmt.Printf("Creating deployment %s\n", deployment.ObjectMeta.Name)
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func CreateDeployment(clientSet kubernetes.Clientset, teamName string, name string, imageName string, containerPorts []int32, podLabels map[string]string) {
+	deployment := configureDeployment(teamName, name, imageName, containerPorts, podLabels)
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
-	utils.ErrHandler(err)
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+	utils.ErrLogger(err)
+	utils.InfoLogger.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+}
+
+func portArray(ports []int32) []apiv1.ContainerPort {
+	result := make([]apiv1.ContainerPort, len(ports))
+	for i := 0; i < len(ports); i++ {
+		result[i] = apiv1.ContainerPort{
+			Name:          fmt.Sprintf("port%d", i),
+			Protocol:      apiv1.ProtocolTCP,
+			ContainerPort: ports[i],
+		}
+	}
+	return result
 }
 
 // configureDeployment makes a deployment configuration for a pod and replicaset
-func configureDeployment(nameSpace string, name string, containerPort int32, podLabels map[string]string) appsv1.Deployment {
+// -----
+// NOTE ON PARAMETERS
+// "name" and "imageName" are primarily separated for allowing multiple pods/deployments running the same image
+// when testing (they cant have duplicate names).
+// This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
+// as argument for both of these parameters.
+func configureDeployment(nameSpace string, name string, imageName string, containerPorts []int32, podLabels map[string]string) appsv1.Deployment {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -67,14 +77,8 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 					Containers: []apiv1.Container{
 						{
 							Name:  name,
-							Image: imageRepoUrl + name,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: containerPort,
-								},
-							},
+							Image: utils.ImageRepoUrl + imageName,
+							Ports: portArray(containerPorts),
 						},
 					},
 					ImagePullSecrets: []apiv1.LocalObjectReference{
@@ -89,29 +93,11 @@ func configureDeployment(nameSpace string, name string, containerPort int32, pod
 	return *deployment
 }
 
-// PrintListDeployments ListDeployments lists the existing deployments in the given namespace.
-// This also includes terminating deployments.
-func PrintListDeployments(clientSet kubernetes.Clientset, namespace string) {
-	list := GetAllDeployments(clientSet, namespace)
-	fmt.Println("Listing deployments in default namespace")
-	fmt.Printf("%d deployments exist\n", len(list.Items))
-	for _, d := range list.Items {
-		fmt.Printf(" * %s (%d replicas)\n", d.Name, *d.Spec.Replicas)
-	}
-}
-
-func GetAllDeployments(clientSet kubernetes.Clientset, namespace string) *appsv1.DeploymentList {
-	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
-	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrHandler(err)
-	return list
-}
-
 // CheckIfDeploymentExists checks if a deployment exists in the given namespace.
 func CheckIfDeploymentExists(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	list, err := deploymentsClient.List(context.TODO(), metav1.ListOptions{})
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	for _, d := range list.Items {
 		if d.Name == deploymentName {
 			return true
@@ -122,15 +108,16 @@ func CheckIfDeploymentExists(clientSet kubernetes.Clientset, namespace string, d
 
 // DeleteDeployment deletes a deployment in the given namespace.
 func DeleteDeployment(clientSet kubernetes.Clientset, namespace string, deploymentName string) bool {
-	fmt.Printf("Deleting deployment %s \n", deploymentName)
+	utils.InfoLogger.Printf("Deleting deployment %s \n", deploymentName)
 	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	deletePolicy := metav1.DeletePropagationForeground
 	err := deploymentsClient.Delete(context.TODO(), deploymentName, metav1.DeleteOptions{PropagationPolicy: &deletePolicy})
 	if err != nil {
-		fmt.Println("Deployment could not be deleted")
+		utils.ErrorLogger.Println(err)
+		utils.InfoLogger.Println("Deployment could not be deleted")
 		return false
 	} else {
-		fmt.Println("Deployment successfully deleted")
+		utils.InfoLogger.Println("Deployment successfully deleted")
 		return true
 	}
 }

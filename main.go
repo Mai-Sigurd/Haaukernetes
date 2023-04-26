@@ -1,17 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"os"
-	"path/filepath"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/homedir"
 
-	"k8-project/apis"
-	_ "k8-project/docs"
-	"k8-project/utils"
+	"k8s-project/api_endpoints"
+	_ "k8s-project/docs"
+	"k8s-project/utils"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -20,36 +16,44 @@ import (
 )
 
 func main() {
-	fmt.Println("Write the port you want the web app to run on")
+	utils.SetLog()
 
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	port := scanner.Text()
+	port := ":33333" //hardcoded because getting user input in docker is not convenient
 
-	home := homedir.HomeDir()
-	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	utils.ErrHandler(err)
+	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
-	utils.ErrHandler(err)
-	controller := apis.Controller{ClientSet: clientSet}
+	utils.ErrLogger(err)
+
+	controller := api_endpoints.Controller{ClientSet: clientSet, Endpoint: utils.WireguardEndpoint, Subnet: utils.WireguardSubnet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
 
 	// Global middleware
-	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.
-	// By default gin.DefaultWriter = os.Stdout
 	r.Use(gin.Logger())
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	namespace := r.Group("/namespace/")
+
+	r = createRouterGroups(r, controller)
+	r.Run(port)
+}
+
+func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
+	user := r.Group("/user/")
 	{
-		namespace.GET("/:name", controller.GetNamespace)
-		namespace.POST("/", controller.PostNamespace)
-		namespace.DELETE("/", controller.DeleteNamespace)
+		user.GET("/:name", controller.GetUser)
+		user.GET("/challenges/:name", controller.GetUserChallenges)
+		user.POST("/", controller.PostUser)
+		user.DELETE("/", controller.DeleteUser)
+	}
+
+	namespaces := r.Group("/users/")
+	{
+		namespaces.GET("", controller.GetUsers)
 	}
 
 	challenge := r.Group("/challenge/")
@@ -60,17 +64,13 @@ func main() {
 
 	kali := r.Group("/kali/")
 	{
-		kali.POST("/:namespace", controller.PostKali)
-		kali.GET("/:namespace", controller.GetKali)
+		kali.POST("/:user", controller.PostKali)
+		kali.GET("/:user", controller.GetKali)
 	}
 
 	wireguard := r.Group("/wireguard/")
 	{
-		wireguard.POST("/", controller.StartWireguard)
+		wireguard.POST("/", controller.PostWireguard)
 	}
-
-	//TODO guac api?
-
-	r.Run(port)
-
+	return r
 }
