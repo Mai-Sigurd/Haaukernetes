@@ -19,14 +19,12 @@ func TestPing(t *testing.T) {
 	teamA := "team-a"
 	teamB := "team-b"
 
-	settings := utils.ReadYaml("settings-test.yaml")
-
-	setUpKubernetesResourcesWithWireguard(*clientSet, teamA, settings.Endpoint, settings.Subnet)
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamA, utils.WireguardEndpoint, utils.WireguardSubnet)
 	name := "logon"
 	imageName := "logon"
 	startChallenge(name, imageName, *clientSet, teamA, ports[imageName])
 	time.Sleep(10 * time.Second)
-	setUpKubernetesResourcesWithWireguard(*clientSet, teamB, settings.Endpoint, settings.Subnet)
+	setUpKubernetesResourcesWithWireguard(*clientSet, teamB, utils.WireguardEndpoint, utils.WireguardSubnet)
 	startChallenge(name, imageName, *clientSet, teamB, ports[imageName])
 	time.Sleep(10 * time.Second)
 

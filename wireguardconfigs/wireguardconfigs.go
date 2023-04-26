@@ -23,9 +23,6 @@ AllowedIPs =
 PersistentKeepalive = 25
 `
 
-// spaghetti -> should this be a secret of some kind? maybe it's own file? TODO
-// also: will address-subnet have to be dynamic somehow?
-// also: commented out postup line is commented out because i couldnt get the path to privatekey working, instead it is "hardcoded"
 const serverConfig = `
 [Interface]
 Address = 10.33.0.1/24
@@ -75,7 +72,7 @@ func replacePublicKey(publicKey string, conf string) string {
 }
 
 func addNodePort(nodePort int32, endpoint string) string {
-	return endpoint + strconv.Itoa(int(nodePort))
+	return endpoint + ":" + strconv.Itoa(int(nodePort))
 }
 
 func getKubeDnsIP(clientSet kubernetes.Clientset) string {
