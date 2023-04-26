@@ -44,13 +44,11 @@ func TestDeprecatedFocusOnAboveTESTS(t *testing.T) {
 	const amountOfPeople = 350
 	people := [amountOfPeople]string{}
 
-	settings := utils.ReadYaml("settings-test.yaml")
-
 	for i := 0; i < amountOfPeople; i++ {
 		is := strconv.Itoa(i)
 		personI := "person" + is
 		people[i] = personI
-		setUpKubernetesResourcesWithWireguard(*clientSet, personI, settings.Endpoint, settings.Subnet)
+		setUpKubernetesResourcesWithWireguard(*clientSet, personI, utils.WireguardEndpoint, utils.WireguardSubnet)
 		startAllChallenges(*clientSet, personI)
 	}
 	time.Sleep(30 * time.Second)

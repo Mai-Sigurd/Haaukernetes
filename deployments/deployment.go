@@ -10,8 +10,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-const imageRepoUrl = "registry.digitalocean.com/haaukins-bsc/"
-
 func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) {
 	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
@@ -39,8 +37,7 @@ func portArray(ports []int32) []apiv1.ContainerPort {
 	result := make([]apiv1.ContainerPort, len(ports))
 	for i := 0; i < len(ports); i++ {
 		result[i] = apiv1.ContainerPort{
-			//Name:          "http",
-			Name:          fmt.Sprintf("port%d", i), //TODO not optimal but works
+			Name:          fmt.Sprintf("port%d", i),
 			Protocol:      apiv1.ProtocolTCP,
 			ContainerPort: ports[i],
 		}
@@ -79,7 +76,7 @@ func configureDeployment(nameSpace string, name string, imageName string, contai
 					Containers: []apiv1.Container{
 						{
 							Name:  name,
-							Image: imageRepoUrl + imageName,
+							Image: utils.ImageRepoUrl + imageName,
 							Ports: portArray(containerPorts),
 						},
 					},

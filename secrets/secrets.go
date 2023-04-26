@@ -38,10 +38,7 @@ func CreateSecret(clientSet kubernetes.Clientset, teamName string, secret v1.Sec
 func configureSecret(name string, namespace string, secretType v1.SecretType, data map[string][]byte) v1.Secret {
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
-			// Labels: map[string]string{ //TODO
-			// 	"app": name,
-			// },
+			Name:      name,
 			Namespace: namespace,
 		},
 		Type: secretType,

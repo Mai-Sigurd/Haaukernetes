@@ -1,2 +1,0 @@
-endpoint: "164.92.194.69" # public endpoint for k8s cluster
-subnet: "10.96.0.0/12" # pod CIDR for cluster
