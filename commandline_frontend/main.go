@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"k8-project/terminal_frontend/api"
+	"k8s-project/commandline_frontend/api"
 	"os"
 	"strconv"
 )
@@ -17,8 +17,8 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Println("Write 'create' to create a TeamName")
-		fmt.Println("Write 'delete' to delete a TeamName")
+		fmt.Println("Write 'create' to create a User")
+		fmt.Println("Write 'delete' to delete a User")
 		fmt.Println("Write 'on' to turn on a challenge")
 		fmt.Println("Write 'off' to turn off a challenge")
 		fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
@@ -30,8 +30,8 @@ func main() {
 		case "create":
 			fmt.Println("Write your team alias")
 			scanner.Scan()
-			namespace := scanner.Text()
-			api.PostNamespace(namespace)
+			user := scanner.Text()
+			api.PostUser(user)
 
 		case "on":
 			fmt.Println("Write the name of the challenge to turn on")
@@ -48,27 +48,27 @@ func main() {
 				panic(err1)
 			}
 
-			fmt.Println("Write the namespace of the challenge to turn on")
+			fmt.Println("Write the user of the challenge to turn on")
 			scanner.Scan()
-			namespace := scanner.Text()
-
-			api.PostChallenge(namespace, challengeName, int32(i))
+			user := scanner.Text()
+			ports := []int32{int32(i)}
+			api.PostChallenge(user, challengeName, ports)
 
 		case "off":
 			fmt.Println("Write the name of the challenge you want to turn off")
 			scanner.Scan()
 			challengeName := scanner.Text()
 
-			fmt.Println("Write the namespace of the challenge to turn on")
+			fmt.Println("Write the user of the challenge to turn on")
 			scanner.Scan()
-			namespace := scanner.Text()
+			user := scanner.Text()
 
-			api.DeleteChallenge(namespace, challengeName)
+			api.DeleteChallenge(user, challengeName)
 		case "kali":
-			fmt.Println("Write the namespace of the challenge to turn on")
+			fmt.Println("Write the user of the challenge to turn on")
 			scanner.Scan()
-			namespace := scanner.Text()
-			api.PostKali(namespace)
+			user := scanner.Text()
+			api.PostKali(user)
 		default:
 			fmt.Println("Invalid input")
 		}

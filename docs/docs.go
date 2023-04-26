@@ -20,15 +20,15 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Creates challenge based in a given namespace",
+                "summary": "Creates challenge based in a given user",
                 "parameters": [
                     {
                         "description": "Challenge",
-                        "name": "namespace",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 ],
@@ -36,7 +36,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Challenge"
+                            "$ref": "#/definitions/api_endpoints.Challenge"
                         }
                     }
                 }
@@ -45,7 +45,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Deletes challenge in a namespace",
+                "summary": "Deletes challenge in a user",
                 "parameters": [
                     {
                         "description": "Challenge",
@@ -53,7 +53,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.DelChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelChallenge"
                         }
                     }
                 ],
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.DelRespChallenge"
+                            "$ref": "#/definitions/api_endpoints.DelRespChallenge"
                         }
                     }
                 }
@@ -76,7 +76,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -86,7 +86,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -99,7 +99,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -109,34 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Kali"
-                        }
-                    }
-                }
-            }
-        },
-        "/namespace/": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Creates namespace based on given name",
-                "parameters": [
-                    {
-                        "description": "Namespace",
-                        "name": "namespace",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.Kali"
                         }
                     }
                 }
@@ -151,7 +124,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "Username",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -161,7 +134,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.Namespace"
+                            "$ref": "#/definitions/api_endpoints.User"
                         }
                     }
                 }
@@ -170,11 +143,11 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Deletes namespace based on given name",
+                "summary": "Deletes user based on given name",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Namespace name",
+                        "description": "User name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -187,20 +160,36 @@ const docTemplate = `{
                 }
             }
         },
-        "/wireguard/": {
+        "/namespaces": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all namespaces",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.Users"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Sends a public key to Wireguard",
+                "summary": "Creates user based on given name",
                 "parameters": [
                     {
-                        "description": "PublicKey",
-                        "name": "publicKey",
+                        "description": "User",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/apis.PublicKey"
+                            "$ref": "#/definitions/api_endpoints.User"
                         }
                     }
                 ],
@@ -208,7 +197,59 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/apis.ConfigFile"
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/challenges/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all challenges, as well as Kalis or wireguards running for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.Challenges"
+                        }
+                    }
+                }
+            }
+        },
+        "/wireguard/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Sends a public key and starts Wireguard",
+                "parameters": [
+                    {
+                        "description": "Wireguard",
+                        "name": "publicKey",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.Wireguard"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.ConfigFile"
                         }
                     }
                 }
@@ -216,21 +257,36 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "apis.Challenge": {
+        "api_endpoints.Challenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
                     "type": "string"
                 },
-                "namespace": {
-                    "type": "string"
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "port": {
-                    "type": "integer"
+                "user": {
+                    "type": "string"
                 }
             }
         },
-        "apis.ConfigFile": {
+        "api_endpoints.Challenges": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "description": "Challenges names\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api_endpoints.ConfigFile": {
             "type": "object",
             "properties": {
                 "file": {
@@ -238,18 +294,18 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.DelChallenge": {
+        "api_endpoints.DelChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
                     "type": "string"
                 },
-                "namespace": {
+                "user": {
                     "type": "string"
                 }
             }
         },
-        "apis.DelRespChallenge": {
+        "api_endpoints.DelRespChallenge": {
             "type": "object",
             "properties": {
                 "challengeName": {
@@ -258,18 +314,14 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
-                "namespace": {
+                "user": {
                     "type": "string"
                 }
             }
         },
-        "apis.Kali": {
+        "api_endpoints.Kali": {
             "type": "object",
             "properties": {
-                "ip": {
-                    "description": "Ipaddress ip\nin: string",
-                    "type": "string"
-                },
                 "message": {
                     "description": "Message m\nin: string",
                     "type": "string"
@@ -280,19 +332,34 @@ const docTemplate = `{
                 }
             }
         },
-        "apis.Namespace": {
+        "api_endpoints.User": {
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Namespace name\nin: string",
+                    "description": "Username\nin: string",
                     "type": "string"
                 }
             }
         },
-        "apis.PublicKey": {
+        "api_endpoints.Users": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "description": "Users names\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api_endpoints.Wireguard": {
             "type": "object",
             "properties": {
                 "key": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 }
             }
