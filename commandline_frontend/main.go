@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"k8-project/commandline_frontend/api"
+	"k8s-project/commandline_frontend/api"
 	"os"
 	"strconv"
 )
