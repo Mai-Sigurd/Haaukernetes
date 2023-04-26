@@ -54,7 +54,7 @@ containerd config default | tee /etc/containerd/config.toml
 sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
 
 curl -Lo /etc/systemd/system/containerd.service https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
-sudo systemctl daemon-reload
+systemctl daemon-reload
 systemctl enable --now containerd
 
 echo "##### Installing Kubeadm, Kubelet, and Kubectl"
