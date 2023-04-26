@@ -3,13 +3,14 @@ package challenge
 import (
 	"k8-project/deployments"
 	"k8-project/services"
+	"k8-project/utils"
 	"k8s.io/client-go/kubernetes"
 )
 
 func CreateChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string, imageName string, ports []int32) {
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeName
-	podLabels["type"] = "challenge"
+	podLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
 	deployments.CreateDeployment(clientSet, namespace, challengeName, imageName, ports, podLabels)
 	services.CreateService(clientSet, namespace, challengeName, ports)
 }
