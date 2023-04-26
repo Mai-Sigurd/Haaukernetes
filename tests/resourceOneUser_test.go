@@ -17,8 +17,7 @@ func Test6ChallengesAndWireguard(t *testing.T) {
 	clientSet := getClientSet()
 	person1 := "testperson1"
 
-	settings := utils.ReadYaml("settings-test.yaml")
-	setUpKubernetesResourcesWithWireguard(*clientSet, person1, settings.Endpoint, settings.Subnet)
+	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
 	startAllChallenges(*clientSet, person1)
 	time.Sleep(10 * time.Second)
@@ -54,8 +53,7 @@ func Test30ChallengesWireguard(t *testing.T) {
 	clientSet := getClientSet()
 	person1 := "testperson1"
 
-	settings := utils.ReadYaml("settings-test.yaml")
-	setUpKubernetesResourcesWithWireguard(*clientSet, person1, settings.Endpoint, settings.Subnet)
+	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
 	startAllChallengesWithDuplicates(*clientSet, person1)
 	time.Sleep(10 * time.Second)

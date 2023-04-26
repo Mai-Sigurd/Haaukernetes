@@ -16,8 +16,8 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
-	matchLabels["app"] = "kali"
-	matchLabels["vpn"] = "wireguard"
+	matchLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
+	matchLabels[utils.WireguardPodLabelKey] = utils.WireguardPodLabelValue
 	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
@@ -27,7 +27,7 @@ func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace stri
 
 	ingress := buildIngressRules()
 	matchLabels := make(map[string]string)
-	matchLabels["type"] = "challenge"
+	matchLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
 	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, ingress, matchLabels)
 }
 
@@ -39,7 +39,7 @@ func buildEgressRules() []networking.NetworkPolicyEgressRule {
 				{
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"type": "challenge",
+							utils.ChallengePodLabelKey: utils.ChallengePodLabelValue,
 						},
 					},
 				},
@@ -51,14 +51,14 @@ func buildEgressRules() []networking.NetworkPolicyEgressRule {
 					NamespaceSelector: &metav1.LabelSelector{},
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"k8s-app": "kube-dns",
+							utils.KubernetesDNSLabelKey: utils.KubernetesDNSLabelValue,
 						},
 					},
 				},
 			},
 			Ports: []networking.NetworkPolicyPort{
 				{
-					Port:     &intstr.IntOrString{Type: intstr.Type(intstr.Int), IntVal: 53},
+					Port:     &intstr.IntOrString{Type: intstr.Int, IntVal: 53},
 					Protocol: getAddress(v1.ProtocolUDP),
 				},
 			},
@@ -73,7 +73,7 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 				{
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"app": "kali",
+							utils.KaliPodLabelKey: utils.KaliPodLabelValue,
 						},
 					},
 				},
@@ -84,7 +84,7 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 				{
 					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							"vpn": "wireguard",
+							utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
 						},
 					},
 				},
@@ -93,7 +93,6 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 	}
 }
 
-// todo many params not very pretty
 func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
 	netpol := configureNetworkPolicy(policyName, namespace, policyTypes, egress, ingress, matchLabels)
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(namespace)
@@ -102,7 +101,6 @@ func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, name
 	utils.InfoLogger.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), namespace)
 }
 
-// many params not very pretty
 func configureNetworkPolicy(policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
 	netpol := &networking.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
