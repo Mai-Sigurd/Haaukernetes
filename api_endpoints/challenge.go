@@ -1,8 +1,9 @@
 package api_endpoints
 
 import (
+	"k8s-project/challenge"
+
 	"github.com/gin-gonic/gin"
-	"k8-project/challenge"
 	"k8s.io/client-go/kubernetes"
 )
 

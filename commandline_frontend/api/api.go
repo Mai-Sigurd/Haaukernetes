@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"k8-project/api_endpoints"
+	"k8s-project/api_endpoints"
 	"net/http"
 
 	"github.com/goccy/go-json"
