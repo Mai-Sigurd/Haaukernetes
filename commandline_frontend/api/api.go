@@ -5,20 +5,23 @@ import (
 	"fmt"
 	"io"
 	"k8s-project/api_endpoints"
+	"k8s-project/utils"
 	"net/http"
 
 	"github.com/goccy/go-json"
 )
 
-var ipPort = "5113"
+var ipPort = utils.APIPort
 
 func SetIpPort(port string) {
 	ipPort = port
 }
 
 func GetUser(name string) {
-	url := "http://localhost:" + ipPort + "/namespace/" + name
-	resp, err := http.NewRequest("GET", url, nil)
+	reqBody := api_endpoints.User{Name: name}
+	jsonBody, _ := json.Marshal(reqBody)
+	url := "http://localhost:" + ipPort + "/user/"
+	resp, err := http.NewRequest("GET", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -29,7 +32,7 @@ func PostUser(name string) {
 	reqBody := api_endpoints.User{Name: name}
 	jsonBody, _ := json.Marshal(reqBody)
 
-	url := "http://localhost:" + ipPort + "/namespace/"
+	url := "http://localhost:" + ipPort + "/user/"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		fmt.Println(err.Error())
@@ -39,16 +42,18 @@ func PostUser(name string) {
 }
 
 func DeleteUser(name string) {
-	url := "http://localhost:" + ipPort + "/namespace/" + name
-	resp, err := http.NewRequest("DELETE", url, nil)
+	reqBody := api_endpoints.User{Name: name}
+	jsonBody, _ := json.Marshal(reqBody)
+
+	url := "http://localhost:" + ipPort + "/user/"
+	resp, err := http.NewRequest("DELETE", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	generalResponse(resp)
 }
-
-func GetKali(namespace string) {
-	url := "http://localhost:" + ipPort + "/kali/" + namespace
+func GetUsers() {
+	url := "http://localhost:" + ipPort + "/users/"
 	resp, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -56,9 +61,34 @@ func GetKali(namespace string) {
 	generalResponse(resp)
 }
 
-func PostKali(namespace string) {
-	url := "http://localhost:" + ipPort + "/kali/" + namespace
-	resp, err := http.NewRequest("POST", url, nil)
+func GetUserChallenges(name string) {
+	reqBody := api_endpoints.User{Name: name}
+	jsonBody, _ := json.Marshal(reqBody)
+
+	url := "http://localhost:" + ipPort + "/user/challenges/"
+	resp, err := http.NewRequest("GET", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	generalResponse(resp)
+}
+
+func PostKali(username string) {
+	reqBody := api_endpoints.User{Name: username}
+	jsonBody, _ := json.Marshal(reqBody)
+	url := "http://localhost:" + ipPort + "/kali/"
+	resp, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	generalResponse(resp)
+}
+
+func PostWireguard(username string) {
+	reqBody := api_endpoints.User{Name: username}
+	jsonBody, _ := json.Marshal(reqBody)
+	url := "http://localhost:" + ipPort + "/wireguard/"
+	resp, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		fmt.Println(err.Error())
 	}
