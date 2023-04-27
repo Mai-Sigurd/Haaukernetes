@@ -24,3 +24,8 @@ The script installs guacamole, guacd, and postgres.
 - Make sure that there is a Kali container running. 
 - Get the cluster IP and port for the Kali container using `kubectl get services`
 - Create a new connection in Guacamole using the cluster IP and port of the Kali. 
+  - Protocol: RDP
+  - Network -> hostname: Kali cluster IP
+  - Network -> port: Kali port
+  - Authentication -> username and password: "Kali"
+  - Select "Ignore server certificate"
