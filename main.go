@@ -18,7 +18,7 @@ import (
 func main() {
 	utils.SetLog()
 
-	port := ":33333"
+	port := ":" + utils.Port
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -45,10 +45,10 @@ func main() {
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
 	user := r.Group("/user/")
 	{
-		user.GET("/", controller.GetUser)
+		user.GET("", controller.GetUser)
 		user.GET("/challenges/", controller.GetUserChallenges)
-		user.POST("/", controller.PostUser)
-		user.DELETE("/", controller.DeleteUser)
+		user.POST("", controller.PostUser)
+		user.DELETE("", controller.DeleteUser)
 	}
 
 	namespaces := r.Group("/users/")
@@ -58,8 +58,8 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 
 	challenge := r.Group("/challenge/")
 	{
-		challenge.POST("/", controller.PostChallenge)
-		challenge.DELETE("/", controller.DeleteChallenge)
+		challenge.POST("", controller.PostChallenge)
+		challenge.DELETE("", controller.DeleteChallenge)
 	}
 
 	kali := r.Group("/kali/")
@@ -69,7 +69,7 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 
 	wireguard := r.Group("/wireguard/")
 	{
-		wireguard.POST("/", controller.PostWireguard)
+		wireguard.POST("", controller.PostWireguard)
 	}
 	return r
 }
