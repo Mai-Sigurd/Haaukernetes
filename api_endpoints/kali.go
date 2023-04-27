@@ -29,7 +29,10 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		kali.StartKali(*c.ClientSet, body.Name)
+		err := kali.StartKali(*c.ClientSet, body.Name)
+		if err != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		}
 		message := "You can now rdp into your Kali."
 		kaliresp := Kali{Name: body.Name, Message: message}
 		ctx.JSON(200, kaliresp)
