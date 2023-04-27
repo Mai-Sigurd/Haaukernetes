@@ -24,10 +24,10 @@ done
 echo "##### Creating guacamole namespace"
 kubectl create namespace $NAMESPACE
 
-echo "##### Creating guacamole secret"
-kubectl create secret generic guacamole \
+echo "##### Creating postgres secret"
+kubectl create secret generic postgres \
     --from-literal postgres-user=guacamole \
-    --from-literal postgres-password="$DB_PASSWORD" \
+    --from-literal postgres-password=$DB_PASSWORD \
     --from-literal postgres-database=guacamole \
     --from-literal postgres-port=$POSTGRES_PORT \
     --namespace=guacamole
@@ -36,13 +36,18 @@ echo "##### Setting up postgres"
 kubectl apply -f postgres.yaml
 
 # Get pod name for the new postgres pod
-POD=$(kubectl get pod --namespace=guacamole -l app=postgres -o jsonpath="{.items[0].metadata.name}")
+POSTGRES_POD=$(kubectl get pod --namespace=guacamole -l app=postgres -o jsonpath="{.items[0].metadata.name}")
 
 echo "##### Waiting for postgres pod to be ready"
-kubectl wait --namespace=guacamole --for=condition=Ready pod/"$POD"
-
-echo "##### Run DB init script"
-kubectl exec -it "$POD" -n guacamole -- psql -h localhost -d guacamole -U guacamole -p $POSTGRES_PORT < initdb.sql
+while true; do
+    if kubectl wait --namespace=$NAMESPACE --for=condition=Ready pod/$POSTGRES_POD --timeout=300s; then
+        echo "Pod $POD is ready"
+        break
+    else
+        echo "Pod $POD is not ready yet. Retrying in 5 seconds..."
+        sleep 5
+    fi
+done
 
 echo "##### Waiting for $SERVICE_NAME service to become available"
 while true; do
@@ -58,8 +63,18 @@ while true; do
   sleep 3
 done
 
+echo "##### Run DB init script"
+#kubectl exec "$POSTGRES_POD" -n guacamole -- psql -h $POSTGRES_IP -d guacamole -U guacamole -p $POSTGRES_PORT < initdb.sql
+
+POSTGRES_CONNECTION_STRING="postgresql://guacamole:${DB_PASSWORD}@localhost:${POSTGRES_PORT}/guacamole"
+kubectl exec -it "$POSTGRES_POD" -n guacamole -- psql "$POSTGRES_CONNECTION_STRING" < initdb.sql
+
+# kubectl exec -i "$POSTGRES_POD" -n guacamole -- psql "$POSTGRES_CONNECTION_STRING" < initdb.sql
+# postgresql://<user>:<password>@<host>:<port>/<database>
+
 echo "##### Updating guacamole secret with postgres IP"
-kubectl patch secret guacamole -n guacamole --type='json' -p='[{"op": "add", "path": "/data/postgres-hostname", "value": "'$POSTGRES_IP'"}]'
+POSTGRES_IP_ENCODED=$(echo -n "$POSTGRES_IP" | base64)
+kubectl patch secret postgres -n guacamole --type='json' -p='[{"op": "add", "path": "/data/postgres-hostname", "value": "'$POSTGRES_IP_ENCODED'"}]'
 
 echo "##### Setting up guacamole"
 kubectl apply -f guacamole.yaml
