@@ -10,30 +10,7 @@ import ( // todo we need to change default guac user somehow to not have it expo
 	"strings"
 )
 
-type guacamole struct {
-	Username  string
-	Password  string
-	BaseUrl   string // vi skal bruge user, pass, server ip, guac port somehow
-	AuthToken string
-}
-
-type createUserAttributes struct {
-	Disabled          string `json:"disabled"`
-	Expired           string `json:"expired"`
-	AccessWindowStart string `json:"access-window-start"`
-	AccessWindowEnd   string `json:"access-window-end"`
-	ValidFrom         string `json:"valid-from"`
-	ValidUntil        string `json:"valid-until"`
-	TimeZone          string `json:"timezone"`
-}
-
-type userInfo struct {
-	Username   string               `json:"username"`
-	Password   string               `json:"password"`
-	Attributes createUserAttributes `json:"attributes"`
-}
-
-func (guac *guacamole) getAuthToken() (string, error) {
+func (guac *Guacamole) getAuthToken() (string, error) {
 	form := url.Values{
 		"username":   {guac.Username},
 		"password":   {guac.Password},
@@ -74,13 +51,9 @@ func (guac *guacamole) getAuthToken() (string, error) {
 	return authToken, nil // TODO maybe save the access token inside input guac struct and return that one???
 }
 
-func (guac *guacamole) createUser(username string, password string) {
-	creds := userInfo{
-		Username: username,
-		Password: password,
-	}
+func (guac *Guacamole) createUser(u UserInfo) {
 
-	payload, err := json.Marshal(creds)
+	payload, err := json.Marshal(u)
 	if err != nil {
 		fmt.Println("Error marshaling JSON payload:", err) // TODO error handling
 		return
@@ -108,5 +81,65 @@ func (guac *guacamole) createUser(username string, password string) {
 		return
 	}
 
-	fmt.Println("Response Body:", string(body)) // TODO error handling
+	fmt.Println("Response Body:", string(body)) // TODO error handling and do something with it
+}
+
+func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) {
+	param := RDPParameters{
+		Username:   "Kali",
+		Password:   "Kali",
+		Hostname:   kaliHostname,
+		Port:       kaliPort,
+		IgnoreCert: true,
+	}
+
+	attr := RDPAttributes{}
+
+	conn := RDPConnection{
+		ParentIdentifier: "ROOT",
+		Name:             "Kali-RDP",
+		Protocol:         "rdp",
+		Parameters:       param,
+		Attributes:       attr,
+	}
+
+	payload, err := json.Marshal(conn)
+	if err != nil {
+		fmt.Println("Error marshaling JSON payload:", err) // TODO error handling
+		return
+	}
+
+	req, err := http.NewRequest("POST", guac.BaseUrl+"/api/session/data/postgresql/connections?token="+guac.AuthToken, bytes.NewBuffer(payload))
+	if err != nil {
+		fmt.Println("Error creating HTTP request:", err)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending HTTP request:", err) // TODO error handling
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err) // TODO error handling
+		return
+	}
+
+	var responseMap map[string]interface{}
+
+	err = json.Unmarshal(body, &responseMap)
+	if err != nil {
+		fmt.Println("Error decoding response body:", err) // TODO error handling
+		return
+	}
+
+	identifier := responseMap["identifier"].(string)
+
+	fmt.Println("Identifier", identifier) // TODO error handling and do something with it
 }
