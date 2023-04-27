@@ -18,7 +18,7 @@ import (
 func main() {
 	utils.SetLog()
 
-	port := ":33333" //hardcoded because getting user input in docker is not convenient
+	port := ":33333"
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -45,8 +45,8 @@ func main() {
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
 	user := r.Group("/user/")
 	{
-		user.GET("/:name", controller.GetUser)
-		user.GET("/challenges/:name", controller.GetUserChallenges)
+		user.GET("/", controller.GetUser)
+		user.GET("/challenges/", controller.GetUserChallenges)
 		user.POST("/", controller.PostUser)
 		user.DELETE("/", controller.DeleteUser)
 	}
@@ -64,8 +64,7 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 
 	kali := r.Group("/kali/")
 	{
-		kali.POST("/:user", controller.PostKali)
-		kali.GET("/:user", controller.GetKali)
+		kali.POST("", controller.PostKali)
 	}
 
 	wireguard := r.Group("/wireguard/")
