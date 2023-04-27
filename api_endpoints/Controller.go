@@ -11,3 +11,9 @@ type Controller struct {
 type ErrorResponse struct {
 	Message string
 }
+
+type User struct {
+	// Username
+	// in: string
+	Name string `json:"name"`
+}

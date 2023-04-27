@@ -6,11 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type User struct {
-	// Username
-	// in: string
-	Name string `json:"name"`
-}
 type Users struct {
 	// Users names
 	// in: array
@@ -24,26 +19,32 @@ type Challenges struct {
 }
 
 // GetUser godoc
-// @Summary Retrieves namespace based on given name
+// @Summary Retrieves user based on given name
 // @Produce json
-// @Param name path string true "Username"
+// @Param user body User true "User"
 // @Success 200 {object} User
-// @Router /namespace/{name} [get]
+// @Router /user/ [get]
 func (c Controller) GetUser(ctx *gin.Context) {
-	name := ctx.Param("name")
-	if !namespaces.NamespaceExists(*c.ClientSet, name) {
-		message := "Sorry user " + name + " does not exist"
+	var body User
+	if err := ctx.BindJSON(&body); err != nil {
+		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		ctx.JSON(200, User{name})
+		name := body.Name
+		if !namespaces.NamespaceExists(*c.ClientSet, name) {
+			message := "Sorry user " + name + " does not exist"
+			ctx.JSON(400, ErrorResponse{Message: message})
+		} else {
+			ctx.JSON(200, User{name})
+		}
 	}
 }
 
 // GetUsers godoc
-// @Summary Retrieves all namespaces
+// @Summary Retrieves all users
 // @Produce json
 // @Success 200 {object} Users
-// @Router /namespaces [get]
+// @Router /users [get]
 func (c Controller) GetUsers(ctx *gin.Context) {
 	result, err := namespaces.GetNamespaces(*c.ClientSet)
 	if err != nil {
@@ -57,16 +58,22 @@ func (c Controller) GetUsers(ctx *gin.Context) {
 // GetUserChallenges godoc
 // @Summary Retrieves all challenges, as well as Kalis or wireguards running for a user
 // @Produce json
-// @Param name path string true "Username"
+// @Param user body User true "User"
 // @Success 200 {object} Challenges
-// @Router /user/challenges/{name} [get]
+// @Router /user/challenges/ [get]
 func (c Controller) GetUserChallenges(ctx *gin.Context) {
-	name := ctx.Param("name")
-	result, err := namespaces.GetNamespacePods(*c.ClientSet, name)
-	if err != nil {
-		ctx.JSON(400, ErrorResponse{Message: err.Error()})
+	var body User
+	if err := ctx.BindJSON(&body); err != nil {
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
+	} else {
+		name := body.Name
+		result, err1 := namespaces.GetNamespacePods(*c.ClientSet, name)
+		if err1 != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		}
+		ctx.JSON(200, Challenges{Names: result})
 	}
-	ctx.JSON(200, Challenges{Names: result})
 }
 
 // PostUser godoc
@@ -95,15 +102,21 @@ func (c Controller) PostUser(ctx *gin.Context) {
 // DeleteUser godoc
 // @Summary Deletes user based on given name
 // @Produce json
-// @Param name path string true "User name"
+// @Param user body User true "User"
 // @Success 200
-// @Router /namespace/{name} [delete]
+// @Router /user/ [delete]
 func (c Controller) DeleteUser(ctx *gin.Context) {
-	name := ctx.Param("name")
-	err := namespaces.DeleteNamespace(*c.ClientSet, name)
-	if err != nil {
-		ctx.JSON(400, ErrorResponse{Message: err.Error()})
+	var body User
+	if err := ctx.BindJSON(&body); err != nil {
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		ctx.JSON(200, "User "+name+" Deleted")
+		name := body.Name
+		err1 := namespaces.DeleteNamespace(*c.ClientSet, name)
+		if err1 != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		} else {
+			ctx.JSON(200, "User "+name+" Deleted")
+		}
 	}
 }
