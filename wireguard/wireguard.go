@@ -78,13 +78,15 @@ func configureWireGuardDeployment() *appsv1.Deployment {
 			Replicas: utils.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
+					utils.WireguardPodLabelKey:  utils.WireguardPodLabelValue,
+					utils.NetworkPolicyLabelKey: utils.NetworkPolicyLabelValue,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						utils.WireguardPodLabelKey: utils.WireguardPodLabelValue,
+						utils.WireguardPodLabelKey:  utils.WireguardPodLabelValue,
+						utils.NetworkPolicyLabelKey: utils.NetworkPolicyLabelValue,
 					},
 				},
 				Spec: apiv1.PodSpec{

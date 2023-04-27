@@ -16,8 +16,7 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) {
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
-	matchLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
-	matchLabels[utils.WireguardPodLabelKey] = utils.WireguardPodLabelValue
+	matchLabels[utils.NetworkPolicyLabelKey] = utils.NetworkPolicyLabelValue
 	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
