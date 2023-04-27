@@ -13,4 +13,6 @@ const (
 	ChallengePodLabelValue  = "challenge"
 	KubernetesDNSLabelKey   = "k8s-app"
 	KubernetesDNSLabelValue = "kube-dns"
+	NetworkPolicyLabelKey   = "network"
+	NetworkPolicyLabelValue = "restricted"
 )
