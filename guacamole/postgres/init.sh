@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# få startet en kali
+# test det
+
 # kubectl logs guacamole-7f86c55467-24442 -c guacamole -n guacamole
 # Kig lige lidt på versions i de andre filer
 # sammenlign med https://oopflow.medium.com/how-to-install-guacamole-on-kubernetes-7d747438c141
@@ -7,22 +10,34 @@
 # Exit if any command fails
 set -e
 
-DB_PASSWORD=""
+SERVICE_NAME="postgres"
+NAMESPACE="guacamole"
+POSTGRES_IP=""
+POSTGRES_PORT=5432
 
-read -p "Enter password for db: " -s DB_PASSWORD
-echo ""
+read -s -p "Enter new password for DB: " DB_PASSWORD
+
+while true; do
+    read -s -p "Enter new password for DB: " DB_PASSWORD
+    echo
+    read -s -p "Repeat password: " password2
+    echo
+    if [ "$DB_PASSWORD" = "$password2" ]; then
+        break
+    else
+        echo "Passwords do not match. Please try again."
+    fi
+done
 
 echo "Creating guacamole namespace"
 kubectl apply -f guacamole-namespace.yaml
 
-# FIXX SÆT hostname til inside IP på postgres
-echo "Creating K8 db secret"
-kubectl create secret generic postgres \
+echo "Creating guacamole secret"
+kubectl create secret generic guacamole \
     --from-literal postgres-user=guacamole \
     --from-literal postgres-password="$DB_PASSWORD" \
-    --from-literal postgres-hostname=localhost \
     --from-literal postgres-database=guacamole \
-    --from-literal postgres-port=5432 \
+    --from-literal postgres-port=$POSTGRES_PORT \
     --namespace=guacamole
 
 echo "Create PVC and PV"
@@ -34,10 +49,31 @@ kubectl apply -f postgres-deployment.yaml
 echo "Create postgres service"
 kubectl apply -f postgres-service.yaml
 
+# Get pod name for the new postgres pod
+POD=$(kubectl get pod --namespace=guacamole -l app=postgres -o jsonpath="{.items[0].metadata.name}")
 
-# FIXX POD NAME ETC
-kubectl exec -it postgres-7996cd45c5-7qpsw -n guacamole -- psql -h localhost -d guacamole -U guacamole -p 5432 < initdb.sql
+echo "Waiting for postgres pod to be ready"
+kubectl wait --namespace=guacamole --for=condition=Ready pod/"$POD"
 
+echo "Run DB init script"
+kubectl exec -it "$POD" -n guacamole -- psql -h localhost -d guacamole -U guacamole -p $POSTGRES_PORT < initdb.sql
+
+echo "Waiting for $SERVICE_NAME service to become available"
+while true; do
+  # Check if postgres service exists
+  if kubectl get service $SERVICE_NAME -n $NAMESPACE >/dev/null 2>&1; then
+    # Retrieve service IP address
+    POSTGRES_IP=$(kubectl get service $SERVICE_NAME -n $NAMESPACE -o jsonpath='{.spec.clusterIP}')
+    if [[ ! -z "$POSTGRES_IP" ]]; then
+      echo "Service $SERVICE_NAME is now available"
+      break
+    fi
+  fi
+  sleep 3
+done
+
+echo "Updating guacamole secret with postgres IP"
+kubectl patch secret guacamole -n guacamole --type='json' -p='[{"op": "add", "path": "/data/postgres-hostname", "value": "'$POSTGRES_IP'"}]'
 
 echo "Creating guacamole deployment"
 kubectl apply -f guacamole-deployment.yaml
