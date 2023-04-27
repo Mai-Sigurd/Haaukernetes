@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# få startet en kali
-# test det
-
-# kubectl logs guacamole-7f86c55467-24442 -c guacamole -n guacamole
-# Kig lige lidt på versions i de andre filer
-# sammenlign med https://oopflow.medium.com/how-to-install-guacamole-on-kubernetes-7d747438c141
-
 # Exit if any command fails
 set -e
 
@@ -80,3 +73,5 @@ kubectl apply -f guacamole-deployment.yaml
 
 echo "Creating guacamole service"
 kubectl apply -f guacamole-service.yaml
+
+echo "Installation complete!"
