@@ -29,3 +29,7 @@ The script installs Guacamole, guacd, and postgres.
   - Network -> port: Kali port
   - Authentication -> username and password: "Kali"
   - Select "Ignore server certificate"
+
+## Removing Guacamole Components
+- Delete the namespace components using `kubectl delete namespace guacamole`.
+- Delete the persistent volume using `kubectl delete pv postgres-pv-volume`.
