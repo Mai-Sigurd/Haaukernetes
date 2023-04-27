@@ -1,6 +1,7 @@
 package utils
 
 const (
+	Port                    = "33333"
 	ImageRepoUrl            = "registry.digitalocean.com/haaukins-bsc/"
 	WireguardImage          = "wireguard-go"
 	WireguardEndpoint       = "164.92.194.69" // public endpoint for k8s cluster
