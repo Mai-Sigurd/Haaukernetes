@@ -23,7 +23,7 @@ while true; do
 done
 
 echo "Creating guacamole namespace"
-kubectl apply -f guacamole-namespace.yaml
+kubectl create namespace $NAMESPACE
 
 echo "Creating guacamole secret"
 kubectl create secret generic guacamole \
@@ -33,14 +33,8 @@ kubectl create secret generic guacamole \
     --from-literal postgres-port=$POSTGRES_PORT \
     --namespace=guacamole
 
-echo "Create PVC and PV"
-kubectl apply -f postgres-pvc-pv.yaml
-
-echo "Create postgres deployment"
-kubectl apply -f postgres-deployment.yaml
-
-echo "Create postgres service"
-kubectl apply -f postgres-service.yaml
+echo "Setting up postgres"
+kubectl apply -f postgres.yaml
 
 # Get pod name for the new postgres pod
 POD=$(kubectl get pod --namespace=guacamole -l app=postgres -o jsonpath="{.items[0].metadata.name}")
@@ -68,10 +62,11 @@ done
 echo "Updating guacamole secret with postgres IP"
 kubectl patch secret guacamole -n guacamole --type='json' -p='[{"op": "add", "path": "/data/postgres-hostname", "value": "'$POSTGRES_IP'"}]'
 
-echo "Creating guacamole deployment"
-kubectl apply -f guacamole-deployment.yaml
-
-echo "Creating guacamole service"
-kubectl apply -f guacamole-service.yaml
+echo "Setting up guacamole"
+kubectl apply -f guacamole.yaml
 
 echo "Installation complete!"
+ADDRESS=$(kubectl get service guacamole -n my-guacamole -o jsonpath='{.spec.clusterIP}:{.spec.ports[0].port}')
+echo "You can access guacamole on ${ADDRESS}"
+echo "The default username is: guacadmin"
+echo "The default password is: guacadmin"
