@@ -10,7 +10,7 @@ APISERVER=$(hostname -s)
 NODENAME=$(hostname -s)
 CIDR="10.244.0.0/16"
 
-apt-get update
+apt-get update -y
 apt-get install -y apt-transport-https ca-certificates curl
 
 echo "##### Disabling swap"
