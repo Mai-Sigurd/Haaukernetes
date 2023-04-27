@@ -1,3 +1,42 @@
+# Create persistent volume
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 50M # Sets PV Volume
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/data"
+
+---
+
+# Create persistent volume claim
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim
+  namespace: guacamole
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50M  # Sets volume size
+
+---
+
+# Create deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,3 +81,19 @@ spec:
         - name: postgredb
           persistentVolumeClaim:
             claimName: postgres-pv-claim
+
+---
+
+# Create service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres # Sets service name
+  namespace: guacamole
+  labels:
+    app: postgres # Labels and Selectors
+spec:
+  ports:
+    - port: 5432 # Sets port to run the postgres application
+  selector:
+    app: postgres

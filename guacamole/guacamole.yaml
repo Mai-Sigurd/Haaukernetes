@@ -1,3 +1,12 @@
+# Create namespace
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: guacamole
+
+---
+
+# Create deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,3 +84,23 @@ spec:
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 20
+
+---
+
+# Create service
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacamole
+  namespace: guacamole
+  labels:
+    app: guacamole
+spec:
+  type: NodePort
+  ports:
+    - name: guacamole-app
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: guacamole
