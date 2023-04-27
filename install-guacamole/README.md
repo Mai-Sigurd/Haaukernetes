@@ -1,6 +1,6 @@
 # Installing Guacamole
 
-The script installs guacamole, guacd, and postgres. 
+The script installs Guacamole, guacd, and postgres. 
 
 ## Requirements
 - Running Kubernetes cluster
@@ -20,9 +20,9 @@ The script installs guacamole, guacd, and postgres.
 - It can also be found by running `kubectl get svc -n guacamole` and using the form `http://<public-server-ip>:guacamole-exposed-nodeport/guacamole`.
 - The default username and password is `guacadmin`.
 
-## Connecting to Kali
+## Connecting to Kali via Guacamole Interface
 - Make sure that there is a Kali container running. 
-- Get the cluster IP and port for the Kali container using `kubectl get services`
+- Get the cluster IP and port for the Kali container using `kubectl get services`.
 - Create a new connection in Guacamole using the cluster IP and port of the Kali. 
   - Protocol: RDP
   - Network -> hostname: Kali cluster IP
