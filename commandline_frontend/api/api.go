@@ -11,7 +11,7 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var ipPort = utils.Port
+var ipPort = utils.APIPort
 
 func SetIpPort(port string) {
 	ipPort = port

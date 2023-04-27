@@ -18,7 +18,7 @@ import (
 func main() {
 	utils.SetLog()
 
-	port := ":" + utils.Port
+	port := ":" + utils.APIPort
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
