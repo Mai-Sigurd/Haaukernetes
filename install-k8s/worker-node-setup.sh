@@ -5,7 +5,7 @@ set -e
 [[ $EUID -ne 0 ]] && echo "This script must be run as root/sudo" && exit 1
 echo "##### Starting worker-node setup"
 
-apt-get update
+apt-get update -y
 apt-get install -y apt-transport-https ca-certificates curl
 
 echo "##### Disabling swap"
