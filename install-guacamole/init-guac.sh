@@ -64,13 +64,8 @@ while true; do
 done
 
 echo "##### Run DB init script"
-#kubectl exec "$POSTGRES_POD" -n guacamole -- psql -h $POSTGRES_IP -d guacamole -U guacamole -p $POSTGRES_PORT < initdb.sql
-
 POSTGRES_CONNECTION_STRING="postgresql://guacamole:${DB_PASSWORD}@localhost:${POSTGRES_PORT}/guacamole"
 kubectl exec -it "$POSTGRES_POD" -n guacamole -- psql "$POSTGRES_CONNECTION_STRING" < initdb.sql
-
-# kubectl exec -i "$POSTGRES_POD" -n guacamole -- psql "$POSTGRES_CONNECTION_STRING" < initdb.sql
-# postgresql://<user>:<password>@<host>:<port>/<database>
 
 echo "##### Updating guacamole secret with postgres IP"
 POSTGRES_IP_ENCODED=$(echo -n "$POSTGRES_IP" | base64)
