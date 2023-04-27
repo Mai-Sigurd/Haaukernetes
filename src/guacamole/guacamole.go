@@ -51,7 +51,13 @@ func (guac *Guacamole) getAuthToken() (string, error) {
 	return authToken, nil // TODO maybe save the access token inside input guac struct and return that one???
 }
 
-func (guac *Guacamole) createUser(u UserInfo) {
+func (guac *Guacamole) createUser(username string, password string) {
+
+	u := UserInfo{
+		Username:   username,
+		Password:   password,
+		Attributes: CreateUserAttributes{},
+	}
 
 	payload, err := json.Marshal(u)
 	if err != nil {
@@ -84,7 +90,7 @@ func (guac *Guacamole) createUser(u UserInfo) {
 	fmt.Println("Response Body:", string(body)) // TODO error handling and do something with it
 }
 
-func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) {
+func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) (string, error) {
 	param := RDPParameters{
 		Username:   "Kali",
 		Password:   "Kali",
@@ -106,13 +112,13 @@ func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) {
 	payload, err := json.Marshal(conn)
 	if err != nil {
 		fmt.Println("Error marshaling JSON payload:", err) // TODO error handling
-		return
+		return "", err
 	}
 
 	req, err := http.NewRequest("POST", guac.BaseUrl+"/api/session/data/postgresql/connections?token="+guac.AuthToken, bytes.NewBuffer(payload))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
-		return
+		return "", err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -121,14 +127,14 @@ func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error sending HTTP request:", err) // TODO error handling
-		return
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err) // TODO error handling
-		return
+		return "", err
 	}
 
 	var responseMap map[string]interface{}
@@ -136,10 +142,53 @@ func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) {
 	err = json.Unmarshal(body, &responseMap)
 	if err != nil {
 		fmt.Println("Error decoding response body:", err) // TODO error handling
-		return
+		return "", err
 	}
 
 	identifier := responseMap["identifier"].(string)
 
-	fmt.Println("Identifier", identifier) // TODO error handling and do something with it
+	return identifier, nil // TODO error handling and do something with it
+}
+
+func (guac *Guacamole) assignConnection(connID string, username string) (string, error) {
+	addConn := []AddConnection{{
+		Operation: "add",
+		Path:      fmt.Sprintf("/connectionPermissions/%s", connID),
+		Value:     "READ",
+	}}
+
+	payload, err := json.Marshal(addConn)
+	if err != nil {
+		fmt.Println("Error marshaling JSON payload:", err) // TODO error handling
+		return "", nil
+	}
+
+	patchUrl := fmt.Sprintf("%s/api/session/data/postgresql/users/%s/permissions?token=%s", guac.BaseUrl, username, guac.AuthToken)
+	fmt.Println(patchUrl)
+
+	req, err := http.NewRequest("PATCH", patchUrl, bytes.NewBuffer(payload))
+
+	if err != nil {
+		fmt.Println("Error creating HTTP request:", err)
+		return "", nil
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending HTTP request:", err) // TODO error handling
+		return "", nil
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err) // TODO error handling
+		return "", nil
+	}
+
+	fmt.Println("Response Body:", string(body)) // TODO error handling and do something with it
+	return "", nil
 }
