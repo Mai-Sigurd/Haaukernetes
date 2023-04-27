@@ -34,5 +34,4 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		kaliresp := Kali{Name: body.Name, Message: message}
 		ctx.JSON(200, kaliresp)
 	}
-
 }

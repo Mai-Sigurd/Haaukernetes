@@ -26,7 +26,7 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	controller := api_endpoints.Controller{ClientSet: clientSet, Endpoint: utils.WireguardEndpoint, Subnet: utils.WireguardSubnet}
+	controller := api_endpoints.Controller{ClientSet: clientSet}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
