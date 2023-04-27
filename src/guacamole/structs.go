@@ -80,3 +80,9 @@ type RDPAttributes struct {
 	MaxConnectionsPerUser string `json:"max-connections-per-user"`
 	Weight                string `json:"weight"`
 }
+
+type AddConnection struct {
+	Operation string `json:"op"`
+	Path      string `json:"path"`
+	Value     string `json:"value"`
+}
