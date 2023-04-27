@@ -36,7 +36,10 @@ func (c Controller) PostChallenge(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		challenge.CreateChallenge(*c.ClientSet, body.User, body.ChallengeName, body.ChallengeName, body.Ports)
+		err := challenge.CreateChallenge(*c.ClientSet, body.User, body.ChallengeName, body.ChallengeName, body.Ports)
+		if err != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		}
 		ctx.JSON(200, body)
 	}
 }

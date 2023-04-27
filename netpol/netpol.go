@@ -11,24 +11,24 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) {
+func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) error {
 	policyName := "egress-policy"
 	policyTypes := []networking.PolicyType{"Egress"}
 	egress := buildEgressRules()
 	matchLabels := make(map[string]string)
 	matchLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
 	matchLabels[utils.WireguardPodLabelKey] = utils.WireguardPodLabelValue
-	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
+	return createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
-func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) {
+func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) error {
 	policyName := "ingress-policy"
 	policyTypes := []networking.PolicyType{"Ingress"}
 
 	ingress := buildIngressRules()
 	matchLabels := make(map[string]string)
 	matchLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
-	createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, ingress, matchLabels)
+	return createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, ingress, matchLabels)
 }
 
 func buildEgressRules() []networking.NetworkPolicyEgressRule {
@@ -93,12 +93,17 @@ func buildIngressRules() []networking.NetworkPolicyIngressRule {
 	}
 }
 
-func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) {
+func createNetworkPolicy(clientSet kubernetes.Clientset, policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) error {
 	netpol := configureNetworkPolicy(policyName, namespace, policyTypes, egress, ingress, matchLabels)
 	networkClient := clientSet.NetworkingV1().NetworkPolicies(namespace)
 	result, err := networkClient.Create(context.TODO(), &netpol, metav1.CreateOptions{})
-	utils.ErrLogger(err)
+
+	if err != nil {
+		return err
+	}
+
 	utils.InfoLogger.Printf("Created network policy of type %q with name %q for namespace %s\n", &result.Spec.PolicyTypes, result.GetObjectMeta().GetName(), namespace)
+	return nil
 }
 
 func configureNetworkPolicy(policyName string, namespace string, policyTypes []networking.PolicyType, egress []networking.NetworkPolicyEgressRule, ingress []networking.NetworkPolicyIngressRule, matchLabels map[string]string) networking.NetworkPolicy {
