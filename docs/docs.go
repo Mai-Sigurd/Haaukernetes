@@ -67,42 +67,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/kali/{namespace}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Retrieves kali ip based on namespace name",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Kali"
-                        }
-                    }
-                }
-            },
+        "/kali/": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Creates Kali based on given namespace name",
+                "summary": "Creates Kali based on given user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
+                        "description": "User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
                     }
                 ],
                 "responses": {
@@ -115,19 +94,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/namespace/{name}": {
+        "/user/": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves namespace based on given name",
+                "summary": "Retrieves user based on given name",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Username",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
+                        "description": "User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
                     }
                 ],
                 "responses": {
@@ -139,44 +120,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Deletes user based on given name",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/namespaces": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Retrieves all namespaces",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Users"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/": {
             "post": {
                 "produces": [
                     "application/json"
@@ -201,9 +144,31 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes user based on given name",
+                "parameters": [
+                    {
+                        "description": "User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
-        "/user/challenges/{name}": {
+        "/user/challenges/": {
             "get": {
                 "produces": [
                     "application/json"
@@ -211,11 +176,13 @@ const docTemplate = `{
                 "summary": "Retrieves all challenges, as well as Kalis or wireguards running for a user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Username",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
+                        "description": "User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.User"
+                        }
                     }
                 ],
                 "responses": {
@@ -223,6 +190,22 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/api_endpoints.Challenges"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_endpoints.Users"
                         }
                     }
                 }
@@ -326,8 +309,8 @@ const docTemplate = `{
                     "description": "Message m\nin: string",
                     "type": "string"
                 },
-                "namespace": {
-                    "description": "Namespace name\nin: string",
+                "name": {
+                    "description": "Name\nin: string",
                     "type": "string"
                 }
             }

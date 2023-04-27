@@ -48,9 +48,9 @@ definitions:
           Message m
           in: string
         type: string
-      namespace:
+      name:
         description: |-
-          Namespace name
+          Name
           in: string
         type: string
     type: object
@@ -115,29 +115,15 @@ paths:
           schema:
             $ref: '#/definitions/api_endpoints.Challenge'
       summary: Creates challenge based in a given user
-  /kali/{namespace}:
-    get:
-      parameters:
-      - description: User name
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api_endpoints.Kali'
-      summary: Retrieves kali ip based on namespace name
+  /kali/:
     post:
       parameters:
-      - description: User name
-        in: path
-        name: name
+      - description: User
+        in: body
+        name: user
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/api_endpoints.User'
       produces:
       - application/json
       responses:
@@ -145,15 +131,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api_endpoints.Kali'
-      summary: Creates Kali based on given namespace name
-  /namespace/{name}:
+      summary: Creates Kali based on given user
+  /user/:
     delete:
       parameters:
-      - description: User name
-        in: path
-        name: name
+      - description: User
+        in: body
+        name: user
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/api_endpoints.User'
       produces:
       - application/json
       responses:
@@ -162,11 +149,12 @@ paths:
       summary: Deletes user based on given name
     get:
       parameters:
-      - description: Username
-        in: path
-        name: name
+      - description: User
+        in: body
+        name: user
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/api_endpoints.User'
       produces:
       - application/json
       responses:
@@ -174,18 +162,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api_endpoints.User'
-      summary: Retrieves namespace based on given name
-  /namespaces:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api_endpoints.Users'
-      summary: Retrieves all namespaces
-  /user/:
+      summary: Retrieves user based on given name
     post:
       parameters:
       - description: User
@@ -202,14 +179,15 @@ paths:
           schema:
             $ref: '#/definitions/api_endpoints.User'
       summary: Creates user based on given name
-  /user/challenges/{name}:
+  /user/challenges/:
     get:
       parameters:
-      - description: Username
-        in: path
-        name: name
+      - description: User
+        in: body
+        name: user
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/api_endpoints.User'
       produces:
       - application/json
       responses:
@@ -219,6 +197,16 @@ paths:
             $ref: '#/definitions/api_endpoints.Challenges'
       summary: Retrieves all challenges, as well as Kalis or wireguards running for
         a user
+  /users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_endpoints.Users'
+      summary: Retrieves all users
   /wireguard/:
     post:
       parameters:

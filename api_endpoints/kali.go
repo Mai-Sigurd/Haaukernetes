@@ -7,39 +7,32 @@ import (
 )
 
 type Kali struct {
-	// Namespace name
+	// Name
 	// in: string
-	Namespace string `json:"namespace"`
+	Name string `json:"name"`
 
 	// Message m
 	// in: string
 	Message string `json:"message"`
 }
 
-// GetKali godoc
-// @Summary Retrieves kali ip based on namespace name
-// @Produce json
-// @Param name path string true "User name"
-// @Success 200 {object} Kali
-// @Router /kali/{namespace} [get]
-func (c Controller) GetKali(ctx *gin.Context) {
-	name := ctx.Param("name")
-	message := "You can now rdp into your Kali."
-	kali := Kali{Namespace: name, Message: message}
-	ctx.JSON(200, kali)
-}
-
 // PostKali godoc
-// @Summary Creates Kali based on given namespace name
+// @Summary Creates Kali based on given user
 // @Produce json
-// @Param name path string true "User name"
+// @Param user body User true "User"
 // @Success 200 {object} Kali
-// @Router /kali/{namespace} [post]
+// @Router /kali/ [post]
 func (c Controller) PostKali(ctx *gin.Context) {
 
-	name := ctx.Param("namespace")
-	kali.StartKali(*c.ClientSet, name)
-	message := "You can now rdp into your Kali."
-	kali := Kali{Namespace: name, Message: message}
-	ctx.JSON(200, kali)
+	var body User
+	if err := ctx.BindJSON(&body); err != nil {
+		message := "bad request"
+		ctx.JSON(400, ErrorResponse{Message: message})
+	} else {
+		kali.StartKali(*c.ClientSet, body.Name)
+		message := "You can now rdp into your Kali."
+		kaliresp := Kali{Name: body.Name, Message: message}
+		ctx.JSON(200, kaliresp)
+	}
+
 }
