@@ -22,8 +22,12 @@ func StartKaliImage(clientSet kubernetes.Clientset, namespace string, imageName 
 	ports := []int32{kaliRDPPort}
 	err := deployments.CreateDeployment(clientSet, namespace, "kali", imageName, ports, podLabels)
 	if err != nil {
+		utils.ErrLogger(err)
 		return err
 	}
 	err = services.CreateService(clientSet, namespace, "kali", ports)
+	if err != nil {
+		utils.ErrLogger(err)
+	}
 	return err
 }

@@ -13,7 +13,11 @@ func CreateChallenge(clientSet kubernetes.Clientset, namespace string, challenge
 	podLabels["app"] = challengeName
 	podLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
 	deployments.CreateDeployment(clientSet, namespace, challengeName, imageName, ports, podLabels)
-	return services.CreateService(clientSet, namespace, challengeName, ports)
+	err := services.CreateService(clientSet, namespace, challengeName, ports)
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+	return err
 }
 
 func DeleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string) (bool, bool) {
