@@ -39,6 +39,7 @@ func CreateNamespace(clientSet kubernetes.Clientset, name string) error {
 func PostNamespace(clientSet kubernetes.Clientset, name string) error {
 	err := CreateNamespace(clientSet, name)
 	if err != nil {
+		utils.ErrLogger(err)
 		return err
 	}
 	netpol.CreateEgressPolicy(clientSet, name)
@@ -50,6 +51,7 @@ func PostNamespace(clientSet kubernetes.Clientset, name string) error {
 func GetNamespaces(clientSet kubernetes.Clientset) ([]string, error) {
 	namespaceList, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{LabelSelector: haaukins})
 	if err != nil {
+		utils.ErrLogger(err)
 		return nil, err
 	}
 	var result []string
@@ -67,6 +69,7 @@ func NamespaceExists(clientSet kubernetes.Clientset, name string) bool {
 func GetNamespacePods(clientSet kubernetes.Clientset, name string) ([]string, error) {
 	podList, err := clientSet.CoreV1().Pods(name).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
+		utils.ErrLogger(err)
 		return nil, err
 	}
 	var result []string
@@ -79,5 +82,8 @@ func GetNamespacePods(clientSet kubernetes.Clientset, name string) ([]string, er
 
 func DeleteNamespace(clientSet kubernetes.Clientset, namespace string) error {
 	err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), namespace, *metav1.NewDeleteOptions(0))
+	if err != nil {
+		utils.ErrLogger(err)
+	}
 	return err
 }

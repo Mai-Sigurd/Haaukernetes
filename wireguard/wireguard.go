@@ -23,20 +23,24 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 	serverPrivateKey, serverPublicKey := createKeys()
 	err := configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
 	if err != nil {
+		utils.ErrLogger(err)
 		return "", err
 	}
 	err = secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
 	if err != nil {
+		utils.ErrLogger(err)
 		return "", err
 	}
 	deployment := configureWireGuardDeployment()
 	err = deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
 	if err != nil {
+		utils.ErrLogger(err)
 		return "", err
 	}
 	service := configureWireguardNodePortService(namespace)
 	createdService, err := services.CreatePrebuiltService(clientSet, namespace, *service)
 	if err != nil {
+		utils.ErrLogger(err)
 		return "", err
 	}
 	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
