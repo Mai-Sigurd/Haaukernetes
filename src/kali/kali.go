@@ -19,6 +19,7 @@ func StartKaliImage(clientSet kubernetes.Clientset, namespace string, imageName 
 	utils.InfoLogger.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
+	podLabels[utils.NetworkPolicyLabelKey] = utils.NetworkPolicyLabelValue
 	ports := []int32{kaliRDPPort}
 	err := deployments.CreateDeployment(clientSet, namespace, "kali", imageName, ports, podLabels)
 	if err != nil {

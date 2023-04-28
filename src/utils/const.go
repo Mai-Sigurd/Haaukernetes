@@ -1,6 +1,7 @@
 package utils
 
 const (
+	APIPort                 = "33333"
 	ImageRepoUrl            = "registry.digitalocean.com/haaukins-bsc/"
 	WireguardImage          = "wireguard-go"
 	WireguardEndpoint       = "164.92.194.69" // public endpoint for k8s cluster
@@ -13,4 +14,6 @@ const (
 	ChallengePodLabelValue  = "challenge"
 	KubernetesDNSLabelKey   = "k8s-app"
 	KubernetesDNSLabelValue = "kube-dns"
+	NetworkPolicyLabelKey   = "network"
+	NetworkPolicyLabelValue = "restricted"
 )
