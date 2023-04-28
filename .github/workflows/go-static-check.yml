@@ -27,3 +27,4 @@ jobs:
         with:
           install-go: false
           version: "2022.1.1"
+          working-directory: src
