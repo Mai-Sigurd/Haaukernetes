@@ -10,7 +10,7 @@ import ( // todo we need to change default guac user somehow to not have it expo
 	"strings"
 )
 
-func (guac *Guacamole) getAuthToken() (string, error) {
+func (guac *Guacamole) GetAuthToken() (string, error) {
 	form := url.Values{
 		"username":   {guac.Username},
 		"password":   {guac.Password},
@@ -48,10 +48,11 @@ func (guac *Guacamole) getAuthToken() (string, error) {
 	}
 
 	authToken := responseMap["authToken"].(string)
-	return authToken, nil // TODO maybe save the access token inside input guac struct and return that one???
+	guac.AuthToken = authToken
+	return "", nil // TODO maybe save the access token inside input guac struct and return that one???
 }
 
-func (guac *Guacamole) createUser(username string, password string) {
+func (guac *Guacamole) CreateUser(username string, password string) {
 
 	u := UserInfo{
 		Username:   username,
@@ -90,11 +91,11 @@ func (guac *Guacamole) createUser(username string, password string) {
 	fmt.Println("Response Body:", string(body)) // TODO error handling and do something with it
 }
 
-func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) (string, error) {
+func (guac *Guacamole) CreateConnection(kaliIp string, kaliPort string) (string, error) {
 	param := RDPParameters{
 		Username:   "Kali",
 		Password:   "Kali",
-		Hostname:   kaliHostname,
+		Hostname:   kaliIp,
 		Port:       kaliPort,
 		IgnoreCert: true,
 	}
@@ -150,10 +151,10 @@ func (guac *Guacamole) createConnection(kaliHostname string, kaliPort string) (s
 	return identifier, nil // TODO error handling and do something with it
 }
 
-func (guac *Guacamole) assignConnection(connID string, username string) (string, error) {
+func (guac *Guacamole) AssignConnection(connIdentifier string, username string) (string, error) {
 	addConn := []AddConnection{{
 		Operation: "add",
-		Path:      fmt.Sprintf("/connectionPermissions/%s", connID),
+		Path:      fmt.Sprintf("/connectionPermissions/%s", connIdentifier),
 		Value:     "READ",
 	}}
 

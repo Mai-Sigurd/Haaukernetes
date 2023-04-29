@@ -1,6 +1,7 @@
 package main
 
 import (
+	"k8s-project/guacamole"
 	"os"
 
 	"k8s.io/client-go/kubernetes"
@@ -26,7 +27,13 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	controller := api_endpoints.Controller{ClientSet: clientSet}
+	guac := guacamole.Guacamole{
+		Username: "",
+		Password: "",
+		BaseUrl:  "", // "http://138.68.104.242:31347/guacamole"
+	}
+
+	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
