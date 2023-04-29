@@ -1,9 +1,8 @@
 package api_endpoints
 
 import (
-	"k8s-project/kali"
-
 	"github.com/gin-gonic/gin"
+	"k8s-project/kali"
 )
 
 type Kali struct {
@@ -24,20 +23,26 @@ type Kali struct {
 // @Router /kali/ [post]
 func (c Controller) PostKali(ctx *gin.Context) {
 
-	var body User
+	var body User // TODO der skal opdateres her så den får navn og password med i body
 	if err := ctx.BindJSON(&body); err != nil {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
+		// Start Kali
 		kali.StartKali(*c.ClientSet, body.Name)
-		// TODO der skal opdateres her så den får navn og password med i body
-		_, _ = c.Guacamole.GetAuthToken() // TODO handle error
+		// Find Kali info
+
 		// Får auth token
+		_, _ = c.Guacamole.GetAuthToken() // TODO handle error
+
 		// laver user
+
 		// laver connection
+
 		// assigner connection til user
-		// finder kali info
+
 		// info besked tilbage om at logge ind
+
 		message := "You can now rdp into your Kali."
 		kaliresp := Kali{Name: body.Name, Message: message}
 		ctx.JSON(200, kaliresp)
