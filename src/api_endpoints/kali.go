@@ -30,6 +30,14 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		kali.StartKali(*c.ClientSet, body.Name)
+		// TODO der skal opdateres her så den får navn og password med i body
+		_, _ = c.Guacamole.GetAuthToken() // TODO handle error
+		// Får auth token
+		// laver user
+		// laver connection
+		// assigner connection til user
+		// finder kali info
+		// info besked tilbage om at logge ind
 		message := "You can now rdp into your Kali."
 		kaliresp := Kali{Name: body.Name, Message: message}
 		ctx.JSON(200, kaliresp)
