@@ -28,9 +28,9 @@ func main() {
 	utils.ErrLogger(err)
 
 	guac := guacamole.Guacamole{
-		Username: "",
+		Username: "", // TODO get this from input ??? or secret???
 		Password: "",
-		BaseUrl:  "", // "http://138.68.104.242:31347/guacamole"
+		BaseUrl:  "", // "http://138.68.104.242:31347/guacamole" SAMME HER
 	}
 
 	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
