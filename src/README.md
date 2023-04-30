@@ -37,3 +37,5 @@ Where URL is either localhost:33333 or public url:33333
 # Frontend
 Navigate to the commandline_frontend folder and run
 ``go run main.go``
+
+Test
