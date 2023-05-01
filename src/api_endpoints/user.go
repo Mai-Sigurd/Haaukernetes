@@ -12,32 +12,10 @@ type Users struct {
 	Names []string `json:"names"`
 }
 
-type Challenges struct {
-	// Challenges names
+type UserInfo struct {
+	// UserInfo pods
 	// in: array
-	Names []string `json:"names"`
-}
-
-// GetUser godoc
-// @Summary Retrieves user based on given name
-// @Produce json
-// @Param user body User true "User"
-// @Success 200 {object} User
-// @Router /user/ [get]
-func (c Controller) GetUser(ctx *gin.Context) {
-	var body User
-	if err := ctx.BindJSON(&body); err != nil {
-		message := "bad request"
-		ctx.JSON(400, ErrorResponse{Message: message})
-	} else {
-		name := body.Name
-		if !namespaces.NamespaceExists(*c.ClientSet, name) {
-			message := "Sorry user " + name + " does not exist"
-			ctx.JSON(400, ErrorResponse{Message: message})
-		} else {
-			ctx.JSON(200, User{name})
-		}
-	}
+	Pods []string `json:"pods"`
 }
 
 // GetUsers godoc
@@ -55,13 +33,13 @@ func (c Controller) GetUsers(ctx *gin.Context) {
 	}
 }
 
-// GetUserChallenges godoc
+// GetUser godoc
 // @Summary Retrieves all challenges, as well as Kalis or wireguards running for a user
 // @Produce json
 // @Param user body User true "User"
-// @Success 200 {object} Challenges
-// @Router /user/challenges/ [get]
-func (c Controller) GetUserChallenges(ctx *gin.Context) {
+// @Success 200 {object} UserInfo
+// @Router /user/ [get]
+func (c Controller) GetUser(ctx *gin.Context) {
 	var body User
 	if err := ctx.BindJSON(&body); err != nil {
 		message := "bad request"
@@ -72,7 +50,7 @@ func (c Controller) GetUserChallenges(ctx *gin.Context) {
 		if err1 != nil {
 			ctx.JSON(400, ErrorResponse{Message: err.Error()})
 		}
-		ctx.JSON(200, Challenges{Names: result})
+		ctx.JSON(200, UserInfo{Pods: result})
 	}
 }
 
