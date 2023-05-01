@@ -17,13 +17,14 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Println("Enter 'create' to create a User")
-		fmt.Println("Enter 'delete' to delete a User")
+		fmt.Println("")
+		fmt.Println("Enter 'create' to create a user")
+		fmt.Println("Enter 'delete' to delete a user")
 		fmt.Println("Enter 'users' to see users")
 		fmt.Println("Enter 'on' to turn on a challenge")
 		fmt.Println("Enter 'off' to turn off a challenge")
 		fmt.Println("Enter 'challenges' to see the challenges/kali/wireguard running for a user")
-		fmt.Println("Enter 'kali' to launch Kali VM via RDP that can be accessed in-browser")
+		fmt.Println("Enter 'kali' to launch Kali VM that can be accessed in-browser")
 		fmt.Println("Enter 'wg' to launch Wireguard")
 
 		scanner.Scan()

@@ -12,6 +12,7 @@ import ( // todo we need to change default guac user somehow to not have it expo
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -114,12 +115,12 @@ func (guac *Guacamole) CreateUser(username string, password string) error {
 	return nil
 }
 
-func (guac *Guacamole) CreateConnection(kaliIp string, kaliPort string) (string, error) {
+func (guac *Guacamole) CreateConnection(kaliIp string, kaliPort int32, username string) (string, error) {
 	param := RDPParameters{
-		Username:   "Kali",
-		Password:   "Kali",
+		Username:   "kali",
+		Password:   "kali",
 		Hostname:   kaliIp,
-		Port:       kaliPort,
+		Port:       strconv.Itoa(int(kaliPort)),
 		IgnoreCert: true,
 	}
 
@@ -127,7 +128,7 @@ func (guac *Guacamole) CreateConnection(kaliIp string, kaliPort string) (string,
 
 	conn := RDPConnection{
 		ParentIdentifier: "ROOT",
-		Name:             "Kali-RDP",
+		Name:             fmt.Sprintf("kali-%s-%s", username, kaliIp),
 		Protocol:         "rdp",
 		Parameters:       param,
 		Attributes:       attr,

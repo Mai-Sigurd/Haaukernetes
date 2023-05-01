@@ -16,14 +16,15 @@ func StartKali(clientSet kubernetes.Clientset, namespace string) (string, int32)
 	podLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
 	podLabels[utils.NetworkPolicyLabelKey] = utils.NetworkPolicyLabelValue
 	ports := []int32{kaliRDPPort}
-	deployments.CreateDeployment(clientSet, namespace, "kali", kaliImageName, ports, podLabels)
 
-	// Wait for kali pod and service to be ready
-	kaliPod, _ := utils.FindPod(clientSet, namespace, "kali") // TODO HANDLE ERROR
-	_ = utils.WaitForPodReady(kaliPod)                        // TODO HANDLE ERROR
+	deployments.CreateDeployment(clientSet, namespace, "kali", kaliImageName, ports, podLabels)
+	_, _ = utils.WaitForDeployment(clientSet, namespace, "kali") // TODO HANDLE ERROR
+	_ = utils.WaitForPodReady(clientSet, namespace, "kali")      // TODO HANDLE ERROR
+
 	service := services.CreateService(clientSet, namespace, "kali", ports)
-	_ = utils.WaitForServiceReady(clientSet, service) // TODO HANDLE ERROR
+	_ = utils.WaitForServiceReady(clientSet, namespace, "kali") // TODO HANDLE ERROR
+
 	ip := service.Spec.ClusterIP
-	port := service.Spec.Ports[0].Port // TODO is it in the form something:something? Then this might not work
+	port := service.Spec.Ports[0].Port
 	return ip, port
 }
