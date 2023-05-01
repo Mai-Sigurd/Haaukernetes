@@ -19,9 +19,9 @@
 
 ```bash
 docker run \
+--env SERVER_IP=/ip/server_ip \
 -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config \
 -v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret \
--v ~/server_ip:/ip/server_ip --env SERVER_IP=/ip/server_ip \
 -p 33333:33333 -d haaukins-revamp
 ```
 
