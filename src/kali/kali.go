@@ -18,11 +18,21 @@ func StartKali(clientSet kubernetes.Clientset, namespace string) (string, int32)
 	ports := []int32{kaliRDPPort}
 
 	deployments.CreateDeployment(clientSet, namespace, "kali", kaliImageName, ports, podLabels)
-	_, _ = utils.WaitForDeployment(clientSet, namespace, "kali") // TODO HANDLE ERROR
-	_ = utils.WaitForPodReady(clientSet, namespace, "kali")      // TODO HANDLE ERROR
+	err := utils.WaitForDeployment(clientSet, namespace, "kali")
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+
+	err = utils.WaitForPodReady(clientSet, namespace, "kali")
+	if err != nil {
+		utils.ErrLogger(err)
+	}
 
 	service := services.CreateService(clientSet, namespace, "kali", ports)
-	_ = utils.WaitForServiceReady(clientSet, namespace, "kali") // TODO HANDLE ERROR
+	err = utils.WaitForServiceReady(clientSet, namespace, "kali")
+	if err != nil {
+		utils.ErrLogger(err)
+	}
 
 	ip := service.Spec.ClusterIP
 	port := service.Spec.Ports[0].Port

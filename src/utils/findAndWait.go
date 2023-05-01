@@ -15,18 +15,29 @@ func FindDeployment(clientSet kubernetes.Clientset, namespace string, deployment
 	return clientSet.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
 }
 
-func WaitForDeployment(clientSet kubernetes.Clientset, namespace string, deploymentName string) (string, error) {
+func WaitForDeployment(clientSet kubernetes.Clientset, namespace string, deploymentName string) error {
 	for {
-		deployment, _ := FindDeployment(clientSet, namespace, deploymentName) // TODO HANLE ERROR
-		if deployment.Status.ReadyReplicas == *deployment.Spec.Replicas {
-			return "", nil
+		deployment, err := FindDeployment(clientSet, namespace, deploymentName)
+		if err != nil {
+			ErrLogger(err)
 		}
+
+		if deployment.Status.ReadyReplicas == *deployment.Spec.Replicas {
+			InfoLogger.Println("Deployment " + deploymentName + " is ready")
+			return nil
+		}
+
+		InfoLogger.Println("Deployment " + deploymentName + " is not ready")
 		time.Sleep(2 * time.Second)
 	}
 }
 
 func FindPod(clientSet kubernetes.Clientset, namespace string, podName string) (v1.Pod, error) {
-	pods, _ := clientSet.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{}) // TODO handle error
+	pods, err := clientSet.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		ErrLogger(err)
+	}
+
 	for _, pod := range pods.Items {
 		if strings.Contains(pod.Name, podName) {
 			return pod, nil
@@ -37,7 +48,11 @@ func FindPod(clientSet kubernetes.Clientset, namespace string, podName string) (
 
 func WaitForPodReady(clientSet kubernetes.Clientset, namespace string, podName string) error {
 	for {
-		pod, _ := FindPod(clientSet, namespace, podName) // TODO HANDLE ERROR
+		pod, err := FindPod(clientSet, namespace, podName)
+		if err != nil {
+			ErrLogger(err)
+		}
+
 		if pod.Status.Phase == "Running" && pod.Status.Conditions[0].Status == "True" {
 			InfoLogger.Println("Pod " + pod.Name + " is ready")
 			return nil
@@ -48,12 +63,16 @@ func WaitForPodReady(clientSet kubernetes.Clientset, namespace string, podName s
 }
 
 func FindService(clientSet kubernetes.Clientset, namespace string, serviceName string) (*v1.Service, error) {
-	return clientSet.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{}) // TODO Handle error
+	return clientSet.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
 }
 
 func WaitForServiceReady(clientSet kubernetes.Clientset, namespace string, serviceName string) error {
 	for {
-		updatedService, _ := FindService(clientSet, namespace, serviceName) // TODO Handle error
+		updatedService, err := FindService(clientSet, namespace, serviceName)
+		if err != nil {
+			ErrLogger(err)
+		}
+
 		if updatedService.Spec.ClusterIP != "" {
 			InfoLogger.Println("Service " + serviceName + " is ready")
 			return nil

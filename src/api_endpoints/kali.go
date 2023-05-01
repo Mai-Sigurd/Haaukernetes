@@ -1,9 +1,9 @@
 package api_endpoints
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"k8s-project/kali"
+	"k8s-project/utils"
 )
 
 type Kali struct {
@@ -32,21 +32,35 @@ type GuacUser struct {
 // @Success 200 {object} Kali
 // @Router /kali/ [post]
 func (c Controller) PostKali(ctx *gin.Context) {
-
 	var body GuacUser
 	if err := ctx.BindJSON(&body); err != nil {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
 		ip, port := kali.StartKali(*c.ClientSet, body.Name)
-		fmt.Println("PRRR")
-		fmt.Println(port)
-		_ = c.Guacamole.UpdateAuthToken()                                      // TODO handle error
-		_ = c.Guacamole.CreateUser(body.Name, body.Password)                   // TODO handle error
-		connIdentifier, _ := c.Guacamole.CreateConnection(ip, port, body.Name) // TODO handle error
-		_, _ = c.Guacamole.AssignConnection(connIdentifier, body.Name)         // TODO handle error
+
+		err = c.Guacamole.UpdateAuthToken()
+		if err != nil {
+			utils.ErrLogger(err)
+		}
+
+		err = c.Guacamole.CreateUser(body.Name, body.Password)
+		if err != nil {
+			utils.ErrLogger(err)
+		}
+
+		connIdentifier, err := c.Guacamole.CreateConnection(ip, port, body.Name)
+		if err != nil {
+			utils.ErrLogger(err)
+		}
+
+		err = c.Guacamole.AssignConnection(connIdentifier, body.Name)
+		if err != nil {
+			utils.ErrLogger(err)
+		}
 
 		message := "You can now RDP into your Kali by visiting the Guacamole interface at: " + c.Guacamole.BaseUrl
+		utils.InfoLogger.Printf("Message to user " + body.Name + ": " + message)
 		kaliResp := Kali{Name: body.Name, Message: message}
 		ctx.JSON(200, kaliResp)
 	}
