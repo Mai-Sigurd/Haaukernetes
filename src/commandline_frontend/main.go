@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
 	"k8s-project/commandline_frontend/api"
 	"os"
 	"strconv"
@@ -84,9 +85,7 @@ func main() {
 			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
-			fmt.Println("Enter your password")
-			scanner.Scan()
-			password := scanner.Text()
+			password := getUserPassword()
 			api.PostKali(user, password)
 		case "wg":
 			fmt.Println("Enter your username")
@@ -95,6 +94,30 @@ func main() {
 			api.PostWireguard(user)
 		default:
 			fmt.Println("Invalid input")
+		}
+	}
+}
+
+func getUserPassword() string {
+	for {
+		fmt.Print("Enter your password: ")
+		bytePassword, err := terminal.ReadPassword(0)
+		if err != nil {
+			fmt.Println("Error reading password")
+		}
+		password := string(bytePassword)
+
+		fmt.Println("\nRe-enter your password: ")
+		byteConfirm, err := terminal.ReadPassword(0)
+		if err != nil {
+			fmt.Println("Error reading password")
+		}
+		confirm := string(byteConfirm)
+
+		if password == confirm {
+			return password
+		} else {
+			fmt.Println("\nPasswords do not match! Please try again.")
 		}
 	}
 }
