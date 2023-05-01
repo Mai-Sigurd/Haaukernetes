@@ -17,26 +17,26 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Println("Write 'create' to create a User")
-		fmt.Println("Write 'delete' to delete a User")
-		fmt.Println("Write 'users' to see users")
-		fmt.Println("Write 'on' to turn on a challenge")
-		fmt.Println("Write 'off' to turn off a challenge")
-		fmt.Println("Write 'challenges' to see the challenges/kali/wireguard running for a user")
-		fmt.Println("Write 'kali' to launch VM with selected challenges via vnc")
-		fmt.Println("Write 'WG' to launch Wireguard")
+		fmt.Println("Enter 'create' to create a User")
+		fmt.Println("Enter 'delete' to delete a User")
+		fmt.Println("Enter 'users' to see users")
+		fmt.Println("Enter 'on' to turn on a challenge")
+		fmt.Println("Enter 'off' to turn off a challenge")
+		fmt.Println("Enter 'challenges' to see the challenges/kali/wireguard running for a user")
+		fmt.Println("Enter 'kali' to launch Kali VM via RDP that can be accessed in-browser")
+		fmt.Println("Enter 'wg' to launch Wireguard")
 
 		scanner.Scan()
 		input := scanner.Text()
 
 		switch input {
 		case "create":
-			fmt.Println("Write your username")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
 			api.PostUser(user)
 		case "delete":
-			fmt.Println("Write your username")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
 			api.DeleteUser(user)
@@ -44,11 +44,11 @@ func main() {
 			api.GetUsers()
 
 		case "on":
-			fmt.Println("Write the name of the challenge to turn on")
+			fmt.Println("Enter the name of the challenge to turn on")
 			scanner.Scan()
 			challengeName := scanner.Text()
 
-			fmt.Println("Write the port of the challenge to turn on")
+			fmt.Println("Enter the port of the challenge to turn on")
 			scanner.Scan()
 			port := scanner.Text()
 
@@ -58,34 +58,37 @@ func main() {
 				panic(err1)
 			}
 
-			fmt.Println("Write the user of the challenge to turn on")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
 			ports := []int32{int32(i)}
 			api.PostChallenge(user, challengeName, ports)
 
 		case "off":
-			fmt.Println("Write the name of the challenge you want to turn off")
+			fmt.Println("Enter the name of the challenge you want to turn off")
 			scanner.Scan()
 			challengeName := scanner.Text()
 
-			fmt.Println("Write the user of the challenge to turn on")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
 
 			api.DeleteChallenge(user, challengeName)
 		case "challenges":
-			fmt.Println("Write the name of user")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			name := scanner.Text()
 			api.GetUserChallenges(name)
 		case "kali":
-			fmt.Println("Write the user of the challenge to turn on")
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
-			api.PostKali(user)
-		case "WG":
-			fmt.Println("Write the user you want to turn on wireguard for")
+			fmt.Println("Enter your password")
+			scanner.Scan()
+			password := scanner.Text()
+			api.PostKali(user, password)
+		case "wg":
+			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
 			api.PostWireguard(user)

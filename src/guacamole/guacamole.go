@@ -68,6 +68,7 @@ func (guac *Guacamole) GetAuthToken() (string, error) {
 
 	authToken := responseMap["authToken"].(string)
 	guac.AuthToken = authToken
+	fmt.Println("GUAC AT: " + guac.AuthToken)
 	return "", nil // TODO maybe save the access token inside input guac struct and return that one???
 }
 
@@ -101,11 +102,14 @@ func (guac *Guacamole) CreateUser(username string, password string) error {
 	}
 	defer resp.Body.Close()
 
-	_, err = io.ReadAll(resp.Body)
+	resp2, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err) // TODO error handling
 		return err
 	}
+
+	// TODO LOG RESP
+	fmt.Println("CREATE USER: " + string(resp2))
 
 	return nil
 }
@@ -167,6 +171,8 @@ func (guac *Guacamole) CreateConnection(kaliIp string, kaliPort string) (string,
 
 	identifier := responseMap["identifier"].(string)
 
+	fmt.Println("ID: " + identifier)
+
 	return identifier, nil // TODO error handling and do something with it
 }
 
@@ -209,6 +215,6 @@ func (guac *Guacamole) AssignConnection(connIdentifier string, username string) 
 		return "", nil
 	}
 
-	fmt.Println("Response Body:", string(body)) // TODO error handling and do something with it
+	fmt.Println("Assign Response Body: ", string(body)) // TODO error handling and do something with it
 	return "", nil
 }
