@@ -13,7 +13,7 @@ type Users struct {
 }
 
 type UserInfo struct {
-	// UserInfo pods
+	// Pods name of running containers
 	// in: array
 	Pods []string `json:"pods"`
 }

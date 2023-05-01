@@ -56,7 +56,7 @@ definitions:
     properties:
       pods:
         description: |-
-          UserInfo pods
+          Pods name of running containers
           in: array
         items:
           type: string

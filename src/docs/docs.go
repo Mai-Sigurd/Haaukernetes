@@ -290,7 +290,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "pods": {
-                    "description": "UserInfo pods\nin: array",
+                    "description": "Pods name of running containers\nin: array",
                     "type": "array",
                     "items": {
                         "type": "string"
