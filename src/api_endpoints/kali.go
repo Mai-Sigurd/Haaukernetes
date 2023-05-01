@@ -46,8 +46,8 @@ func (c Controller) PostKali(ctx *gin.Context) {
 
 		// info besked tilbage om at logge ind
 
-		message := "You can now rdp into your Kali."
-		kaliresp := Kali{Name: body.Name, Message: message}
-		ctx.JSON(200, kaliresp)
+		message := "You can now RDP into your Kali by visiting the Guacamole interface at: " + c.Guacamole.BaseUrl
+		kaliResp := Kali{Name: body.Name, Message: message}
+		ctx.JSON(200, kaliResp)
 	}
 }

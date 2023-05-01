@@ -27,10 +27,16 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
+	guacUser, guacPassword, _ := guacamole.GetGuacamoleSecret(*clientSet)
+	// TODO decode base 64??? HANDLE ERROR
+	// TODO secret lavning skal addres i guac skript
+
+	guacBaseUrl := guacamole.GetGuacamoleBaseAddress(*clientSet)
+
 	guac := guacamole.Guacamole{
-		Username: "", // TODO get this from input ??? or secret???
-		Password: "",
-		BaseUrl:  "", // "http://138.68.104.242:31347/guacamole" SAMME HER
+		Username: guacUser,
+		Password: guacPassword,
+		BaseUrl:  guacBaseUrl,
 	}
 
 	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}

@@ -7,6 +7,7 @@ and that you have a valid digitalocean secret (in dockerconfig.json format - for
 Run the program from the root directory
 ``go run main.go``
 
+``export SERVER_IP=$HOME/server_ip``
 
 ## With docker
 Build the docker image from the provided Dockerfile

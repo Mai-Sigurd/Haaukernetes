@@ -2,13 +2,32 @@ package guacamole
 
 import ( // todo we need to change default guac user somehow to not have it exposed to the whole world
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"k8s-project/utils"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
+
+func GetGuacamoleSecret(clientSet kubernetes.Clientset) (string, string, error) {
+	secret, err := clientSet.CoreV1().Secrets("guacamole").Get(context.TODO(), "guacamole", metav1.GetOptions{}) // TODO HANDLE ERROR
+	username := string(secret.Data["username"])
+	password := string(secret.Data["password"])
+	return username, password, err
+}
+
+func GetGuacamoleBaseAddress(clientSet kubernetes.Clientset) string {
+	server_IP := os.Getenv("SERVER_IP")
+	guacamoleService, _ := utils.FindService(clientSet, "guacamole", "guacamole") // TODO HANDLE ERROR
+	port := guacamoleService.Spec.Ports[0].Port                                   // TODO is it in the form something:something? Then this might not work
+	return fmt.Sprintf("http://%s:%d/guacamole", server_IP, port)
+}
 
 func (guac *Guacamole) GetAuthToken() (string, error) {
 	form := url.Values{
