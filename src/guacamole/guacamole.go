@@ -23,10 +23,10 @@ func GetGuacamoleSecret(clientSet kubernetes.Clientset) (string, string, error) 
 }
 
 func GetGuacamoleBaseAddress(clientSet kubernetes.Clientset) string {
-	server_IP := os.Getenv("SERVER_IP")
+	serverIp := os.Getenv("SERVER_IP")
 	guacamoleService, _ := utils.FindService(clientSet, "guacamole", "guacamole") // TODO HANDLE ERROR
 	port := guacamoleService.Spec.Ports[0].Port                                   // TODO is it in the form something:something? Then this might not work
-	return fmt.Sprintf("http://%s:%d/guacamole", server_IP, port)
+	return fmt.Sprintf("http://%s:%d/guacamole", serverIp, port)
 }
 
 func (guac *Guacamole) GetAuthToken() (string, error) {
