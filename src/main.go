@@ -28,11 +28,11 @@ func main() {
 	utils.ErrLogger(err)
 
 	guacUser, guacPassword, _ := guacamole.GetGuacamoleSecret(*clientSet) // TODO HANDLE ERROR
-	guacBaseUrl := guacamole.GetGuacamoleBaseAddress(*clientSet)
+	guacBaseAddress := guacamole.GetGuacamoleBaseAddress(*clientSet)
 	guac := guacamole.Guacamole{
 		Username: guacUser,
 		Password: guacPassword,
-		BaseUrl:  guacBaseUrl,
+		BaseUrl:  guacBaseAddress,
 	}
 
 	fmt.Println("username: " + guac.Username)
