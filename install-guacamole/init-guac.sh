@@ -23,8 +23,6 @@ while true; do
     fi
 done
 
-read -p "Enter username for guacamole admin: " GUAC_USERNAME
-
 while true; do
     read -s -p "Enter new password for guacamole admin: " GUAC_PASSWORD
     echo
@@ -104,4 +102,4 @@ PORT=$(kubectl get service guacamole -n guacamole -o=jsonpath='{.spec.ports[0].n
 
 echo "You can access guacamole on ${PUBLIC_IP}:${PORT}/guacamole"
 echo "The default username is: guacadmin"
-echo "The default password is: guacadmin"
+echo "Use the password you chose"

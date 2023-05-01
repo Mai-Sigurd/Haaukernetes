@@ -30,7 +30,7 @@ func GetGuacamoleBaseAddress(clientSet kubernetes.Clientset) string {
 	return fmt.Sprintf("http://%s:%d/guacamole", serverIp, port)
 }
 
-func (guac *Guacamole) GetAuthToken() (string, error) {
+func (guac *Guacamole) GetAuthToken() error {
 	form := url.Values{
 		"username":   {guac.Username},
 		"password":   {guac.Password},
@@ -41,7 +41,7 @@ func (guac *Guacamole) GetAuthToken() (string, error) {
 	req, err := http.NewRequest("POST", guac.BaseUrl+"/api/tokens", strings.NewReader(formData))
 	if err != nil {
 		fmt.Println("Error creating request:", err) // TODO error handling
-		return "", err
+		return err
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -49,14 +49,14 @@ func (guac *Guacamole) GetAuthToken() (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error sending request:", err) // TODO error handling
-		return "", err
+		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err) // TODO error handling
-		return "", err
+		return err
 	}
 
 	var responseMap map[string]interface{}
@@ -64,13 +64,59 @@ func (guac *Guacamole) GetAuthToken() (string, error) {
 	err = json.Unmarshal(body, &responseMap)
 	if err != nil {
 		fmt.Println("Error decoding response body:", err) // TODO error handling
-		return "", err
+		return err
 	}
 
 	authToken := responseMap["authToken"].(string)
 	guac.AuthToken = authToken
 	fmt.Println("GUAC AT: " + guac.AuthToken)
-	return "", nil // TODO maybe save the access token inside input guac struct and return that one???
+	return nil // TODO maybe save the access token inside input guac struct and return that one???
+}
+
+func (guac *Guacamole) UpdateAdminPasswordInGuac(oldPassword string) error {
+	_ = guac.GetAuthToken() // TODO HANDLE ERROR
+
+	u := UpdateUser{
+		OldPassword: oldPassword,
+		NewPassword: guac.Password,
+	}
+
+	fmt.Println(oldPassword)
+	fmt.Println(guac.Username)
+
+	payload, err := json.Marshal(u)
+	if err != nil {
+		fmt.Println("Error marshaling JSON payload:", err) // TODO error handling
+		return err
+	}
+
+	req, err := http.NewRequest("PUT", guac.BaseUrl+"/api/session/data/postgresql/users/"+guac.Username+"/password?token="+guac.AuthToken, bytes.NewBuffer(payload))
+	if err != nil {
+		fmt.Println("Error creating HTTP request:", err)
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending HTTP request:", err) // TODO error handling
+		return err
+	}
+	defer resp.Body.Close()
+
+	resp2, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err) // TODO error handling
+		return err
+	}
+
+	// TODO LOG RESP
+	fmt.Println("Update PASS: " + string(resp2))
+
+	return nil
+
 }
 
 func (guac *Guacamole) CreateUser(username string, password string) error {

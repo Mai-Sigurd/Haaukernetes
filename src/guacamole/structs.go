@@ -17,6 +17,11 @@ type CreateUserAttributes struct {
 	TimeZone          string `json:"timezone"`
 }
 
+type UpdateUser struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
 type UserInfo struct {
 	Username   string               `json:"username"`
 	Password   string               `json:"password"`

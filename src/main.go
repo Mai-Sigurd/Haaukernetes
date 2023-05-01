@@ -1,8 +1,6 @@
 package main
 
 import (
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"k8s-project/guacamole"
 	"os"
 
@@ -19,7 +17,7 @@ import (
 func main() {
 	utils.SetLog()
 
-	port := ":" + utils.APIPort
+	//port := ":" + utils.APIPort
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -34,8 +32,9 @@ func main() {
 		Password: guacPassword,
 		BaseUrl:  guacBaseAddress,
 	}
+	_ = guac.UpdateAdminPasswordInGuac("guacadmin") // TODO HANDLE ERROR
 
-	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
+	/*controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -48,7 +47,7 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r = createRouterGroups(r, controller)
-	r.Run(port)
+	r.Run(port)*/
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {

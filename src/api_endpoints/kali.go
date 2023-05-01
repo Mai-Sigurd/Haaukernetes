@@ -41,7 +41,7 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		ip, port := kali.StartKali(*c.ClientSet, body.Name)
 		fmt.Println("PRRR")
 		fmt.Println(port)
-		_, _ = c.Guacamole.GetAuthToken()                                      // TODO handle error
+		_ = c.Guacamole.GetAuthToken()                                         // TODO handle error
 		_ = c.Guacamole.CreateUser(body.Name, body.Password)                   // TODO handle error
 		connIdentifier, _ := c.Guacamole.CreateConnection(ip, port, body.Name) // TODO handle error
 		_, _ = c.Guacamole.AssignConnection(connIdentifier, body.Name)         // TODO handle error
