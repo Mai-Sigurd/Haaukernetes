@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"k8s-project/guacamole"
 	"os"
 
@@ -11,8 +12,6 @@ import (
 	"k8s-project/utils"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -20,6 +19,7 @@ func main() {
 	utils.SetLog()
 
 	port := ":" + utils.APIPort
+	fmt.Println(port)
 
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -27,19 +27,19 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	guacUser, guacPassword, _ := guacamole.GetGuacamoleSecret(*clientSet)
-	// TODO decode base 64??? HANDLE ERROR
-	// TODO secret lavning skal addres i guac skript
-
+	guacUser, guacPassword, _ := guacamole.GetGuacamoleSecret(*clientSet) // TODO HANDLE ERROR
 	guacBaseUrl := guacamole.GetGuacamoleBaseAddress(*clientSet)
-
 	guac := guacamole.Guacamole{
 		Username: guacUser,
 		Password: guacPassword,
 		BaseUrl:  guacBaseUrl,
 	}
 
-	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
+	fmt.Println("username: " + guac.Username)
+	fmt.Println("pass: " + guac.Password)
+	fmt.Println("url: " + guac.BaseUrl)
+
+	/*controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -52,7 +52,7 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r = createRouterGroups(r, controller)
-	r.Run(port)
+	r.Run(port)*/
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {

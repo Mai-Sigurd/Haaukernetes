@@ -17,8 +17,8 @@ import ( // todo we need to change default guac user somehow to not have it expo
 
 func GetGuacamoleSecret(clientSet kubernetes.Clientset) (string, string, error) {
 	secret, err := clientSet.CoreV1().Secrets("guacamole").Get(context.TODO(), "guacamole", metav1.GetOptions{}) // TODO HANDLE ERROR
-	username := string(secret.Data["username"])
-	password := string(secret.Data["password"])
+	username := string(secret.Data["guac-user"])
+	password := string(secret.Data["guac-password"])
 	return username, password, err
 }
 

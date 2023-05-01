@@ -8,9 +8,11 @@ NAMESPACE="guacamole"
 POSTGRES_IP=""
 POSTGRES_PORT=5432
 DB_PASSWORD=""
+GUAC_PASSWORD=""
+GUAC_USERNAME=""
 
 while true; do
-    read -s -p "Enter new password for DB: " DB_PASSWORD
+    read -s -p "Enter new password for postgres DB: " DB_PASSWORD
     echo
     read -s -p "Repeat password: " password2
     echo
@@ -21,8 +23,28 @@ while true; do
     fi
 done
 
+read -p "Enter username for guacamole admin: " GUAC_USERNAME
+
+while true; do
+    read -s -p "Enter new password for guacamole admin: " GUAC_PASSWORD
+    echo
+    read -s -p "Repeat password: " password2
+    echo
+    if [ "$GUAC_PASSWORD" = "$password2" ]; then
+        break
+    else
+        echo "Passwords do not match. Please try again."
+    fi
+done
+
 echo "##### Creating guacamole namespace"
 kubectl create namespace $NAMESPACE
+
+echo "##### Creating Guacamole secret"
+kubectl create secret generic guacamole \
+    --from-literal guac-user=$GUAC_USERNAME \
+    --from-literal guac-password=$GUAC_PASSWORD \
+    --namespace=guacamole
 
 echo "##### Creating postgres secret"
 kubectl create secret generic postgres \
