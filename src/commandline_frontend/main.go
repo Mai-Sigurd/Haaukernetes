@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"k8s-project/commandline_frontend/api"
 	"os"
 	"strconv"
@@ -101,14 +101,14 @@ func main() {
 func getUserPassword() string {
 	for {
 		fmt.Print("Enter your password: ")
-		bytePassword, err := terminal.ReadPassword(0)
+		bytePassword, err := term.ReadPassword(0)
 		if err != nil {
 			fmt.Println("Error reading password")
 		}
 		password := string(bytePassword)
 
 		fmt.Println("\nRe-enter your password: ")
-		byteConfirm, err := terminal.ReadPassword(0)
+		byteConfirm, err := term.ReadPassword(0)
 		if err != nil {
 			fmt.Println("Error reading password")
 		}
