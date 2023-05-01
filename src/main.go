@@ -27,15 +27,7 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	guacUser, guacPassword, _ := guacamole.GetGuacamoleSecret(*clientSet) // TODO HANDLE ERROR
-	guacBaseAddress := guacamole.GetGuacamoleBaseAddress(*clientSet)
-	guac := guacamole.Guacamole{
-		Username: guacUser,
-		Password: guacPassword,
-		BaseUrl:  guacBaseAddress,
-	}
-	_ = guac.UpdateAdminPasswordInGuac("guacadmin") // TODO HANDLE ERROR
-
+	guac := setupGuacamole(*clientSet)
 	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
@@ -50,6 +42,29 @@ func main() {
 
 	r = createRouterGroups(r, controller)
 	r.Run(port)
+}
+
+func setupGuacamole(clientSet kubernetes.Clientset) guacamole.Guacamole {
+	guacUser, guacPassword, err := guacamole.GetGuacamoleSecret(clientSet)
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+
+	guacBaseAddress, err := guacamole.GetGuacamoleBaseAddress(clientSet)
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+
+	guac := guacamole.Guacamole{
+		Username: guacUser,
+		Password: guacPassword,
+		BaseUrl:  guacBaseAddress,
+	}
+	err = guac.UpdateAdminPasswordInGuac("guacadmin")
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+	return guac
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
