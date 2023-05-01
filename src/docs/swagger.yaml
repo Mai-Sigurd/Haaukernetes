@@ -10,16 +10,6 @@ definitions:
       user:
         type: string
     type: object
-  api_endpoints.Challenges:
-    properties:
-      names:
-        description: |-
-          Challenges names
-          in: array
-        items:
-          type: string
-        type: array
-    type: object
   api_endpoints.ConfigFile:
     properties:
       file:
@@ -61,6 +51,16 @@ definitions:
           Username
           in: string
         type: string
+    type: object
+  api_endpoints.UserInfo:
+    properties:
+      pods:
+        description: |-
+          UserInfo pods
+          in: array
+        items:
+          type: string
+        type: array
     type: object
   api_endpoints.Users:
     properties:
@@ -145,7 +145,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: ""
       summary: Deletes user based on given name
     get:
       parameters:
@@ -161,8 +161,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api_endpoints.User'
-      summary: Retrieves user based on given name
+            $ref: '#/definitions/api_endpoints.UserInfo'
+      summary: Retrieves all challenges, as well as Kalis or wireguards running for
+        a user
     post:
       parameters:
       - description: User
@@ -179,24 +180,6 @@ paths:
           schema:
             $ref: '#/definitions/api_endpoints.User'
       summary: Creates user based on given name
-  /user/challenges/:
-    get:
-      parameters:
-      - description: User
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/api_endpoints.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api_endpoints.Challenges'
-      summary: Retrieves all challenges, as well as Kalis or wireguards running for
-        a user
   /users:
     get:
       produces:
