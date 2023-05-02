@@ -11,16 +11,24 @@ import (
 const kaliRDPPort = 13389
 const kaliImageName = "kali"
 
-func StartKali(clientSet kubernetes.Clientset, namespace string) {
-	StartKaliImage(clientSet, namespace)
+func StartKali(clientSet kubernetes.Clientset, namespace string) error {
+	return StartKaliImage(clientSet, namespace, kaliImageName)
 }
 
-func StartKaliImage(clientSet kubernetes.Clientset, namespace string) {
+func StartKaliImage(clientSet kubernetes.Clientset, namespace string, imageName string) error {
 	utils.InfoLogger.Println("Starting Kali")
 	podLabels := make(map[string]string)
 	podLabels[utils.KaliPodLabelKey] = utils.KaliPodLabelValue
 	podLabels[utils.NetworkPolicyLabelKey] = utils.NetworkPolicyLabelValue
 	ports := []int32{kaliRDPPort}
-	deployments.CreateDeployment(clientSet, namespace, "kali", kaliImageName, ports, podLabels)
-	services.CreateService(clientSet, namespace, "kali", ports)
+	err := deployments.CreateDeployment(clientSet, namespace, "kali", imageName, ports, podLabels)
+	if err != nil {
+		utils.ErrLogger(err)
+		return err
+	}
+	err = services.CreateService(clientSet, namespace, "kali", ports)
+	if err != nil {
+		utils.ErrLogger(err)
+	}
+	return err
 }
