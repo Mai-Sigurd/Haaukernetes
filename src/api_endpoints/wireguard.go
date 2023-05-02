@@ -1,7 +1,8 @@
 package api_endpoints
 
 import (
-	"k8s-project/wireguard"
+	"k8s-project/connections/vpn/wireguard"
+	"k8s-project/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +28,7 @@ func (c Controller) PostWireguard(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	}
-	str, err := wireguard.StartWireguard(*c.ClientSet, body.User, body.Key, c.Endpoint, c.Subnet)
+	str, err := wireguard.StartWireguard(*c.ClientSet, body.User, body.Key, utils.WireguardEndpoint, utils.WireguardSubnet)
 	if err != nil {
 		ctx.JSON(400, ErrorResponse{Message: err.Error()})
 	}

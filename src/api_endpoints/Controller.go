@@ -1,11 +1,13 @@
 package api_endpoints
 
-import "k8s.io/client-go/kubernetes"
+import (
+	"k8s-project/connections/browser/guacamole"
+	"k8s.io/client-go/kubernetes"
+)
 
 type Controller struct {
 	ClientSet *kubernetes.Clientset
-	Endpoint  string
-	Subnet    string
+	Guacamole guacamole.Guacamole
 }
 
 type ErrorResponse struct {

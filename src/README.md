@@ -1,24 +1,37 @@
 # Running
 ## Without docker
-Make sure that you have a valid k8s config file and export it's path to KUBECONFIG env variable, like so
-``export KUBECONFIG=$HOME/.kube/config``
-and that you have a valid digitalocean secret (in dockerconfig.json format - for image repository) in a DO_SECRET_PATH env variable, like so
-``export DO_SECRET_PATH=$HOME/do_secret``
-Run the program from the root directory
-``go run main.go``
 
+**Requirements** 
+
+- Valid K8s config file available 
+- Valid Digital Ocean secret available (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
+- Knowledge of the server's IP
+
+**Steps**
+- Export the K8s config file path to a `KUBECONFIG` env variable with ``export KUBECONFIG=$HOME/.kube/config``
+- Export the DO secret file path a `DO_SECRET_PATH` env variable with ``export DO_SECRET_PATH=$HOME/do_secret``
+- Export the server IP to a `SERVER_IP` env variable with ``export SERVER_IP=<YOUR-SERVER-IP>``
+- Run the program from the root directory with ``go run main.go``
 
 ## With docker
-Build the docker image from the provided Dockerfile
-``docker build -t haaukins-revamp .``
-Run the image, providing the k8s config and digitalocean secret through bind mounted volumes and exposing the app on the hosts port 33333
-``docker run -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config -v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret -p 33333:33333 -d haaukins-revamp``
+- Build the docker image from the provided Dockerfile with ``docker build -t haaukins-revamp .``
+- Run the image, providing the k8s config and digitalocean secret through bind mounted volumes and exposing the app on the hosts port 33333:
+
+```bash
+docker run \
+--env SERVER_IP=/ip/server_ip \
+-v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config \
+-v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret \
+-p 33333:33333 -d haaukins-revamp
+```
+
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
 
 # Requirements
-Go-Swagger
-  https://goswagger.io/install.html
+Go-Swagger: https://goswagger.io/install.html
+
+Install with:
 
 ``go get github.com/gorilla/mux``
 
@@ -28,12 +41,18 @@ Go-Swagger
 ## Requirements
 ``go install github.com/swaggo/swag/cmd/swag@latest``
 
-## Run
+## Initialize Swagger
 ``swag init ``
 
-Swagger UI can be seen at: URL/docs/index.html#/
-Where URL is either localhost:33333 or public url:33333
+The Swagger UI is available at: 
+
+http://<YOUR-SERVER-IP>:33333/URL/docs/index.html#/
 
 # Frontend
-Navigate to the commandline_frontend folder and run
+*The frontend allows you to interact with the Haaukernetes API via the command-line.*
+
+Navigate to the `commandline_frontend` folder and run
 ``go run main.go``
+
+# Static Checker
+Run `staticcheck .` inside `src`

@@ -28,7 +28,6 @@ func SetLog() {
 }
 
 func SetLogTest(fileName string, normalLogging bool) {
-
 	f, err := os.OpenFile("logs/"+fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -37,7 +36,6 @@ func SetLogTest(fileName string, normalLogging bool) {
 	if normalLogging {
 		SetLog()
 	}
-
 }
 
 func ErrLogger(err error) {
