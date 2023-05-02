@@ -37,7 +37,10 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		ip, port := kali.StartKali(*c.ClientSet, body.Name)
+		ip, port, err := kali.StartKali(*c.ClientSet, body.Name)
+		if err != nil {
+			ctx.JSON(400, ErrorResponse{Message: err.Error()})
+		}
 
 		err = c.Guacamole.UpdateAuthToken()
 		if err != nil {

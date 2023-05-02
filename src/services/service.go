@@ -11,12 +11,16 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, service apiv1.Service) *apiv1.Service {
+func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, service apiv1.Service) (*apiv1.Service, error) {
 	serviceClient := clientSet.CoreV1().Services(teamName)
 	result, err := serviceClient.Create(context.TODO(), &service, metav1.CreateOptions{})
-	utils.ErrLogger(err)
+
+	if err != nil {
+		return nil, err
+	}
+
 	utils.InfoLogger.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
-	return result
+	return result, nil
 }
 
 func portArray(ports []int32) []apiv1.ServicePort {
@@ -32,7 +36,7 @@ func portArray(ports []int32) []apiv1.ServicePort {
 }
 
 // CreateService creates an internal service in the given namespace.
-func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPorts []int32) *apiv1.Service {
+func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPorts []int32) error {
 	serviceClient := clientSet.CoreV1().Services(namespace)
 
 	service := &apiv1.Service{
@@ -52,42 +56,13 @@ func CreateService(clientSet kubernetes.Clientset, namespace string, challengeNa
 		},
 	}
 	createdService, err := serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
-	utils.ErrLogger(err)
-	utils.InfoLogger.Printf("Created service client with name %s\n", createdService.Name)
-	return createdService
-}
 
-// CreateExposeService creates a service in the given namespace that will be exposed on a
-// port assigned by the system.
-func CreateExposeService(clientSet kubernetes.Clientset, nameSpace string, challengeName string, containerPort int32) *apiv1.Service {
-	serviceClient := clientSet.CoreV1().Services(nameSpace)
-
-	exposeService := &apiv1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      challengeName + "-expose",
-			Namespace: nameSpace,
-			Labels: map[string]string{
-				"app": challengeName,
-			},
-		},
-		Spec: apiv1.ServiceSpec{
-			Type: apiv1.ServiceTypeNodePort,
-			Ports: []apiv1.ServicePort{
-				{
-					Port:       containerPort,
-					Protocol:   apiv1.ProtocolTCP,
-					TargetPort: intstr.FromInt(int(containerPort)),
-				},
-			},
-			Selector: map[string]string{
-				"app": challengeName,
-			},
-		},
+	if err != nil {
+		return err
 	}
-	resultExposeService, err := serviceClient.Create(context.TODO(), exposeService, metav1.CreateOptions{})
-	utils.ErrLogger(err)
-	utils.InfoLogger.Printf("Created expose service client with name %s\n", resultExposeService.Name)
-	return resultExposeService
+
+	utils.InfoLogger.Printf("Created service client with name %s\n", createdService.Name)
+	return nil
 }
 
 // DeleteService deletes a service in the given namespace.

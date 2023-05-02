@@ -19,18 +19,34 @@ import (
 // StartWireguard
 // clientpublickey should come from caller i.e. api call
 // clientprivatekey should be inserted to file by client itself
-func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPublicKey string, endpoint string, subnet string) string {
+func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPublicKey string, endpoint string, subnet string) (string, error) {
 	serverPrivateKey, serverPublicKey := createKeys()
-	configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
-	secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
+	err := configmap.CreateWireGuardConfigMap(clientSet, namespace, serverPrivateKey, clientPublicKey)
+	if err != nil {
+		utils.ErrLogger(err)
+		return "", err
+	}
+	err = secrets.CreateWireGuardSecret(clientSet, namespace, serverPrivateKey)
+	if err != nil {
+		utils.ErrLogger(err)
+		return "", err
+	}
 	deployment := configureWireGuardDeployment()
-	deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
+	err = deployments.CreatePrebuiltDeployment(clientSet, namespace, deployment)
+	if err != nil {
+		utils.ErrLogger(err)
+		return "", err
+	}
 	service := configureWireguardNodePortService(namespace)
-	createdService := services.CreatePrebuiltService(clientSet, namespace, *service)
+	createdService, err := services.CreatePrebuiltService(clientSet, namespace, *service)
+	if err != nil {
+		utils.ErrLogger(err)
+		return "", err
+	}
 	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	utils.InfoLogger.Printf("Wireguard successfully started for user: %s\n", namespace)
-	return clientConf
+	return clientConf, nil
 }
 
 func createKeys() (string, string) {
