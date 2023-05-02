@@ -46,7 +46,6 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 	user := r.Group("/user/")
 	{
 		user.GET("", controller.GetUser)
-		user.GET("/challenges/", controller.GetUserChallenges)
 		user.POST("", controller.PostUser)
 		user.DELETE("", controller.DeleteUser)
 	}
