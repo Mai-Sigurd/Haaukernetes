@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"log"
-	"strconv"
 	"testing"
 	"time"
 )
@@ -114,40 +112,4 @@ func TestMaximumStartUp(t *testing.T) {
 	for i := 0; i < counter; i++ {
 		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(teamName+"%d", i))
 	}
-}
-
-// Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
-func TestDeprecatedFocusOnAboveTESTS(t *testing.T) {
-	//TODO DeprecatedFocusOnAboveTESTS but reuse code maybe
-
-	utils.SetLogTest("Championship", false)
-
-	clientSet := getClientSet()
-
-	comChannel := make(chan string)
-	var results string
-	go logCPUWithStoredResult(comChannel, &results)
-
-	const amountOfPeople = 350
-	people := [amountOfPeople]string{}
-
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		setUpKubernetesResourcesWithWireguard(*clientSet, personI, utils.WireguardEndpoint, utils.WireguardSubnet)
-		startAllChallenges(*clientSet, personI)
-	}
-	time.Sleep(30 * time.Second)
-	comChannel <- "stop"
-	log.Println(results)
-
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		namespaces.DeleteNamespace(*clientSet, personI)
-	}
-	time.Sleep(5 * time.Second)
-
 }
