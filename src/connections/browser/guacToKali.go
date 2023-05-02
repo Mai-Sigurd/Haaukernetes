@@ -9,6 +9,10 @@ import (
 
 func SetupGuacAndKali(guac guacamole.Guacamole, clientSet kubernetes.Clientset, name string, password string) (string, error) {
 	ip, port, err := kali.StartKali(clientSet, name, "kali")
+	if err != nil {
+		utils.ErrLogger(err)
+		return "", err
+	}
 
 	err = guac.UpdateAuthToken()
 	if err != nil {
