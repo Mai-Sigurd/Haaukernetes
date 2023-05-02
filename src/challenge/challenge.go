@@ -12,12 +12,20 @@ func CreateChallenge(clientSet kubernetes.Clientset, namespace string, challenge
 	podLabels := make(map[string]string)
 	podLabels["app"] = challengeName
 	podLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
-	deployments.CreateDeployment(clientSet, namespace, challengeName, imageName, ports, podLabels)
-	_, err := services.CreateService(clientSet, namespace, challengeName, ports)
+
+	err := deployments.CreateDeployment(clientSet, namespace, challengeName, imageName, ports, podLabels)
 	if err != nil {
 		utils.ErrLogger(err)
+		return err
 	}
-	return err
+
+	_, err = services.CreateService(clientSet, namespace, challengeName, ports)
+	if err != nil {
+		utils.ErrLogger(err)
+		return err
+	}
+
+	return nil
 }
 
 func DeleteChallenge(clientSet kubernetes.Clientset, namespace string, challengeName string) (bool, bool) {

@@ -1,7 +1,7 @@
 package api_endpoints
 
 import (
-	"k8s-project/guacamole"
+	"k8s-project/connections/browser/guacamole"
 	"k8s.io/client-go/kubernetes"
 )
 

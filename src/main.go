@@ -3,7 +3,7 @@ package main
 import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"k8s-project/guacamole"
+	"k8s-project/connections/browser/guacamole"
 	"os"
 
 	"k8s.io/client-go/kubernetes"
@@ -27,7 +27,11 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	guac := setupGuacamole(*clientSet)
+	guac, err := setupGuacamole(*clientSet)
+	if err != nil {
+		utils.ErrLogger(err)
+		return
+	}
 	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
@@ -41,18 +45,22 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r = createRouterGroups(r, controller)
-	r.Run(port)
-}
-
-func setupGuacamole(clientSet kubernetes.Clientset) guacamole.Guacamole {
-	guacUser, guacPassword, err := guacamole.GetGuacamoleSecret(clientSet)
+	err = r.Run(port)
 	if err != nil {
 		utils.ErrLogger(err)
+		return
+	}
+}
+
+func setupGuacamole(clientSet kubernetes.Clientset) (guacamole.Guacamole, error) {
+	guacUser, guacPassword, err := guacamole.GetGuacamoleSecret(clientSet)
+	if err != nil {
+		return guacamole.Guacamole{}, err
 	}
 
 	guacBaseAddress, err := guacamole.GetGuacamoleBaseAddress(clientSet)
 	if err != nil {
-		utils.ErrLogger(err)
+		return guacamole.Guacamole{}, err
 	}
 
 	guac := guacamole.Guacamole{
@@ -62,9 +70,9 @@ func setupGuacamole(clientSet kubernetes.Clientset) guacamole.Guacamole {
 	}
 	err = guac.UpdateAdminPasswordInGuac("guacadmin")
 	if err != nil {
-		utils.ErrLogger(err)
+		return guacamole.Guacamole{}, err
 	}
-	return guac
+	return guac, nil
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {
@@ -97,6 +105,3 @@ func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin
 	}
 	return r
 }
-
-// utils.InfoLogger.Printf
-//

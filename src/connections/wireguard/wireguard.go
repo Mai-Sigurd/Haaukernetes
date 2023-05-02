@@ -6,7 +6,6 @@ import (
 	"k8s-project/secrets"
 	"k8s-project/services"
 	"k8s-project/utils"
-	"k8s-project/wireguardconfigs"
 	"os/exec"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -43,7 +42,7 @@ func StartWireguard(clientSet kubernetes.Clientset, namespace string, clientPubl
 		utils.ErrLogger(err)
 		return "", err
 	}
-	clientConf := wireguardconfigs.GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
+	clientConf := GetClientConfig(clientSet, serverPublicKey, createdService.Spec.Ports[0].NodePort, endpoint, subnet)
 
 	utils.InfoLogger.Printf("Wireguard successfully started for user: %s\n", namespace)
 	return clientConf, nil

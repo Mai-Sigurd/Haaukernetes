@@ -3,7 +3,7 @@ package guacamole
 type Guacamole struct {
 	Username  string
 	Password  string
-	BaseUrl   string // TODO vi skal bruge user, pass, server ip, guac port somehow
+	BaseUrl   string
 	AuthToken string
 }
 

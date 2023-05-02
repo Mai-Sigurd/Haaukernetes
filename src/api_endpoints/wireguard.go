@@ -1,8 +1,8 @@
 package api_endpoints
 
 import (
+	"k8s-project/connections/wireguard"
 	"k8s-project/utils"
-	"k8s-project/wireguard"
 
 	"github.com/gin-gonic/gin"
 )

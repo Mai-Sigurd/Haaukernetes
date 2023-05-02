@@ -3,10 +3,10 @@ package tests
 import (
 	"fmt"
 	"k8s-project/challenge"
-	"k8s-project/kali"
+	"k8s-project/connections/browser/kali"
+	"k8s-project/connections/wireguard"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"k8s-project/wireguard"
 	"log"
 	"path/filepath"
 	"strings"
