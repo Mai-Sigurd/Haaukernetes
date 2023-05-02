@@ -88,7 +88,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves user based on given name",
+                "summary": "Retrieves all challenges, as well as Kalis or wireguards running for a user",
                 "parameters": [
                     {
                         "description": "User",
@@ -104,7 +104,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api_endpoints.User"
+                            "$ref": "#/definitions/api_endpoints.UserInfo"
                         }
                     }
                 }
@@ -152,34 +152,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/user/challenges/": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Retrieves all challenges, as well as Kalis or wireguards running for a user",
-                "parameters": [
-                    {
-                        "description": "User",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api_endpoints.Challenges"
-                        }
+                        "description": ""
                     }
                 }
             }
@@ -246,18 +219,6 @@
                 }
             }
         },
-        "api_endpoints.Challenges": {
-            "type": "object",
-            "properties": {
-                "names": {
-                    "description": "Challenges names\nin: array",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "api_endpoints.ConfigFile": {
             "type": "object",
             "properties": {
@@ -310,6 +271,18 @@
                 "name": {
                     "description": "Username\nin: string",
                     "type": "string"
+                }
+            }
+        },
+        "api_endpoints.UserInfo": {
+            "type": "object",
+            "properties": {
+                "pods": {
+                    "description": "Pods name of running containers\nin: array",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
