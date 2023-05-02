@@ -41,6 +41,7 @@ func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, names
 	}
 	return nil
 }
+
 func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) error {
 	err := namespaces.PostNamespace(clientSet, namespace)
 	if err != nil {
@@ -48,6 +49,34 @@ func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace 
 	}
 	err = kali.StartKaliImage(clientSet, namespace, "kali-test")
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func setUpKubernetesResourcesWithWireguardAndChannel(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string, channel chan string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		channel <- "error"
+		return err
+	}
+	_, err = wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+	if err != nil {
+		channel <- "error"
+		return err
+	}
+	return nil
+}
+
+func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, namespace string, channel chan string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		channel <- err.Error()
+		return err
+	}
+	err = kali.StartKaliImage(clientSet, namespace, "kali-test")
+	if err != nil {
+		channel <- err.Error()
 		return err
 	}
 	return nil

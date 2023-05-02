@@ -71,22 +71,27 @@ func TestMaximumStartUp(t *testing.T) {
 	counter := 0
 	teamName := "maximum-startup-team"
 
-	//OBS: just a copy of the above function - no direct return values from goroutines means that channels must somehow
-	//be used -> that calls for more functions
+	//attempting to use channels to communicate errors as return values from goroutines are not possible
+
+	errorChannel := make(chan string)
+	channelOutput := ""
+	go func() {
+		channelOutput = <-errorChannel
+	}()
 
 	for {
 		team := fmt.Sprintf(teamName+"%d", counter)
 		if counter%2 == 0 {
-			err := setUpKubernetesResourcesWithWireguard(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet)
-			if err != nil {
-				utils.TestLogger.Println(err.Error())
+			go setUpKubernetesResourcesWithWireguardAndChannel(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet, errorChannel)
+			for channelOutput != "" {
+				utils.TestLogger.Println(channelOutput)
 				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
 				break
 			}
 		} else {
-			err := setUpKubernetesResourcesWithKali(*clientSet, team)
-			if err != nil {
-				utils.TestLogger.Println(err.Error())
+			go setUpKubernetesResourcesWithKaliAndChannel(*clientSet, team, errorChannel)
+			for channelOutput != "" {
+				utils.TestLogger.Println(channelOutput)
 				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
 				break
 			}
