@@ -8,9 +8,6 @@ import (
 	"time"
 )
 
-//This works in the sense that the test terminates when errors are returned from k8s api (e.g. resources are sparse) but the actual
-//deletion of namespaces and resources goes on even after the test exits....
-//
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
 func TestMaximumLoad(t *testing.T) {
 	/// 50/50 kali wireguard
