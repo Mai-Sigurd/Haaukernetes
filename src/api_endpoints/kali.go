@@ -37,7 +37,7 @@ func (c Controller) PostKali(ctx *gin.Context) {
 		message := "bad request"
 		ctx.JSON(400, ErrorResponse{Message: message})
 	} else {
-		ip, port, err := kali.StartKali(*c.ClientSet, body.Name)
+		ip, port, err := kali.StartKali(*c.ClientSet, body.Name, "kali")
 		if err != nil {
 			ctx.JSON(400, ErrorResponse{Message: err.Error()})
 		}

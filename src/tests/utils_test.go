@@ -38,7 +38,7 @@ func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, names
 }
 func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) {
 	_ = namespaces.PostNamespace(clientSet, namespace)
-	kali.StartKaliImage(clientSet, namespace, "kali-test")
+	kali.StartKali(clientSet, namespace, "kali-test")
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
