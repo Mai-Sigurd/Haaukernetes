@@ -73,8 +73,8 @@ func GetUserChallenges(name string) {
 	generalResponse(resp)
 }
 
-func PostKali(username string) {
-	reqBody := api_endpoints.User{Name: username}
+func PostKali(username string, password string) {
+	reqBody := api_endpoints.GuacUser{Name: username, Password: password}
 	jsonBody, _ := json.Marshal(reqBody)
 	url := "http://localhost:" + ipPort + "/kali/"
 	resp, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))

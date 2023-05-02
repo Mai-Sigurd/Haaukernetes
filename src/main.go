@@ -1,6 +1,9 @@
 package main
 
 import (
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"k8s-project/connections/browser/guacamole"
 	"os"
 
 	"k8s.io/client-go/kubernetes"
@@ -10,8 +13,6 @@ import (
 	"k8s-project/utils"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -26,7 +27,12 @@ func main() {
 	clientSet, err := kubernetes.NewForConfig(config)
 	utils.ErrLogger(err)
 
-	controller := api_endpoints.Controller{ClientSet: clientSet, Endpoint: utils.WireguardEndpoint, Subnet: utils.WireguardSubnet}
+	guac, err := setupGuacamole(*clientSet)
+	if err != nil {
+		utils.ErrLogger(err)
+		return
+	}
+	controller := api_endpoints.Controller{ClientSet: clientSet, Guacamole: guac}
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -39,7 +45,34 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r = createRouterGroups(r, controller)
-	r.Run(port)
+	err = r.Run(port)
+	if err != nil {
+		utils.ErrLogger(err)
+		return
+	}
+}
+
+func setupGuacamole(clientSet kubernetes.Clientset) (guacamole.Guacamole, error) {
+	guacUser, guacPassword, err := guacamole.GetGuacamoleSecret(clientSet)
+	if err != nil {
+		return guacamole.Guacamole{}, err
+	}
+
+	guacBaseAddress, err := guacamole.GetGuacamoleBaseAddress(clientSet)
+	if err != nil {
+		return guacamole.Guacamole{}, err
+	}
+
+	guac := guacamole.Guacamole{
+		Username: guacUser,
+		Password: guacPassword,
+		BaseUrl:  guacBaseAddress,
+	}
+	err = guac.UpdateAdminPasswordInGuac("guacadmin")
+	if err != nil {
+		return guacamole.Guacamole{}, err
+	}
+	return guac, nil
 }
 
 func createRouterGroups(r *gin.Engine, controller api_endpoints.Controller) *gin.Engine {

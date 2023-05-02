@@ -3,10 +3,10 @@ package tests
 import (
 	"fmt"
 	"k8s-project/challenge"
-	"k8s-project/kali"
+	"k8s-project/connections/browser/kali"
+	"k8s-project/connections/vpn/wireguard"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"k8s-project/wireguard"
 	"log"
 	"path/filepath"
 	"strings"
@@ -38,7 +38,7 @@ func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, names
 }
 func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) {
 	_ = namespaces.PostNamespace(clientSet, namespace)
-	kali.StartKaliImage(clientSet, namespace, "kali-test")
+	kali.StartKali(clientSet, namespace, "kali-test")
 }
 
 func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {

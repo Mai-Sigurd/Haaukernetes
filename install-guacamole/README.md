@@ -10,7 +10,7 @@ The script installs Guacamole, guacd, and postgres.
 - Move the `init-guac.sh` script to a server with access to running kubectl commands.
 - Run `chmod +x init-guac.sh` to make it executable.
 - Run `./init-guac.sh`.
-    - You will be asked to create a password for the postgres database.
+    - You will be asked to create a password for the postgres database and a username + password for the admin Guacamole user.
 
 ## Check Setup
 - Run `kubectl get pods -n guacamole` to check the status of the components. 

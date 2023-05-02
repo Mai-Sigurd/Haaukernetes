@@ -36,7 +36,7 @@ func portArray(ports []int32) []apiv1.ServicePort {
 }
 
 // CreateService creates an internal service in the given namespace.
-func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPorts []int32) error {
+func CreateService(clientSet kubernetes.Clientset, namespace string, challengeName string, containerPorts []int32) (*apiv1.Service, error) {
 	serviceClient := clientSet.CoreV1().Services(namespace)
 
 	service := &apiv1.Service{
@@ -58,11 +58,11 @@ func CreateService(clientSet kubernetes.Clientset, namespace string, challengeNa
 	createdService, err := serviceClient.Create(context.TODO(), service, metav1.CreateOptions{})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	utils.InfoLogger.Printf("Created service client with name %s\n", createdService.Name)
-	return nil
+	return createdService, nil
 }
 
 // DeleteService deletes a service in the given namespace.
