@@ -1,4 +1,4 @@
-package wireguard
+package wireguardconfig
 
 import (
 	"context"

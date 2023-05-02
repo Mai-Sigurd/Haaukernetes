@@ -2,7 +2,7 @@ package configmap
 
 import (
 	"context"
-	"k8s-project/connections/wireguard"
+	"k8s-project/connections/vpn/wireguardconfig"
 	"k8s-project/utils"
 
 	v1 "k8s.io/api/core/v1"
@@ -12,7 +12,7 @@ import (
 
 func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, serverPrivateKey string, clientPublicKey string) error {
 	data := make(map[string]string)
-	data["wg0.conf"] = wireguard.GetServerConfig(serverPrivateKey, clientPublicKey)
+	data["wg0.conf"] = wireguardconfig.GetServerConfig(serverPrivateKey, clientPublicKey)
 	configMap := configureConfigMap("wg-configmap", teamName, data)
 	err := CreateConfigMap(clientSet, teamName, configMap)
 	if err != nil {

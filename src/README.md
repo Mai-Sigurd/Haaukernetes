@@ -53,3 +53,6 @@ http://<YOUR-SERVER-IP>:33333/URL/docs/index.html#/
 
 Navigate to the `commandline_frontend` folder and run
 ``go run main.go``
+
+# Static Checker
+Run `staticcheck .` inside `src`
