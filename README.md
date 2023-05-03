@@ -22,6 +22,6 @@ Scripts for installing the [Kube-prometheus stack](https://github.com/prometheus
 *Monitoring is not required for the program to run.*
 
 ### src
-Program written in Go  that can be used to create CTF users and connections. It exposes an API and uses the [Kubernetes go client](https://github.com/kubernetes/client-go/) to communicate with the cluster.
+Program written in Go that can be used to create CTF users and connections. It exposes an API and uses the [Kubernetes go client](https://github.com/kubernetes/client-go/) to communicate with the cluster.
 
 The directory also includes tests for estimating the resource use of different container setups in terms of amount of users, connections, and challenges. 
