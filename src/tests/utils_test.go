@@ -45,7 +45,7 @@ func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace 
 	if err != nil {
 		return err
 	}
-	err = kali.StartKaliImage(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, 
 		channel <- err.Error()
 		return err
 	}
-	err = kali.StartKaliImage(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
 	if err != nil {
 		channel <- err.Error()
 		return err
