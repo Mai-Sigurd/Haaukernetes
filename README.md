@@ -3,7 +3,7 @@
 # Haaukernetes: Haaukins Kubernetes Bachelor Project
 
 Haaukernetes simulates parts of the [Haaukins](https://docs.haaukins.com/) CTF platform created by Aalborg University but using Kubernetes.
-After setting up a Kubernetes cluster with Apache Guacamole and running the program, the user can interact with an API to create users that can access CTF challenges via a VPN or in their browser.
+After setting up a Kubernetes cluster, adding Apache Guacamole, and running the Go program, the user can interact with an API to create users that can access CTF challenges via a VPN or in their browser.
 The project consists of different parts (details about setup are available in the respective READMEs):
 
 ### install-k8s
