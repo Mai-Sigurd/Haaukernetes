@@ -86,6 +86,7 @@ func main() {
 			scanner.Scan()
 			user := scanner.Text()
 			password := getUserPassword()
+			fmt.Println("Setting up your Kali...")
 			api.PostKali(user, password)
 		case "wg":
 			fmt.Println("Enter your username")
