@@ -1,22 +1,58 @@
 package tests
 
 import (
+	"fmt"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"log"
-	"strconv"
 	"testing"
 	"time"
 )
 
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
-// TODO mememory might be relevant
 func TestMaximumLoad(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	utils.SetLogTest("Minimal-k8s-den-anden", false)
+	utils.SetLogTest("Minimal-k8s-den-anden", true)
 
-	//
+	clientSet := getClientSet()
+	counter := 0
+	teamName := "maximum-load-team"
+
+	for {
+		team := fmt.Sprintf(teamName+"%d", counter)
+		if counter%2 == 0 {
+			err := setUpKubernetesResourcesWithWireguard(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet)
+			if err != nil {
+				utils.TestLogger.Println(err.Error())
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				break
+			}
+		} else {
+			err := setUpKubernetesResourcesWithKali(*clientSet, team)
+			if err != nil {
+				utils.TestLogger.Println(err.Error())
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				break
+			}
+		}
+
+		err := startAllChallenges(*clientSet, team)
+		if err != nil {
+			utils.TestLogger.Println(err.Error())
+			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", team)
+			break
+		}
+
+		counter++
+		time.Sleep(2 * time.Second)
+	}
+
+	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
+	utils.TestLogger.Println("Deleting test namespaces")
+
+	for i := 0; i < counter; i++ {
+		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(teamName+"%d", i))
+	}
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
@@ -24,43 +60,53 @@ func TestMaximumLoad(t *testing.T) {
 func TestMaximumStartUp(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	utils.SetLogTest("Minimal-k8s-den-ene", false)
-
-	//
-}
-
-// Find out how much resource usage there is for decently size competition (maybe the amount of people of who participate in cybermesterskaberne).
-func TestDeprecatedFocusOnAboveTESTS(t *testing.T) {
-	//TODO DeprecatedFocusOnAboveTESTS but reuse code maybe
-
-	utils.SetLogTest("Championship", false)
+	utils.SetLogTest("Minimal-k8s-den-ene", true)
 
 	clientSet := getClientSet()
+	counter := 0
+	teamName := "maximum-startup-team"
 
-	comChannel := make(chan string)
-	var results string
-	go logCPUWithStoredResult(comChannel, &results)
+	//attempting to use channels to communicate errors as return values from goroutines are not possible
 
-	const amountOfPeople = 350
-	people := [amountOfPeople]string{}
+	errorChannel := make(chan string)
+	channelOutput := ""
+	go func() {
+		channelOutput = <-errorChannel
+	}()
 
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		setUpKubernetesResourcesWithWireguard(*clientSet, personI, utils.WireguardEndpoint, utils.WireguardSubnet)
-		startAllChallenges(*clientSet, personI)
+	for {
+		team := fmt.Sprintf(teamName+"%d", counter)
+		if counter%2 == 0 {
+			go setUpKubernetesResourcesWithWireguardAndChannel(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet, errorChannel)
+			for channelOutput != "" {
+				utils.TestLogger.Println(channelOutput)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				break
+			}
+		} else {
+			go setUpKubernetesResourcesWithKaliAndChannel(*clientSet, team, errorChannel)
+			for channelOutput != "" {
+				utils.TestLogger.Println(channelOutput)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				break
+			}
+		}
+
+		err := startAllChallenges(*clientSet, team)
+		if err != nil {
+			utils.TestLogger.Println(err.Error())
+			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", team)
+			break
+		}
+
+		counter++
+		time.Sleep(2 * time.Second)
 	}
-	time.Sleep(30 * time.Second)
-	comChannel <- "stop"
-	log.Println(results)
 
-	for i := 0; i < amountOfPeople; i++ {
-		is := strconv.Itoa(i)
-		personI := "person" + is
-		people[i] = personI
-		namespaces.DeleteNamespace(*clientSet, personI)
+	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
+	utils.TestLogger.Println("Deleting test namespaces")
+
+	for i := 0; i < counter; i++ {
+		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(teamName+"%d", i))
 	}
-	time.Sleep(5 * time.Second)
-
 }

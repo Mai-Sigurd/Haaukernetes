@@ -8,22 +8,18 @@ import (
 	"k8s-project/namespaces"
 	"k8s-project/utils"
 	"log"
-	"path/filepath"
+	"os"
 	"strings"
-	"time"
 
-	"github.com/shirou/gopsutil/v3/cpu"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
 
 func getClientSet() *kubernetes.Clientset {
-	home := homedir.HomeDir()
-	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
@@ -32,24 +28,75 @@ func getClientSet() *kubernetes.Clientset {
 }
 
 // The test uses a random public key
-func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) {
-	_ = namespaces.PostNamespace(clientSet, namespace)
-	wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
-}
-func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) {
-	_ = namespaces.PostNamespace(clientSet, namespace)
-	kali.StartKali(clientSet, namespace, "kali-test")
+func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		return err
+	}
+	_, err = wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) {
-	challenge.CreateChallenge(clientSet, namespace, name, imageName, challengePorts)
+func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		return err
+	}
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func startAllChallenges(clientSet kubernetes.Clientset, namespace string) {
+func setUpKubernetesResourcesWithWireguardAndChannel(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string, channel chan string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		channel <- "error"
+		return err
+	}
+	_, err = wireguard.StartWireguard(clientSet, namespace, "2A/Rj6X3+YxP6lXOv2BgbRQfpCn5z6Ob8scKhxiCRyM=", endpoint, subnet)
+	if err != nil {
+		channel <- "error"
+		return err
+	}
+	return nil
+}
+
+func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, namespace string, channel chan string) error {
+	err := namespaces.PostNamespace(clientSet, namespace)
+	if err != nil {
+		channel <- err.Error()
+		return err
+	}
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	if err != nil {
+		channel <- err.Error()
+		return err
+	}
+	return nil
+}
+
+func startChallenge(name string, imageName string, clientSet kubernetes.Clientset, namespace string, challengePorts []int32) error {
+	err := challenge.CreateChallenge(clientSet, namespace, name, imageName, challengePorts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error {
 	log.Printf("Start 6 challenges")
 	for key := range ports {
-		startChallenge(key, key, clientSet, namespace, ports[key])
+		err := startChallenge(key, key, clientSet, namespace, ports[key])
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace string) {
@@ -69,21 +116,4 @@ func findPodIp(pods *v1.PodList) string {
 		}
 	}
 	return "IP of wireguard pod not found"
-}
-
-// Logs
-
-// TODO delete
-func logCPUWithStoredResult(c chan string, results *string) {
-	*results += "\n"
-	input := ""
-	go func() {
-		input = <-c
-	}()
-	for input == "" {
-		time.Sleep(500 * time.Millisecond)
-		actualCPU, _ := cpu.Percent(500*time.Millisecond, false)
-		usage := fmt.Sprintf("%s, %f\n", time.Now().Format("15:04:05"), actualCPU[0])
-		*results += usage
-	}
 }
