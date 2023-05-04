@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"k8s-project/namespaces"
 	"k8s-project/utils"
 	"testing"
 	"time"
@@ -45,16 +44,13 @@ func TestMaximumLoad(t *testing.T) {
 			break
 		}
 
+		utils.TestLogger.Printf("Started namespace %s", namespace)
 		counter++
 		time.Sleep(waitTime2)
 	}
 
 	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
-	utils.TestLogger.Println("Deleting test namespaces")
-
-	for i := 0; i < counter; i++ {
-		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
-	}
+	utils.TestLogger.Println("Maximum load test ended - remember to manually delete namespaces")
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
@@ -101,14 +97,11 @@ func TestMaximumStartUp(t *testing.T) {
 			break
 		}
 
+		utils.TestLogger.Printf("Started namespace %s", namespace)
 		counter++
 		time.Sleep(waitTime2)
 	}
 
-	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
-	utils.TestLogger.Println("Deleting test namespaces")
-
-	for i := 0; i < counter; i++ {
-		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
-	}
+	utils.TestLogger.Printf("Maximum startup test done - successfully created %d namespaces \n", counter)
+	utils.TestLogger.Println("Maximum startup test ended - remember to manually delete namespaces")
 }

@@ -72,7 +72,7 @@ func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, 
 		channel <- err.Error()
 		return err
 	}
-	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-firefox-test")
 	if err != nil {
 		channel <- err.Error()
 		return err
