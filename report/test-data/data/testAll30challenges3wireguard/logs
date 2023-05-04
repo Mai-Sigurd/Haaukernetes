@@ -1,0 +1,15 @@
+2023/05/04 12:26:06 resourceOneUser_test.go:91: Test started
+2023/05/04 12:26:13 resourceOneUser_test.go:100: Waiting for the const seconds
+2023/05/04 12:26:23 resourceOneUser_test.go:102: Test ended, deleting namespaces
+2023/05/04 12:26:23 resourceOneUser_test.go:107: Waiting for the const seconds
+2023/05/04 12:26:33 resourceOneUser_test.go:109: Deleted namespaces
+2023/05/04 12:27:33 resourceOneUser_test.go:91: Test started
+2023/05/04 12:27:39 resourceOneUser_test.go:100: Waiting for the const seconds
+2023/05/04 12:27:49 resourceOneUser_test.go:102: Test ended, deleting namespaces
+2023/05/04 12:27:49 resourceOneUser_test.go:107: Waiting for the const seconds
+2023/05/04 12:27:59 resourceOneUser_test.go:109: Deleted namespaces
+2023/05/04 12:28:59 resourceOneUser_test.go:91: Test started
+2023/05/04 12:29:06 resourceOneUser_test.go:100: Waiting for the const seconds
+2023/05/04 12:29:16 resourceOneUser_test.go:102: Test ended, deleting namespaces
+2023/05/04 12:29:16 resourceOneUser_test.go:107: Waiting for the const seconds
+2023/05/04 12:29:26 resourceOneUser_test.go:109: Deleted namespaces
