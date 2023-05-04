@@ -18,7 +18,8 @@ The script installs Guacamole, guacd, and postgres.
 ## Connecting to Guacamole
 - The script outputs the address for connecting to guacamole. 
 - It can also be found by running `kubectl get svc -n guacamole` and using the form `http://<public-server-ip>:guacamole-exposed-nodeport/guacamole`.
-- The default username and password is `guacadmin`.
+
+**Note:** The Guacamole admin password will not be updated until `src/main.go` is run. Before this the default username and password `guacadmin` can be used to log in if necessary.
 
 ## Manually Connecting to Kali via Guacamole Interface
 - Make sure that there is a Kali container running. 

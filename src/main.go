@@ -21,7 +21,7 @@ func main() {
 
 	port := ":" + utils.APIPort
 
-	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
+	kubeConfigPath := os.Getenv("KUBECONFIG")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
