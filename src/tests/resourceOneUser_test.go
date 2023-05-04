@@ -9,6 +9,38 @@ import (
 
 const waitTime10 = 10 * time.Second
 
+func TestAll6challenges3times(t *testing.T) {
+	Test6ChallengesAndWireguard(t)
+	time.Sleep(1 * time.Minute)
+	Test6ChallengesAndWireguard(t)
+	time.Sleep(1 * time.Minute)
+	Test6ChallengesAndWireguard(t)
+	time.Sleep(1 * time.Minute)
+
+	Test6ChallengesAndKali(t)
+	time.Sleep(1 * time.Minute)
+	Test6ChallengesAndKali(t)
+	time.Sleep(1 * time.Minute)
+	Test6ChallengesAndKali(t)
+	time.Sleep(1 * time.Minute)
+}
+
+func TestAll30challenges3times(t *testing.T) {
+	Test30ChallengesWireguard(t)
+	time.Sleep(1 * time.Minute)
+	Test30ChallengesWireguard(t)
+	time.Sleep(1 * time.Minute)
+	Test30ChallengesWireguard(t)
+	time.Sleep(1 * time.Minute)
+
+	Test30ChallengesKali(t)
+	time.Sleep(1 * time.Minute)
+	Test30ChallengesKali(t)
+	time.Sleep(1 * time.Minute)
+	Test30ChallengesKali(t)
+	time.Sleep(1 * time.Minute)
+}
+
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func Test6ChallengesAndWireguard(t *testing.T) {
 	utils.SetLogTest("6ChallengesAndWireguardOneUser")
