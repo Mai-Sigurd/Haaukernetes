@@ -3,6 +3,8 @@
 
 **Requirements** 
 
+- Go installed
+- Docker installed
 - Valid K8s config file available 
 - Valid Digital Ocean secret available (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
 - Knowledge of the server's IP
