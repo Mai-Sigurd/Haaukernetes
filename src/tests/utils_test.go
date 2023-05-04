@@ -45,7 +45,7 @@ func setUpKubernetesResourcesWithKali(clientSet kubernetes.Clientset, namespace 
 	if err != nil {
 		return err
 	}
-	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-firefox-test")
 	if err != nil {
 		return err
 	}
