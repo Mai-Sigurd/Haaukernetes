@@ -8,12 +8,15 @@ import (
 	"time"
 )
 
+const waitTime30 = 30 * time.Second
+const waitTime2 = 2 * time.Second
+
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
 func TestMaximumLoad(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	utils.SetLogTest("Minimal-k8s-den-anden", true)
-
+	utils.SetLogTest("testMaximumLoad")
+	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
 	counter := 0
 	teamName := "maximum-load-team"
@@ -44,7 +47,7 @@ func TestMaximumLoad(t *testing.T) {
 		}
 
 		counter++
-		time.Sleep(2 * time.Second)
+		time.Sleep(waitTime2)
 	}
 
 	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
@@ -60,8 +63,8 @@ func TestMaximumLoad(t *testing.T) {
 func TestMaximumStartUp(t *testing.T) {
 	/// 50/50 kali wireguard
 	// Alle namespace kører 5 challenges
-	utils.SetLogTest("Minimal-k8s-den-ene", true)
-
+	utils.SetLogTest("TestMaximumStartUp")
+	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
 	counter := 0
 	teamName := "maximum-startup-team"
@@ -100,7 +103,7 @@ func TestMaximumStartUp(t *testing.T) {
 		}
 
 		counter++
-		time.Sleep(2 * time.Second)
+		time.Sleep(waitTime2)
 	}
 
 	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)

@@ -27,15 +27,15 @@ func SetLog() {
 	log.SetOutput(f)
 }
 
-func SetLogTest(fileName string, normalLogging bool) {
+func SetLogTest(fileName string) {
 	f, err := os.OpenFile("logs/"+fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	TestLogger = log.New(f, "", log.Ldate|log.Ltime|log.Lshortfile)
-	if normalLogging {
-		SetLog()
-	}
+
+	SetLog()
+
 }
 
 func ErrLogger(err error) {
