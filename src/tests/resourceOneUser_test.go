@@ -17,7 +17,7 @@ func Test6ChallengesAndWireguard(t *testing.T) {
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
-	person1 := "testperson1"
+	person1 := "Test6challengesWireguardOneUser"
 
 	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
@@ -38,7 +38,7 @@ func Test6ChallengesAndKali(t *testing.T) {
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
-	person1 := "testperson1"
+	person1 := "Test6challengesKaliOneUser"
 	setUpKubernetesResourcesWithKali(*clientSet, person1)
 
 	startAllChallenges(*clientSet, person1)
@@ -60,7 +60,7 @@ func Test30ChallengesWireguard(t *testing.T) {
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
-	person1 := "testperson1"
+	person1 := "Test30challengesWireguardOneUser"
 
 	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
@@ -84,7 +84,7 @@ func Test30ChallengesKali(t *testing.T) {
 
 	// Starting the kuberneets
 	clientSet := getClientSet()
-	person1 := "testperson1"
+	person1 := "Test30challengesKaliOneUser"
 
 	setUpKubernetesResourcesWithKali(*clientSet, person1)
 
