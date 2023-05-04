@@ -7,9 +7,11 @@ import (
 	"time"
 )
 
+const waitTime10 = 10 * time.Second
+
 // General load (resources used for new user, kali docker(simple vs kali many tools), wireguard, guacamole, etc)
 func Test6ChallengesAndWireguard(t *testing.T) {
-	utils.SetLogTest("6ChallengesAndWireguardOneUser", false)
+	utils.SetLogTest("6ChallengesAndWireguardOneUser")
 
 	utils.TestLogger.Println("Test started")
 
@@ -20,15 +22,18 @@ func Test6ChallengesAndWireguard(t *testing.T) {
 	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
 	startAllChallenges(*clientSet, person1)
-	time.Sleep(10 * time.Second)
-
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Test ended, deleting namespaces")
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.TestLogger.Println(err1.Error())
-	utils.TestLogger.Println("Test ended")
+	if err1 != nil {
+		utils.TestLogger.Println(err1.Error())
+	}
+	utils.TestLogger.Println("Deleted namespaces")
 }
 
 func Test6ChallengesAndKali(t *testing.T) {
-	utils.SetLogTest("6ChallengesAndKaliOneUser", false)
+	utils.SetLogTest("6ChallengesAndKaliOneUser")
 	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
@@ -37,16 +42,20 @@ func Test6ChallengesAndKali(t *testing.T) {
 	setUpKubernetesResourcesWithKali(*clientSet, person1)
 
 	startAllChallenges(*clientSet, person1)
-	time.Sleep(10 * time.Second)
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Test ended, deleting namespaces")
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.TestLogger.Println(err1.Error())
-	utils.TestLogger.Println("Test ended")
+	if err1 != nil {
+		utils.TestLogger.Println(err1.Error())
+	}
+	utils.TestLogger.Println("Deleted namespaces")
 }
 
 // Research usage of different amount of open challenges, like max 5 vs. all challenges running
 func Test30ChallengesWireguard(t *testing.T) {
-	utils.SetLogTest("30challengesWireguardOneUser", false)
+	utils.SetLogTest("30challengesWireguardOneUser")
 	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
@@ -56,17 +65,21 @@ func Test30ChallengesWireguard(t *testing.T) {
 	setUpKubernetesResourcesWithWireguard(*clientSet, person1, utils.WireguardEndpoint, utils.WireguardSubnet)
 
 	startAllChallengesWithDuplicates(*clientSet, person1)
-	time.Sleep(10 * time.Second)
-
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Test ended, deleting namespaces")
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.TestLogger.Println(err1.Error())
-	time.Sleep(30 * time.Second)
-	utils.TestLogger.Println("Test ended")
+	if err1 != nil {
+		utils.TestLogger.Println(err1.Error())
+	}
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Deleted namespaces")
 
 }
 
 func Test30ChallengesKali(t *testing.T) {
-	utils.SetLogTest("30challengesKaliOneUser", false)
+	utils.SetLogTest("30challengesKaliOneUser")
 	utils.TestLogger.Println("Test started")
 
 	// Starting the kuberneets
@@ -76,10 +89,15 @@ func Test30ChallengesKali(t *testing.T) {
 	setUpKubernetesResourcesWithKali(*clientSet, person1)
 
 	startAllChallengesWithDuplicates(*clientSet, person1)
-	time.Sleep(10 * time.Second)
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Test ended, deleting namespaces")
 
 	err1 := namespaces.DeleteNamespace(*clientSet, person1)
-	utils.TestLogger.Println(err1.Error())
-	time.Sleep(30 * time.Second)
-	utils.TestLogger.Println("Test ended")
+	if err1 != nil {
+		utils.TestLogger.Println(err1.Error())
+	}
+	utils.TestLogger.Println("Waiting for the const seconds")
+	time.Sleep(waitTime10)
+	utils.TestLogger.Println("Deleted everything")
 }
