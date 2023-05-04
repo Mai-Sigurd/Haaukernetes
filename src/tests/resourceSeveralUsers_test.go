@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-const waitTime30 = 30 * time.Second
 const waitTime2 = 2 * time.Second
 
 // Find out how many users there can be run on a minimal kubernetes requirements server setup (with an amount of challenges running) while we wait in between the starting of namespaces
