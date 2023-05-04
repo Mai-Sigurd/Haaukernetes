@@ -13,7 +13,7 @@ import (
 )
 
 func TestPing(t *testing.T) {
-	utils.SetLogTest("Ping-test", false)
+	utils.SetLogTest("Ping-test")
 	clientSet := getClientSet()
 
 	teamA := "team-a"
