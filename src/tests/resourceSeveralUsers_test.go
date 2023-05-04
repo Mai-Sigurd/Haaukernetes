@@ -18,30 +18,30 @@ func TestMaximumLoad(t *testing.T) {
 	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
 	counter := 0
-	teamName := "maximum-load-team"
+	user := "maximum-load-user"
 
 	for {
-		team := fmt.Sprintf(teamName+"%d", counter)
+		namespace := fmt.Sprintf(user+"%d", counter)
 		if counter%2 == 0 {
-			err := setUpKubernetesResourcesWithWireguard(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet)
+			err := setUpKubernetesResourcesWithWireguard(*clientSet, namespace, utils.WireguardEndpoint, utils.WireguardSubnet)
 			if err != nil {
 				utils.TestLogger.Println(err.Error())
-				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", namespace)
 				break
 			}
 		} else {
-			err := setUpKubernetesResourcesWithKali(*clientSet, team)
+			err := setUpKubernetesResourcesWithKali(*clientSet, namespace)
 			if err != nil {
 				utils.TestLogger.Println(err.Error())
-				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", namespace)
 				break
 			}
 		}
 
-		err := startAllChallenges(*clientSet, team)
+		err := startAllChallenges(*clientSet, namespace)
 		if err != nil {
 			utils.TestLogger.Println(err.Error())
-			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", team)
+			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", namespace)
 			break
 		}
 
@@ -53,7 +53,7 @@ func TestMaximumLoad(t *testing.T) {
 	utils.TestLogger.Println("Deleting test namespaces")
 
 	for i := 0; i < counter; i++ {
-		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(teamName+"%d", i))
+		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
 	}
 }
 
@@ -66,7 +66,7 @@ func TestMaximumStartUp(t *testing.T) {
 	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
 	counter := 0
-	teamName := "maximum-startup-team"
+	user := "maximum-startup-user"
 
 	//attempting to use channels to communicate errors as return values from goroutines are not possible
 
@@ -77,27 +77,27 @@ func TestMaximumStartUp(t *testing.T) {
 	}()
 
 	for {
-		team := fmt.Sprintf(teamName+"%d", counter)
+		namespace := fmt.Sprintf(user+"%d", counter)
 		if counter%2 == 0 {
-			go setUpKubernetesResourcesWithWireguardAndChannel(*clientSet, team, utils.WireguardEndpoint, utils.WireguardSubnet, errorChannel)
+			go setUpKubernetesResourcesWithWireguardAndChannel(*clientSet, namespace, utils.WireguardEndpoint, utils.WireguardSubnet, errorChannel)
 			for channelOutput != "" {
 				utils.TestLogger.Println(channelOutput)
-				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", namespace)
 				break
 			}
 		} else {
-			go setUpKubernetesResourcesWithKaliAndChannel(*clientSet, team, errorChannel)
+			go setUpKubernetesResourcesWithKaliAndChannel(*clientSet, namespace, errorChannel)
 			for channelOutput != "" {
 				utils.TestLogger.Println(channelOutput)
-				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", team)
+				utils.TestLogger.Printf("Error setting up namespace and wireguard for namespace %s - shutting down test\n", namespace)
 				break
 			}
 		}
 
-		err := startAllChallenges(*clientSet, team)
+		err := startAllChallenges(*clientSet, namespace)
 		if err != nil {
 			utils.TestLogger.Println(err.Error())
-			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", team)
+			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", namespace)
 			break
 		}
 
@@ -109,6 +109,6 @@ func TestMaximumStartUp(t *testing.T) {
 	utils.TestLogger.Println("Deleting test namespaces")
 
 	for i := 0; i < counter; i++ {
-		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(teamName+"%d", i))
+		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
 	}
 }
