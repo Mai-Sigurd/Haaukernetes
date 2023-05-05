@@ -1,4 +1,5 @@
 [![go-static-check](https://github.com/Mai-Sigurd/Haaukernetes/actions/workflows/go-static-check.yml/badge.svg)](https://github.com/Mai-Sigurd/Haaukernetes/actions/workflows/go-static-check.yml)
+![wordart](https://user-images.githubusercontent.com/63573363/236185676-91977a5f-8378-4edf-b3b9-46364418eb30.png)
 
 # Haaukernetes: Haaukins Kubernetes Bachelor Project
 
