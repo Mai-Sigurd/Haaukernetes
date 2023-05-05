@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-const waitTime2 = 2 * time.Second
-
 func Test16Namespaces(t *testing.T) {
 	utils.SetLogTest("testMaximumLoad16Namespaces")
 	runAmountNamespaces(16)
@@ -97,7 +95,7 @@ func TestMaximumLoad(t *testing.T) {
 		}
 
 		counter++
-		time.Sleep(waitTime2)
+		time.Sleep(2 * time.Second)
 	}
 
 	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
@@ -153,7 +151,7 @@ func TestMaximumStartUp(t *testing.T) {
 		}
 
 		counter++
-		time.Sleep(waitTime2)
+		time.Sleep(2 * time.Second)
 	}
 
 	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
