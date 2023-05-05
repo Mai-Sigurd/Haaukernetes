@@ -4,7 +4,7 @@ library(ggplot2)
 home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
 test <- "test8Namespaces"
 # test <- "test16Namespaces"
-path <- paste0(home_path, "Haaukernetes/report/test-data/data/several-user/", test, "/")
+path <- paste0(home_path, "Haaukernetes/report/test-data/data/several-users/", test, "/")
 test_name <- "8 namespaces with 5 challenges"
 
 s <- 180
@@ -57,8 +57,8 @@ ggplot(df, aes(x = seconds)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
-  #scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  #scale_y_continuous(breaks = seq(0, 0.01625, 0.0025), limits = c(0, 0.01625)) +
+  scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
+  scale_y_continuous(breaks = seq(0, 35, 5), limits = c(0, 35)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")
@@ -67,7 +67,7 @@ ggplot(df, aes(x = seconds)) +
 
 
 # Memory ----------------------------------------------------------------------
-s <- 100
+s <- 180
 
 # Create an empty data frame with seconds 1 to 180
 df <- data.frame(seconds = seq(1, s))
@@ -113,8 +113,8 @@ ggplot(df, aes(x = seconds)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
-  #scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  #scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
+  scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
+  scale_y_continuous(breaks = seq(1000, 3000, 500), limits = c(1000, 3000)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")

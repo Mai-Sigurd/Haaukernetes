@@ -2,13 +2,13 @@
 library(ggplot2)
 
 home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
-test <- "test6challengesandwireguardoneuser"
-# test <- "test6challengesandkalioneuser"
+test_type <- "wireguard"
+chals <- 6 # 6 or 30
+test <- paste0("test", chals, "challenges", test_type, "oneuser")
 path <- paste0(home_path, "Haaukernetes/report/test-data/data/one-user/", test, "/")
-test_name <- "one Wireguard user with 6 challenges"
+test_name <- paste0("one ", test_type, " user with ", chals, " challenges")
 
 s <- 180
-
 
 # CPU ----------------------------------------------------------------------
 
@@ -51,13 +51,13 @@ ggplot(df, aes(x = seconds)) +
   geom_line(aes(y = `cpu-5`, color = "CPU-5")) +
   xlab("Time Elapsed (s)") +
   ylab("CPU") +
-  ggtitle(paste("CPU usage over time: ", test_name, sep="")) +
+  ggtitle(paste("Namespace CPU usage over time: ", test_name, sep="")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
   scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  scale_y_continuous(breaks = seq(0, 0.01625, 0.0025), limits = c(0, 0.01625)) +
+  scale_y_continuous(breaks = seq(0, 0.175, 0.025), limits = c(0, 0.175)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")
@@ -66,7 +66,7 @@ ggplot(df, aes(x = seconds)) +
 
 
 # Memory ----------------------------------------------------------------------
-s <- 100
+s <- 180
 
 # Create an empty data frame with seconds 1 to 180
 df <- data.frame(seconds = seq(1, s))
@@ -107,13 +107,13 @@ ggplot(df, aes(x = seconds)) +
   geom_line(aes(y = `mem-5`, color = "mem-5")) +
   xlab("Time Elapsed (s)") +
   ylab("Memory (MiB)") +
-  ggtitle(paste("Memory usage over time: ", test_name, sep="")) +
+  ggtitle(paste("Namespace memory usage over time: ", test_name, sep="")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
-  scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
+  #scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
+  #scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")
