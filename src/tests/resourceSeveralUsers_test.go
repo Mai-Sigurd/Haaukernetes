@@ -55,6 +55,7 @@ func TestMaximumLoad(t *testing.T) {
 	for i := 0; i < counter; i++ {
 		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
 	}
+	utils.TestLogger.Println("Test exists")
 }
 
 // Find out how many users there can be run on a minimal kubernetes requirements, stress testing how many namespaces can start at the same time.
@@ -111,4 +112,5 @@ func TestMaximumStartUp(t *testing.T) {
 	for i := 0; i < counter; i++ {
 		namespaces.DeleteNamespace(*clientSet, fmt.Sprintf(user+"%d", i))
 	}
+	utils.TestLogger.Println("Test exists")
 }

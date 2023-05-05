@@ -7,13 +7,11 @@ import (
 	"k8s-project/connections/vpn/wireguard"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"log"
-	"os"
-	"strings"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"strings"
 )
 
 var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
@@ -30,6 +28,7 @@ func getClientSet() *kubernetes.Clientset {
 // The test uses a random public key
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) error {
 	err := namespaces.PostNamespace(clientSet, namespace)
+	utils.TestLogger.Println("Starting wireguard")
 	if err != nil {
 		return err
 	}
@@ -72,7 +71,7 @@ func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, 
 		channel <- err.Error()
 		return err
 	}
-	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-firefox-test")
 	if err != nil {
 		channel <- err.Error()
 		return err
