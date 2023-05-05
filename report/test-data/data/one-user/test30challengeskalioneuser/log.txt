@@ -1,0 +1,30 @@
+2023/05/05 19:15:30 resourceOneUser_test.go:84: Test started
+2023/05/05 19:15:34 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 19:15:39 resourceOneUser_test.go:93: Waiting for the const seconds
+2023/05/05 19:18:39 resourceOneUser_test.go:95: Test ended, deleting namespaces
+2023/05/05 19:18:39 resourceOneUser_test.go:101: Waiting for the const seconds
+2023/05/05 19:21:39 resourceOneUser_test.go:103: Test function exits
+2023/05/05 19:25:20 resourceOneUser_test.go:84: Test started
+2023/05/05 19:25:22 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 19:25:27 resourceOneUser_test.go:93: Waiting for the const seconds
+2023/05/05 19:28:27 resourceOneUser_test.go:95: Test ended, deleting namespaces
+2023/05/05 19:28:27 resourceOneUser_test.go:101: Waiting for the const seconds
+2023/05/05 19:31:27 resourceOneUser_test.go:103: Test function exits
+2023/05/05 19:35:38 resourceOneUser_test.go:84: Test started
+2023/05/05 19:35:42 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 19:35:47 resourceOneUser_test.go:93: Waiting for the const seconds
+2023/05/05 19:38:47 resourceOneUser_test.go:95: Test ended, deleting namespaces
+2023/05/05 19:38:47 resourceOneUser_test.go:101: Waiting for the const seconds
+2023/05/05 19:41:47 resourceOneUser_test.go:103: Test function exits
+2023/05/05 19:45:42 resourceOneUser_test.go:84: Test started
+2023/05/05 19:45:44 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 19:45:48 resourceOneUser_test.go:93: Waiting for the const seconds
+2023/05/05 19:48:48 resourceOneUser_test.go:95: Test ended, deleting namespaces
+2023/05/05 19:48:48 resourceOneUser_test.go:101: Waiting for the const seconds
+2023/05/05 19:51:48 resourceOneUser_test.go:103: Test function exits
+2023/05/05 19:55:12 resourceOneUser_test.go:84: Test started
+2023/05/05 19:55:16 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 19:55:21 resourceOneUser_test.go:93: Waiting for the const seconds
+2023/05/05 19:58:21 resourceOneUser_test.go:95: Test ended, deleting namespaces
+2023/05/05 19:58:21 resourceOneUser_test.go:101: Waiting for the const seconds
+2023/05/05 20:01:21 resourceOneUser_test.go:103: Test function exits
