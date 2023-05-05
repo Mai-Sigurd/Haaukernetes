@@ -1,0 +1,35 @@
+2023/05/05 20:05:55 resourceOneUser_test.go:60: Test started
+2023/05/05 20:05:55 utils_test.go:31: Starting wireguard
+2023/05/05 20:05:58 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 20:06:02 resourceOneUser_test.go:69: Waiting for the const seconds
+2023/05/05 20:09:02 resourceOneUser_test.go:71: Test ended, deleting namespaces
+2023/05/05 20:09:02 resourceOneUser_test.go:76: Waiting for the const seconds
+2023/05/05 20:12:02 resourceOneUser_test.go:78: Test function exits
+2023/05/05 20:14:53 resourceOneUser_test.go:60: Test started
+2023/05/05 20:14:53 utils_test.go:31: Starting wireguard
+2023/05/05 20:14:55 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 20:14:59 resourceOneUser_test.go:69: Waiting for the const seconds
+2023/05/05 20:17:59 resourceOneUser_test.go:71: Test ended, deleting namespaces
+2023/05/05 20:17:59 resourceOneUser_test.go:76: Waiting for the const seconds
+2023/05/05 20:20:59 resourceOneUser_test.go:78: Test function exits
+2023/05/05 20:43:28 resourceOneUser_test.go:60: Test started
+2023/05/05 20:43:28 utils_test.go:31: Starting wireguard
+2023/05/05 20:43:30 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 20:43:35 resourceOneUser_test.go:69: Waiting for the const seconds
+2023/05/05 20:46:35 resourceOneUser_test.go:71: Test ended, deleting namespaces
+2023/05/05 20:46:35 resourceOneUser_test.go:76: Waiting for the const seconds
+2023/05/05 20:49:35 resourceOneUser_test.go:78: Test function exits
+2023/05/05 20:53:20 resourceOneUser_test.go:60: Test started
+2023/05/05 20:53:20 utils_test.go:31: Starting wireguard
+2023/05/05 20:53:22 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 20:53:26 resourceOneUser_test.go:69: Waiting for the const seconds
+2023/05/05 20:56:26 resourceOneUser_test.go:71: Test ended, deleting namespaces
+2023/05/05 20:56:26 resourceOneUser_test.go:76: Waiting for the const seconds
+2023/05/05 20:59:26 resourceOneUser_test.go:78: Test function exits
+2023/05/05 21:02:06 resourceOneUser_test.go:60: Test started
+2023/05/05 21:02:06 utils_test.go:31: Starting wireguard
+2023/05/05 21:02:08 utils_test.go:102: Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)
+2023/05/05 21:02:13 resourceOneUser_test.go:69: Waiting for the const seconds
+2023/05/05 21:05:13 resourceOneUser_test.go:71: Test ended, deleting namespaces
+2023/05/05 21:05:13 resourceOneUser_test.go:76: Waiting for the const seconds
+2023/05/05 21:08:13 resourceOneUser_test.go:78: Test function exits
