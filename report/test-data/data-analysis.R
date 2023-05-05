@@ -2,10 +2,11 @@
 library(ggplot2)
 
 home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
-path <- paste(home_path, "Haaukernetes/report/test-data/data/one-user/test6challengesandkalioneuser/", sep="")
+test <- "test6challengesandwireguardoneuser"
+path <- paste0(home_path, "Haaukernetes/report/test-data/data/one-user/", test, "/")
 s <- 180
 
-test_name <- "one Kali user with 6 challenges"
+test_name <- "one Wireguard user with 6 challenges"
 
 
 # CPU ----------------------------------------------------------------------
@@ -32,7 +33,6 @@ for (i in 1:5) {
 
 max_cpu_df
 
-
 # Add columns with average, minimum, and maximum values
 df$minimum <- apply(df[, -1], 1, min) # Exclude seconds column from calculations
 df$mean <- rowMeans(df[, -1])
@@ -57,15 +57,10 @@ ggplot(df, aes(x = seconds)) +
                      labels = c("1", "2", "3", "4", "5")) + 
   scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
   scale_y_continuous(breaks = seq(0, 0.01625, 0.0025), limits = c(0, 0.01625)) +
-  theme_bw(legend.position = "bottom")
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, size = 14), 
+        plot.title.position = "plot", legend.position="bottom")
 
-ggplot(df) + 
-  geom_ribbon(aes(seconds, ymin = minimum, ymax = maximum), fill = "blue", alpha = 0.2) +
-  geom_line(aes(seconds, mean)) +
-  xlab("Time Elapsed (s)") +
-  ylab("Memory (MiB)") +
-  ggtitle(paste("Memory usage over time: ", test_name, sep = "")) +
-  theme(plot.title = element_text(hjust = 0.5))
 
 
 
@@ -118,16 +113,9 @@ ggplot(df, aes(x = seconds)) +
                      labels = c("1", "2", "3", "4", "5")) + 
   scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
   scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
-  theme(legend.position = "bottom") 
-
-
-ggplot(df) + 
-  geom_ribbon(aes(seconds, ymin = minimum, ymax = maximum), fill = "blue", alpha = 0.2) +
-  geom_line(aes(seconds, mean)) +
-  xlab("Time Elapsed (s)") +
-  ylab("Memory (MiB)") +
-  ggtitle(paste("Memory usage over time: ", test_name, sep = "")) +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, size = 14), 
+        plot.title.position = "plot", legend.position="bottom")
 
 
 

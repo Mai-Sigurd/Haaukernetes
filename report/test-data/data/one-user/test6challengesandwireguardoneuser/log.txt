@@ -1,0 +1,30 @@
+2023/05/05 13:01:31 resourceOneUser_test.go:16: Test started
+2023/05/05 13:01:31 utils_test.go:31: Starting wireguard
+2023/05/05 13:01:33 utils_test.go:91: Start 5 challenges
+2023/05/05 13:01:34 resourceOneUser_test.go:24: Waiting for the 3 minutes
+2023/05/05 13:04:34 resourceOneUser_test.go:26: Test ended, deleting namespaces, waiting for 3 minutes
+2023/05/05 13:07:34 resourceOneUser_test.go:32: Test function exits
+2023/05/05 13:16:24 resourceOneUser_test.go:16: Test started
+2023/05/05 13:16:24 utils_test.go:31: Starting wireguard
+2023/05/05 13:16:26 utils_test.go:91: Start 5 challenges
+2023/05/05 13:16:27 resourceOneUser_test.go:24: Waiting for the 3 minutes
+2023/05/05 13:19:27 resourceOneUser_test.go:26: Test ended, deleting namespaces, waiting for 3 minutes
+2023/05/05 13:22:27 resourceOneUser_test.go:32: Test function exits
+2023/05/05 13:28:29 resourceOneUser_test.go:16: Test started
+2023/05/05 13:28:29 utils_test.go:31: Starting wireguard
+2023/05/05 13:28:31 utils_test.go:91: Start 5 challenges
+2023/05/05 13:28:32 resourceOneUser_test.go:24: Waiting for the 3 minutes
+2023/05/05 13:31:32 resourceOneUser_test.go:26: Test ended, deleting namespaces, waiting for 3 minutes
+2023/05/05 13:34:32 resourceOneUser_test.go:32: Test function exits
+2023/05/05 13:38:36 resourceOneUser_test.go:16: Test started
+2023/05/05 13:38:36 utils_test.go:31: Starting wireguard
+2023/05/05 13:38:38 utils_test.go:91: Start 5 challenges
+2023/05/05 13:38:38 resourceOneUser_test.go:24: Waiting for the 3 minutes
+2023/05/05 13:41:38 resourceOneUser_test.go:26: Test ended, deleting namespaces, waiting for 3 minutes
+2023/05/05 13:44:38 resourceOneUser_test.go:32: Test function exits
+2023/05/05 13:48:56 resourceOneUser_test.go:16: Test started
+2023/05/05 13:48:56 utils_test.go:31: Starting wireguard
+2023/05/05 13:48:58 utils_test.go:91: Start 5 challenges
+2023/05/05 13:48:58 resourceOneUser_test.go:24: Waiting for the 3 minutes
+2023/05/05 13:51:58 resourceOneUser_test.go:26: Test ended, deleting namespaces, waiting for 3 minutes
+2023/05/05 13:54:59 resourceOneUser_test.go:32: Test function exits
