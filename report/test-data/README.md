@@ -1,15 +1,14 @@
-Setup
+# Test Data and Graphs
 
-Servers 
-- Control plane: Ubuntu 22.04 (LTS) x64, 2 vCPUs, 4 GB memory, 80 GB disk
-- Worker node: Ubuntu 22.04 (LTS) x64, 4 vCPUs, 8 GB memory, 160 GB disk
+Contains results from CPU and memory tests of different Haaukernetes scenarios and R files for creating graphs for the data. 
 
-- Control plane with monitoring and the Go program.
-  - Tainted so that nothing gets scheduled on it. 
-  - Monitoring on it though because it uses some resources. 
-- Worker node 
-  - Untainted. 
+## Setup
+The tests where performed on the following server setup:
+- Control-plane: Ubuntu 22.04 (LTS) x64, 2 vCPUs, 4 GB memory, 80 GB disk
+  - Running Kubernetes with Calico and monitoring stack. 
+  - Tainted to ensure no test resources were scheduled on it. 
+- Worker-node: Ubuntu 22.04 (LTS) x64, 4 vCPUs, 8 GB memory, 160 GB disk
+  - Running Kubernetes with Calico and resources created by the tests. 
+  - Untainted.
 
-### Note
-- We do not use our API in the test. We call the funcs directly.
-
+The data has been taken from the Grafana interface. 
