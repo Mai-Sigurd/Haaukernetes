@@ -21,7 +21,7 @@ func main() {
 
 	port := ":" + utils.APIPort
 
-	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
+	kubeConfigPath := os.Getenv("KUBECONFIG")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	utils.ErrLogger(err)
 	clientSet, err := kubernetes.NewForConfig(config)
@@ -53,25 +53,23 @@ func main() {
 }
 
 func setupGuacamole(clientSet kubernetes.Clientset) (guacamole.Guacamole, error) {
-	guacUser, guacPassword, err := guacamole.GetGuacamoleSecret(clientSet)
-	if err != nil {
-		return guacamole.Guacamole{}, err
-	}
-
 	guacBaseAddress, err := guacamole.GetGuacamoleBaseAddress(clientSet)
 	if err != nil {
 		return guacamole.Guacamole{}, err
 	}
 
+	// Default guacamole credentials used to initially change the admin password
 	guac := guacamole.Guacamole{
-		Username: guacUser,
-		Password: guacPassword,
+		Username: "guacadmin",
+		Password: "guacadmin",
 		BaseUrl:  guacBaseAddress,
 	}
-	err = guac.UpdateAdminPasswordInGuac("guacadmin")
+
+	err = guac.UpdateDefaultGuacAdminPassword(clientSet, "guacadmin")
 	if err != nil {
 		return guacamole.Guacamole{}, err
 	}
+
 	return guac, nil
 }
 

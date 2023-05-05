@@ -65,7 +65,7 @@ while true; do
         break
     else
         echo "Pod $POD is not ready yet. Retrying in 5 seconds..."
-        sleep 5
+        sleep 3
     fi
 done
 
@@ -83,8 +83,11 @@ while true; do
   sleep 3
 done
 
+# To avoid connection errors when running the database init script
+sleep 10
+
 echo "##### Run DB init script"
-POSTGRES_CONNECTION_STRING="postgresql://guacamole:${DB_PASSWORD}@localhost:${POSTGRES_PORT}/guacamole"
+POSTGRES_CONNECTION_STRING="postgresql://guacamole:${DB_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/guacamole"
 kubectl exec -it "$POSTGRES_POD" -n guacamole -- psql "$POSTGRES_CONNECTION_STRING" < initdb.sql
 
 echo "##### Updating guacamole secret with postgres IP"
@@ -101,5 +104,5 @@ PUBLIC_IP=$(ip -f inet -o addr show eth0|cut -d\  -f 7 | cut -d/ -f 1 | head -n 
 PORT=$(kubectl get service guacamole -n guacamole -o=jsonpath='{.spec.ports[0].nodePort}')
 
 echo "You can access guacamole on ${PUBLIC_IP}:${PORT}/guacamole"
-echo "The default username is: guacadmin"
-echo "Use the password you chose"
+echo "The default username and password is: guacadmin"
+echo "Run src/main.go to update the password to the chosen one"
