@@ -3,9 +3,8 @@
 
 **Requirements** 
 
-- Valid K8s config file available 
-- Valid Digital Ocean secret available (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
-- Knowledge of the server's IP
+- Valid K8s config file
+- Valid Digital Ocean secret (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
 
 **Steps**
 - Export the K8s config file path to a `KUBECONFIG` env variable with ``export KUBECONFIG=$HOME/.kube/config``

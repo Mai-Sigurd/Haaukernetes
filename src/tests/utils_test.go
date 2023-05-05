@@ -99,7 +99,7 @@ func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error 
 }
 
 func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace string) {
-	utils.TestLogger.Printf("Starting 5x5 challenges")
+	utils.TestLogger.Printf("Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)")
 	for key := range ports {
 		for i := 1; i < 7; i++ {
 			challengePorts := ports[key]
