@@ -2,11 +2,12 @@
 library(ggplot2)
 
 home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
-test <- "test6challengesandwireguardoneuser"
-path <- paste0(home_path, "Haaukernetes/report/test-data/data/one-user/", test, "/")
-s <- 180
+test <- "test8Namespaces"
+# test <- "test16Namespaces"
+path <- paste0(home_path, "Haaukernetes/report/test-data/data/several-user/", test, "/")
+test_name <- "8 namespaces with 5 challenges"
 
-test_name <- "one Wireguard user with 6 challenges"
+s <- 180
 
 
 # CPU ----------------------------------------------------------------------
@@ -22,10 +23,11 @@ for (i in 1:5) {
   file_name <- paste0(path, "cpu-", i, ".csv")
   cpu_data <- read.csv(file_name)
   cpu_col <- cpu_data[, 2][1:s] # Extract second column and first 180 rows
-  df <- cbind(df, cpu_col)
+  cpu_col_subtracted <- 100 - cpu_col # Subtract 100 from each element since we are read "idle"
+  df <- cbind(df, cpu_col_subtracted)
   
-  max_cpu <- max(cpu_col) # Get the max CPU value
-  max_cpu_seconds <- df$seconds[which.max(cpu_col)] # Get the corresponding seconds
+  max_cpu <- max(cpu_col_subtracted) # Get the max CPU value
+  max_cpu_seconds <- df$seconds[which.max(cpu_col_subtracted)] # Get the corresponding seconds
   
   # Append the max CPU value and the corresponding seconds to the data frame
   max_cpu_df <- rbind(max_cpu_df, data.frame(seconds = max_cpu_seconds, max_cpu = max_cpu))
@@ -49,14 +51,14 @@ ggplot(df, aes(x = seconds)) +
   geom_line(aes(y = `cpu-4`, color = "CPU-4")) +
   geom_line(aes(y = `cpu-5`, color = "CPU-5")) +
   xlab("Time Elapsed (s)") +
-  ylab("CPU") +
-  ggtitle(paste("CPU usage over time: ", test_name, sep="")) +
+  ylab("CPU (%)") +
+  ggtitle(paste("Node CPU usage over time: ", test_name, sep="")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
-  scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  scale_y_continuous(breaks = seq(0, 0.01625, 0.0025), limits = c(0, 0.01625)) +
+  #scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
+  #scale_y_continuous(breaks = seq(0, 0.01625, 0.0025), limits = c(0, 0.01625)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")
@@ -79,7 +81,7 @@ for (i in 1:5) {
   mem_data <- read.csv(file_name)
   mem_col <- mem_data[, 2][1:s] / 1048576 # Convert bytes to mebibytes
   df <- cbind(df, mem_col)
-
+  
   max_mem <- max(mem_col) # Get the max memory value
   max_mem_seconds <- df$seconds[which.max(mem_col)] # Get the corresponding seconds
   
@@ -106,13 +108,13 @@ ggplot(df, aes(x = seconds)) +
   geom_line(aes(y = `mem-5`, color = "mem-5")) +
   xlab("Time Elapsed (s)") +
   ylab("Memory (MiB)") +
-  ggtitle(paste("Memory usage over time: ", test_name, sep="")) +
+  ggtitle(paste("Node memory usage over time: ", test_name, sep="")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange"), 
                      name = "Test Runs:", 
                      labels = c("1", "2", "3", "4", "5")) + 
-  scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
-  scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
+  #scale_x_continuous(breaks = seq(0, s, 20), limits = c(0, s)) +
+  #scale_y_continuous(breaks = seq(0, 50, 10), limits = c(0, 50)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 14), 
         plot.title.position = "plot", legend.position="bottom")

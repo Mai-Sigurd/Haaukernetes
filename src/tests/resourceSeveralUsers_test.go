@@ -23,7 +23,7 @@ func runAmountNamespaces(amount int) {
 
 	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
-	counter := 1
+	counter := 0
 	user := "maximum-load-user"
 
 	for counter < amount+1 {
