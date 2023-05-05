@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
+var ports = map[string][]int32{"heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
 
 func getClientSet() *kubernetes.Clientset {
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
@@ -88,7 +88,7 @@ func startChallenge(name string, imageName string, clientSet kubernetes.Clientse
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error {
-	log.Printf("Start 6 challenges")
+	utils.TestLogger.Printf("Start 5 challenges")
 	for key := range ports {
 		err := startChallenge(key, key, clientSet, namespace, ports[key])
 		if err != nil {
@@ -99,9 +99,9 @@ func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error 
 }
 
 func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace string) {
-	log.Printf("Starting 5x6 challenges")
+	utils.TestLogger.Printf("Starting 5x5 challenges")
 	for key := range ports {
-		for i := 1; i < 6; i++ {
+		for i := 1; i < 7; i++ {
 			challengePorts := ports[key]
 			startChallenge(fmt.Sprintf(key+"%d", i), key, clientSet, namespace, challengePorts)
 		}
