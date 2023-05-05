@@ -11,8 +11,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreatePrebuiltService(clientSet kubernetes.Clientset, teamName string, service apiv1.Service) (*apiv1.Service, error) {
-	serviceClient := clientSet.CoreV1().Services(teamName)
+func CreatePrebuiltService(clientSet kubernetes.Clientset, namespace string, service apiv1.Service) (*apiv1.Service, error) {
+	serviceClient := clientSet.CoreV1().Services(namespace)
 	result, err := serviceClient.Create(context.TODO(), &service, metav1.CreateOptions{})
 
 	if err != nil {

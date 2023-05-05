@@ -10,8 +10,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, deployment *appsv1.Deployment) error {
-	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
+func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, namespace string, deployment *appsv1.Deployment) error {
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
 
 	if err != nil {
@@ -29,9 +29,9 @@ func CreatePrebuiltDeployment(clientSet kubernetes.Clientset, teamName string, d
 // when testing (they cant have duplicate names).
 // This is somewhat reasonable but is not directly needed in the API, so the API code just uses a single variable
 // as argument for both of these parameters.
-func CreateDeployment(clientSet kubernetes.Clientset, teamName string, name string, imageName string, containerPorts []int32, podLabels map[string]string) error {
-	deployment := configureDeployment(teamName, name, imageName, containerPorts, podLabels)
-	deploymentsClient := clientSet.AppsV1().Deployments(teamName)
+func CreateDeployment(clientSet kubernetes.Clientset, namespace string, name string, imageName string, containerPorts []int32, podLabels map[string]string) error {
+	deployment := configureDeployment(namespace, name, imageName, containerPorts, podLabels)
+	deploymentsClient := clientSet.AppsV1().Deployments(namespace)
 	result, err := deploymentsClient.Create(context.TODO(), &deployment, metav1.CreateOptions{})
 
 	if err != nil {
