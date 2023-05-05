@@ -8,18 +8,18 @@ import (
 	"time"
 )
 
-func Test16Namespaces(t *testing.T) {
-	utils.SetLogTest("testMaximumLoad16Namespaces")
-	runAmountNamespaces(16)
-}
-
 func Test8Namespaces(t *testing.T) {
 	utils.SetLogTest("testMaximumLoad8Namespaces")
 	runAmountNamespaces(8)
 }
 
+func Test16Namespaces(t *testing.T) {
+	utils.SetLogTest("testMaximumLoad16Namespaces")
+	runAmountNamespaces(16)
+}
+
 func runAmountNamespaces(amount int) {
-	/// 50/50 kali wireguard each with 5 challenges
+	// 50/50 kali wireguard each with 5 challenges
 
 	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
@@ -44,11 +44,10 @@ func runAmountNamespaces(amount int) {
 		if err != nil {
 			utils.TestLogger.Println(err.Error())
 		}
-
 		counter++
 	}
 
-	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces, waiting for 3 minutes \n", counter)
+	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces, waiting for 5 minutes \n", counter)
 	time.Sleep(5 * time.Minute)
 	utils.TestLogger.Println("Deleting test namespaces")
 
@@ -92,12 +91,10 @@ func TestMaximumLoad(t *testing.T) {
 			utils.TestLogger.Printf("Error setting starting all challenges for namespace %s - shutting down test\n", namespace)
 			break
 		}
-
 		counter++
-		time.Sleep(2 * time.Second)
 	}
 
-	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces \n", counter)
+	utils.TestLogger.Printf("Maximum load test done - successfully created %d namespaces, waiting for 5 minutes \n", counter)
 	utils.TestLogger.Println("Deleting test namespaces")
 
 	for i := 0; i < counter; i++ {
