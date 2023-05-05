@@ -19,8 +19,7 @@ func Test8Namespaces(t *testing.T) {
 }
 
 func runAmountNamespaces(amount int) {
-	/// 50/50 kali wireguard
-	// Alle namespace kører 6 challenges
+	/// 50/50 kali wireguard each with 5 challenges
 
 	utils.TestLogger.Println("Test started")
 	clientSet := getClientSet()
