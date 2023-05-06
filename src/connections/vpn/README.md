@@ -10,7 +10,7 @@ You must also have Wireguard installed on your system.
 You will provide your public key to Haaukernetes and in turn recieve a configuration file that you must save and insert your private key into.
 
 The configuration file will look like the following, though with the PLACEHOLDER values substituted for real values.
-You must insert your private key in place for the PRIVATEKEY value.
+You must replace the PRIVATEKEY value with your private key.
 
     [Interface]
     Address = 10.33.0.2/32
