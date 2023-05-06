@@ -26,6 +26,7 @@ Read more [here](https://kubernetes.io/docs/setup/production-environment/tools/k
 - Run `./worker-node-setup.sh`.
 - Run the saved `kubeadm join` command from the control-plane setup to initialize and join the worker node.
 - The process can be repeated for additional worker nodes. 
+- The `kubeadm join` command contains a token that is only valid for 24 hours, so a new command can be generated with `kubeadm token create --print-join-command` 
 
 ## Check Setup
 - Run `kubectl get pods -n kube-system` to check the general setup.
