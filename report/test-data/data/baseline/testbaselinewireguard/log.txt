@@ -1,0 +1,25 @@
+2023/05/06 22:32:40 baseline_test.go:32: Test started
+2023/05/06 22:32:40 utils_test.go:34: Starting wireguard
+2023/05/06 22:32:42 baseline_test.go:39: Waiting for the const seconds
+2023/05/06 22:35:42 baseline_test.go:41: Test ended, deleting namespaces
+2023/05/06 22:35:42 baseline_test.go:47: Test function exits
+2023/05/06 22:42:51 baseline_test.go:32: Test started
+2023/05/06 22:42:51 utils_test.go:34: Starting wireguard
+2023/05/06 22:42:53 baseline_test.go:39: Waiting for the const seconds
+2023/05/06 22:45:53 baseline_test.go:41: Test ended, deleting namespaces
+2023/05/06 22:45:53 baseline_test.go:47: Test function exits
+2023/05/06 22:53:06 baseline_test.go:32: Test started
+2023/05/06 22:53:06 utils_test.go:34: Starting wireguard
+2023/05/06 22:53:08 baseline_test.go:39: Waiting for the const seconds
+2023/05/06 22:56:08 baseline_test.go:41: Test ended, deleting namespaces
+2023/05/06 22:56:08 baseline_test.go:47: Test function exits
+2023/05/06 23:03:08 baseline_test.go:32: Test started
+2023/05/06 23:03:08 utils_test.go:34: Starting wireguard
+2023/05/06 23:03:10 baseline_test.go:39: Waiting for the const seconds
+2023/05/06 23:06:10 baseline_test.go:41: Test ended, deleting namespaces
+2023/05/06 23:06:10 baseline_test.go:47: Test function exits
+2023/05/06 23:13:30 baseline_test.go:32: Test started
+2023/05/06 23:13:30 utils_test.go:34: Starting wireguard
+2023/05/06 23:13:32 baseline_test.go:39: Waiting for the const seconds
+2023/05/06 23:16:32 baseline_test.go:41: Test ended, deleting namespaces
+2023/05/06 23:16:32 baseline_test.go:47: Test function exits

@@ -12,9 +12,12 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"strings"
+	"time"
 )
 
 var ports = map[string][]int32{"heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
+
+const wait3minutes = 3 * time.Minute
 
 func getClientSet() *kubernetes.Clientset {
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'

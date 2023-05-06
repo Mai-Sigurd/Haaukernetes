@@ -1,0 +1,20 @@
+2023/05/06 21:29:20 baseline_test.go:12: Test started
+2023/05/06 21:29:22 baseline_test.go:19: Waiting for the const seconds
+2023/05/06 21:32:22 baseline_test.go:21: Test ended, deleting namespaces
+2023/05/06 21:32:22 baseline_test.go:27: Test function exits
+2023/05/06 21:38:09 baseline_test.go:12: Test started
+2023/05/06 21:38:13 baseline_test.go:19: Waiting for the const seconds
+2023/05/06 21:41:13 baseline_test.go:21: Test ended, deleting namespaces
+2023/05/06 21:41:13 baseline_test.go:27: Test function exits
+2023/05/06 21:47:29 baseline_test.go:12: Test started
+2023/05/06 21:47:31 baseline_test.go:19: Waiting for the const seconds
+2023/05/06 21:50:31 baseline_test.go:21: Test ended, deleting namespaces
+2023/05/06 21:50:31 baseline_test.go:27: Test function exits
+2023/05/06 21:58:24 baseline_test.go:12: Test started
+2023/05/06 21:58:26 baseline_test.go:19: Waiting for the const seconds
+2023/05/06 22:01:26 baseline_test.go:21: Test ended, deleting namespaces
+2023/05/06 22:01:26 baseline_test.go:27: Test function exits
+2023/05/06 22:21:38 baseline_test.go:12: Test started
+2023/05/06 22:21:40 baseline_test.go:19: Waiting for the const seconds
+2023/05/06 22:24:40 baseline_test.go:21: Test ended, deleting namespaces
+2023/05/06 22:24:40 baseline_test.go:27: Test function exits
