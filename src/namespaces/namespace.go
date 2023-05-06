@@ -44,6 +44,7 @@ func PostNamespace(clientSet kubernetes.Clientset, name string) error {
 	}
 	netpol.CreateEgressPolicy(clientSet, name)
 	netpol.CreateChallengeIngressPolicy(clientSet, name)
+	netpol.CreateChallengeEgressPolicy(clientSet, name)
 	secrets.CreateImageRepositorySecret(clientSet, name)
 	return nil
 }
