@@ -20,6 +20,14 @@ func CreateEgressPolicy(clientSet kubernetes.Clientset, namespace string) error 
 	return createNetworkPolicy(clientSet, policyName, namespace, policyTypes, egress, nil, matchLabels)
 }
 
+func CreateChallengeEgressPolicy(clientSet kubernetes.Clientset, namespace string) error {
+	policyName := "challenge-egress-policy"
+	policyTypes := []networking.PolicyType{"Egress"}
+	matchLabels := make(map[string]string)
+	matchLabels[utils.ChallengePodLabelKey] = utils.ChallengePodLabelValue
+	return createNetworkPolicy(clientSet, policyName, namespace, policyTypes, nil, nil, matchLabels)
+}
+
 func CreateChallengeIngressPolicy(clientSet kubernetes.Clientset, namespace string) error {
 	policyName := "ingress-policy"
 	policyTypes := []networking.PolicyType{"Ingress"}
