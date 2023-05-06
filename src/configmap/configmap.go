@@ -10,19 +10,19 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, teamName string, serverPrivateKey string, clientPublicKey string) error {
+func CreateWireGuardConfigMap(clientSet kubernetes.Clientset, namespace string, serverPrivateKey string, clientPublicKey string) error {
 	data := make(map[string]string)
 	data["wg0.conf"] = wireguardconfig.GetServerConfig(serverPrivateKey, clientPublicKey)
-	configMap := configureConfigMap("wg-configmap", teamName, data)
-	err := CreateConfigMap(clientSet, teamName, configMap)
+	configMap := configureConfigMap("wg-configmap", namespace, data)
+	err := CreateConfigMap(clientSet, namespace, configMap)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func CreateConfigMap(clientSet kubernetes.Clientset, teamName string, configMap v1.ConfigMap) error {
-	configMapClient := clientSet.CoreV1().ConfigMaps(teamName)
+func CreateConfigMap(clientSet kubernetes.Clientset, namespace string, configMap v1.ConfigMap) error {
+	configMapClient := clientSet.CoreV1().ConfigMaps(namespace)
 	result, err := configMapClient.Create(context.TODO(), &configMap, metav1.CreateOptions{})
 
 	if err != nil {

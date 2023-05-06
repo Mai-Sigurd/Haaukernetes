@@ -1,6 +1,6 @@
 package guacamole
 
-import ( // todo we need to change default guac user somehow to not have it exposed to the whole world
+import (
 	"bytes"
 	"context"
 	"encoding/json"
@@ -17,12 +17,11 @@ import ( // todo we need to change default guac user somehow to not have it expo
 	"strings"
 )
 
-func GetGuacamoleSecret(clientSet kubernetes.Clientset) (string, string, error) {
+func GetGuacamolePasswordSecret(clientSet kubernetes.Clientset) (string, error) {
 	secret, err := clientSet.CoreV1().Secrets("guacamole").Get(context.TODO(), "guacamole", metav1.GetOptions{})
-	username := string(secret.Data["guac-user"])
 	password := string(secret.Data["guac-password"])
 	utils.InfoLogger.Printf("Retrieved Guacamole secret")
-	return username, password, err
+	return password, err
 }
 
 func GetGuacamoleBaseAddress(clientSet kubernetes.Clientset) (string, error) {
@@ -78,9 +77,14 @@ func (guac *Guacamole) UpdateAuthToken() error {
 	return nil
 }
 
-func (guac *Guacamole) UpdateAdminPasswordInGuac(oldPassword string) error {
+func (guac *Guacamole) UpdateDefaultGuacAdminPassword(clientSet kubernetes.Clientset, oldPassword string) error {
 	err := guac.UpdateAuthToken()
+	if err != nil {
+		return err
+	}
 
+	guacPassword, err := GetGuacamolePasswordSecret(clientSet)
+	guac.Password = guacPassword
 	if err != nil {
 		return err
 	}

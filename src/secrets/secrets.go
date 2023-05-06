@@ -10,14 +10,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CreateWireGuardSecret(clientSet kubernetes.Clientset, teamName string, privatekey string) error {
+func CreateWireGuardSecret(clientSet kubernetes.Clientset, namespace string, privatekey string) error {
 	data := make(map[string][]byte)
 	data["privatekey"] = []byte(privatekey)
-	secret := configureSecret("wg-secret", teamName, v1.SecretTypeOpaque, data)
-	return CreateSecret(clientSet, teamName, secret)
+	secret := configureSecret("wg-secret", namespace, v1.SecretTypeOpaque, data)
+	return CreateSecret(clientSet, namespace, secret)
 }
 
-func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string) error {
+func CreateImageRepositorySecret(clientSet kubernetes.Clientset, namespace string) error {
 	secretPath := os.Getenv("DO_SECRET_PATH") //running without docker requires 'export DO_SECRET_PATH="$HOME/do_secret"'
 	dockerconfigjson, err := os.ReadFile(secretPath)
 
@@ -27,12 +27,12 @@ func CreateImageRepositorySecret(clientSet kubernetes.Clientset, teamName string
 
 	data := make(map[string][]byte)
 	data[".dockerconfigjson"] = dockerconfigjson
-	secret := configureSecret("regcred", teamName, v1.SecretTypeDockerConfigJson, data)
-	return CreateSecret(clientSet, teamName, secret)
+	secret := configureSecret("regcred", namespace, v1.SecretTypeDockerConfigJson, data)
+	return CreateSecret(clientSet, namespace, secret)
 }
 
-func CreateSecret(clientSet kubernetes.Clientset, teamName string, secret v1.Secret) error {
-	secretsClient := clientSet.CoreV1().Secrets(teamName)
+func CreateSecret(clientSet kubernetes.Clientset, namespace string, secret v1.Secret) error {
+	secretsClient := clientSet.CoreV1().Secrets(namespace)
 	result, err := secretsClient.Create(context.TODO(), &secret, metav1.CreateOptions{})
 
 	if err != nil {

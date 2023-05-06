@@ -3,7 +3,9 @@
 
 **Requirements** 
 
-- Valid K8s config file
+- Go installed
+- Docker installed
+- Valid K8s config file 
 - Valid Digital Ocean secret (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
 
 **Steps**
