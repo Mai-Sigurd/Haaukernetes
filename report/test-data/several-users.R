@@ -2,7 +2,7 @@
 library(ggplot2)
 
 plot <- "mem"
-home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
+home_path <- ""
 test <- "test16Namespaces"
 path <- paste0(home_path,
          "Haaukernetes/report/test-data/data/several-users/",

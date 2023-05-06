@@ -2,7 +2,7 @@
 library(ggplot2)
 
 plot <- "mem"
-home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
+home_path <- ""
 test_type <- "wireguard"
 chals <- 30 # 5 or 30
 test <- paste0("test", chals, "challenges", test_type, "oneuser")
