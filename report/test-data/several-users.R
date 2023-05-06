@@ -1,8 +1,8 @@
 # install.packages("ggplot2")
 library(ggplot2)
 
-plot <- "mem"
-home_path <- ""
+plot <- "cpu"
+home_path <- "/Users/theakjeldsmark/Outside OneDrive/"
 test <- "test16Namespaces"
 path <- paste0(home_path,
          "Haaukernetes/report/test-data/data/several-users/",
@@ -10,6 +10,7 @@ path <- paste0(home_path,
          "/")
 
 s <- 300
+cpus <- 4
 
 
 # CPU ----------------------------------------------------------------------
@@ -25,11 +26,11 @@ for (i in 1:5) {
   file_name <- paste0(path, "cpu-", i, ".csv")
   cpu_data <- read.csv(file_name)
   cpu_col <- cpu_data[, 2][1:s]
-  cpu_col_subtracted <- 100 - cpu_col # Subtract 100 from each element since we are read "idle"
-  df <- cbind(df, cpu_col_subtracted)
+  cpu_col_subtracted_absolute <- (100 - cpu_col) / 100 *  4 # From percentage (idle) to absolute number
+  df <- cbind(df, cpu_col_subtracted_absolute)
   
-  max_cpu <- max(cpu_col_subtracted) # Get the max CPU value
-  max_cpu_seconds <- df$seconds[which.max(cpu_col_subtracted)] # Get the corresponding seconds
+  max_cpu <- max(cpu_col_subtracted_absolute) # Get the max CPU value
+  max_cpu_seconds <- df$seconds[which.max(cpu_col_subtracted_absolute)] # Get the corresponding seconds
   
   # Append the max CPU value and the corresponding seconds to the data frame
   max_cpu_df <- rbind(max_cpu_df, data.frame(seconds = max_cpu_seconds, max_cpu = max_cpu))
@@ -62,14 +63,14 @@ cpu_plot <- ggplot(df, aes(x = seconds)) +
   geom_line(aes(y = `cpu-4`, color = "CPU-4")) +
   geom_line(aes(y = `cpu-5`, color = "CPU-5")) +
   xlab("Time Elapsed (s)") +
-  ylab("CPU (%)") +
+  ylab("CPUs") +
   scale_color_manual(
     values = c("red", "green", "blue", "purple", "orange"),
     name = "Test Runs:",
     labels = c("1", "2", "3", "4", "5")
   ) +
   scale_x_continuous(breaks = seq(0, s, 30), limits = c(0, s)) +
-  scale_y_continuous(breaks = seq(0, 55, 10), limits = c(0, 55)) +
+  scale_y_continuous(breaks = seq(0, 2.3, 0.25), limits = c(0, 2.3)) +
   theme_bw() +
   theme(legend.position = "bottom", text = element_text(size = 14))
 
