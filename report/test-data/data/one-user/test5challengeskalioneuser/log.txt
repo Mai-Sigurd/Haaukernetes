@@ -1,0 +1,25 @@
+2023/05/05 17:49:36 resourceOneUser_test.go:37: Test started
+2023/05/05 17:49:41 utils_test.go:91: Start 5 challenges
+2023/05/05 17:49:41 resourceOneUser_test.go:45: Waiting for the const seconds
+2023/05/05 17:52:41 resourceOneUser_test.go:47: Test ended, deleting namespaces
+2023/05/05 17:55:41 resourceOneUser_test.go:54: Test function exits
+2023/05/05 18:00:21 resourceOneUser_test.go:37: Test started
+2023/05/05 18:00:23 utils_test.go:91: Start 5 challenges
+2023/05/05 18:00:24 resourceOneUser_test.go:45: Waiting for the const seconds
+2023/05/05 18:03:24 resourceOneUser_test.go:47: Test ended, deleting namespaces
+2023/05/05 18:06:24 resourceOneUser_test.go:54: Test function exits
+2023/05/05 18:09:40 resourceOneUser_test.go:37: Test started
+2023/05/05 18:09:42 utils_test.go:91: Start 5 challenges
+2023/05/05 18:09:43 resourceOneUser_test.go:45: Waiting for the const seconds
+2023/05/05 18:12:43 resourceOneUser_test.go:47: Test ended, deleting namespaces
+2023/05/05 18:15:43 resourceOneUser_test.go:54: Test function exits
+2023/05/05 18:20:25 resourceOneUser_test.go:37: Test started
+2023/05/05 18:20:29 utils_test.go:91: Start 5 challenges
+2023/05/05 18:20:30 resourceOneUser_test.go:45: Waiting for the const seconds
+2023/05/05 18:23:30 resourceOneUser_test.go:47: Test ended, deleting namespaces
+2023/05/05 18:26:30 resourceOneUser_test.go:54: Test function exits
+2023/05/05 18:34:07 resourceOneUser_test.go:37: Test started
+2023/05/05 18:34:11 utils_test.go:91: Start 5 challenges
+2023/05/05 18:34:12 resourceOneUser_test.go:45: Waiting for the const seconds
+2023/05/05 18:37:12 resourceOneUser_test.go:47: Test ended, deleting namespaces
+2023/05/05 18:40:12 resourceOneUser_test.go:54: Test function exits

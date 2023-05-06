@@ -7,16 +7,14 @@ import (
 	"k8s-project/connections/vpn/wireguard"
 	"k8s-project/namespaces"
 	"k8s-project/utils"
-	"log"
-	"os"
-	"strings"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"strings"
 )
 
-var ports = map[string][]int32{"logon": {80}, "heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
+var ports = map[string][]int32{"heartbleed": {443}, "for-fun-and-profit": {22}, "hide-and-seek": {13371}, "program-behaviour": {20, 21, 12020, 12021, 12022, 12023, 12024, 12025}, "reverseapk": {80}}
 
 func getClientSet() *kubernetes.Clientset {
 	kubeConfigPath := os.Getenv("KUBECONFIG") //running without docker requires 'export KUBECONFIG="$HOME/.kube/config"'
@@ -30,6 +28,7 @@ func getClientSet() *kubernetes.Clientset {
 // The test uses a random public key
 func setUpKubernetesResourcesWithWireguard(clientSet kubernetes.Clientset, namespace string, endpoint string, subnet string) error {
 	err := namespaces.PostNamespace(clientSet, namespace)
+	utils.TestLogger.Println("Starting wireguard")
 	if err != nil {
 		return err
 	}
@@ -72,7 +71,7 @@ func setUpKubernetesResourcesWithKaliAndChannel(clientSet kubernetes.Clientset, 
 		channel <- err.Error()
 		return err
 	}
-	_, _, err = kali.StartKali(clientSet, namespace, "kali-test")
+	_, _, err = kali.StartKali(clientSet, namespace, "kali-firefox-test")
 	if err != nil {
 		channel <- err.Error()
 		return err
@@ -89,7 +88,7 @@ func startChallenge(name string, imageName string, clientSet kubernetes.Clientse
 }
 
 func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error {
-	log.Printf("Start 6 challenges")
+	utils.TestLogger.Printf("Start 5 challenges")
 	for key := range ports {
 		err := startChallenge(key, key, clientSet, namespace, ports[key])
 		if err != nil {
@@ -100,9 +99,9 @@ func startAllChallenges(clientSet kubernetes.Clientset, namespace string) error 
 }
 
 func startAllChallengesWithDuplicates(clientSet kubernetes.Clientset, namespace string) {
-	log.Printf("Starting 5x6 challenges")
+	utils.TestLogger.Printf("Starting 5x5 challenges (note: each namespace also has a Kali/wg pod)")
 	for key := range ports {
-		for i := 1; i < 6; i++ {
+		for i := 1; i < 7; i++ {
 			challengePorts := ports[key]
 			startChallenge(fmt.Sprintf(key+"%d", i), key, clientSet, namespace, challengePorts)
 		}
