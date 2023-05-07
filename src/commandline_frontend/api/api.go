@@ -84,9 +84,10 @@ func PostKali(username string, password string) {
 	generalResponse(resp)
 }
 
-func PostWireguard(username string) {
-	reqBody := api_endpoints.User{Name: username}
+func PostWireguard(username string, key string) {
+	reqBody := api_endpoints.Wireguard{User: username, Key: key}
 	jsonBody, _ := json.Marshal(reqBody)
+	fmt.Println(reqBody)
 	url := "http://localhost:" + ipPort + "/wireguard/"
 	resp, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
