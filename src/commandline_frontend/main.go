@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golang.org/x/term"
 	"k8s-project/commandline_frontend/api"
 	"os"
 	"strconv"
+
+	"golang.org/x/term"
 )
 
 func main() {
@@ -92,7 +93,10 @@ func main() {
 			fmt.Println("Enter your username")
 			scanner.Scan()
 			user := scanner.Text()
-			api.PostWireguard(user)
+			fmt.Println("Enter your Wireguard public key")
+			scanner.Scan()
+			key := scanner.Text()
+			api.PostWireguard(user, key)
 		default:
 			fmt.Println("Invalid input")
 		}
