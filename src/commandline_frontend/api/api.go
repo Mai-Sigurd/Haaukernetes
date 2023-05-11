@@ -114,6 +114,7 @@ func PostChallenge(user string, challengeName string, ports []int32) {
 	reqBody := api_endpoints.Challenge{
 		Ports:         ports,
 		ChallengeName: challengeName,
+		ImageName:     challengeName,
 		User:          user,
 	}
 	jsonBody, _ := json.Marshal(reqBody)

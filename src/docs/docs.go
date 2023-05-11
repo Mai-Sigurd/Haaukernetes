@@ -76,12 +76,12 @@ const docTemplate = `{
                 "summary": "Creates Kali based on given user",
                 "parameters": [
                     {
-                        "description": "User",
+                        "description": "Guacamole User",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api_endpoints.User"
+                            "$ref": "#/definitions/api_endpoints.GuacUser"
                         }
                     }
                 ],
@@ -220,6 +220,9 @@ const docTemplate = `{
                 "challengeName": {
                     "type": "string"
                 },
+                "imageName": {
+                    "type": "string"
+                },
                 "ports": {
                     "type": "array",
                     "items": {
@@ -260,6 +263,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_endpoints.GuacUser": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Username\nin: string",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Password\nin: string",
                     "type": "string"
                 }
             }
