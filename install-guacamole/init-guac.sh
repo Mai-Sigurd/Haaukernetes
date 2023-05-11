@@ -97,7 +97,7 @@ kubectl patch secret postgres -n guacamole --type='json' -p='[{"op": "add", "pat
 echo "##### Setting up guacamole"
 kubectl apply -f guacamole.yaml
 
-sleep 10
+sleep 20
 echo "##### Changing default guacadmin password"
 PUBLIC_IP=$(ip -f inet -o addr show eth0|cut -d\  -f 7 | cut -d/ -f 1 | head -n 1)
 PORT=$(kubectl get service guacamole -n guacamole -o=jsonpath='{.spec.ports[0].nodePort}')
@@ -105,12 +105,11 @@ PORT=$(kubectl get service guacamole -n guacamole -o=jsonpath='{.spec.ports[0].n
 RESP=$(curl -X POST ${PUBLIC_IP}:${PORT}/guacamole/api/tokens -d "username=guacadmin&password=guacadmin&attributes=" -H "Content-Type: application/x-www-form-urlencoded")
 TOKEN=$(echo $RESP | grep -o '"authToken":"[^"]*' | cut -d '"' -f4)
 
-curl -X PUT ${PUBLIC_IP}:${PORT}/guacamole/api/session/data/postgresql/users/guacadmin/password?token=${TOKEN} -d '{"oldPassword":"guacadmin", "newPassword":"${GUAC_PASSWORD}"}' -H "Content-Type: application/json"
+curl -X PUT ${PUBLIC_IP}:${PORT}/guacamole/api/session/data/postgresql/users/guacadmin/password?token=${TOKEN} -d '{"oldPassword":"guacadmin", "newPassword": "'${GUAC_PASSWORD}'"}' -H "Content-Type: application/json"
 
 echo ""
 echo "##### Installation complete!"
 
 
 echo "You can access guacamole on ${PUBLIC_IP}:${PORT}/guacamole"
-echo "The default username and password is: guacadmin"
-echo "Run src/main.go to update the password to the chosen one"
+echo "The default username is: guacadmin which should be used with the password you just set"
