@@ -1,10 +1,11 @@
 package main
 
 import (
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"k8s-project/connections/browser/guacamole"
 	"os"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"k8s.io/client-go/kubernetes"
 
@@ -58,16 +59,15 @@ func setupGuacamole(clientSet kubernetes.Clientset) (guacamole.Guacamole, error)
 		return guacamole.Guacamole{}, err
 	}
 
-	// Default guacamole credentials used to initially change the admin password
-	guac := guacamole.Guacamole{
-		Username: "guacadmin",
-		Password: "guacadmin",
-		BaseUrl:  guacBaseAddress,
-	}
-
-	err = guac.UpdateDefaultGuacAdminPassword(clientSet, "guacadmin")
+	guacPassword, err := guacamole.GetGuacamolePasswordSecret(clientSet)
 	if err != nil {
 		return guacamole.Guacamole{}, err
+	}
+
+	guac := guacamole.Guacamole{
+		Username: "guacadmin",
+		Password: guacPassword,
+		BaseUrl:  guacBaseAddress,
 	}
 
 	return guac, nil

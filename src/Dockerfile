@@ -1,14 +1,14 @@
 #based on example from https://hub.docker.com/_/golang
 FROM golang:1.20
 
-WORKDIR /usr/src/haaukins-revamp
+WORKDIR /usr/src/haaukernetes
 
 # pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY . .
-RUN go build -v -o /usr/local/bin/haaukins-revamp .
+RUN go build -v -o /usr/local/bin/haaukernetes .
 
 # Generate and serve Swagger docs
 RUN go get github.com/gorilla/mux
@@ -17,4 +17,4 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN swag init
 
 
-CMD ["haaukins-revamp"]
+CMD ["haaukernetes"]

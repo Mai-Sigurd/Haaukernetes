@@ -6,7 +6,7 @@
 - Go installed
 - Docker installed
 - Valid K8s config file 
-- Valid Digital Ocean secret (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
+- Valid DigitalOcean image repository secret (for getting Docker images from the cloud registry). This should be in `dockerconfig.json` format
 
 **Steps**
 - Export the K8s config file path to a `KUBECONFIG` env variable with ``export KUBECONFIG=$HOME/.kube/config``
@@ -15,15 +15,17 @@
 - Run the program from the root directory with ``go run main.go``
 
 ## With docker
-- Build the docker image from the provided Dockerfile with ``docker build -t haaukins-revamp .``
+- Build the docker image from the provided Dockerfile with ``docker build -t haaukernetes .``
 - Run the image, providing the k8s config and digitalocean secret through bind mounted volumes and exposing the app on the hosts port 33333:
+    - The local paths provided for the -v flags must point to the actual files on your system. These can vary depending on how your cluster is set up
+    - The IP of your server can be inserted directly in the SERVER_IP env variable instead of the bash command that fetches it dynamically 
 
 ```bash
 docker run \
---env SERVER_IP=/ip/server_ip \
+--env SERVER_IP=$(hostname -I | awk '{print $1}') \
 -v ~/.kube/config:/kube/config --env KUBECONFIG=/kube/config \
 -v ~/do_secret:/secret/do_secret --env DO_SECRET_PATH=/secret/do_secret \
--p 33333:33333 -d haaukins-revamp
+-p 33333:33333 -d haaukernetes
 ```
 
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
@@ -47,7 +49,7 @@ Install with:
 
 The Swagger UI is available at: 
 
-http://<YOUR-SERVER-IP>:33333/URL/docs/index.html#/
+http://\<YOUR-SERVER-IP\>:33333/docs/index.html#/
 
 # Frontend
 *The frontend allows you to interact with the Haaukernetes API via the command-line.*
