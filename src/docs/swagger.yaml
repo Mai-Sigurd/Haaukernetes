@@ -3,6 +3,8 @@ definitions:
     properties:
       challengeName:
         type: string
+      imageName:
+        type: string
       ports:
         items:
           type: integer
@@ -29,6 +31,19 @@ definitions:
       message:
         type: string
       user:
+        type: string
+    type: object
+  api_endpoints.GuacUser:
+    properties:
+      name:
+        description: |-
+          Username
+          in: string
+        type: string
+      password:
+        description: |-
+          Password
+          in: string
         type: string
     type: object
   api_endpoints.Kali:
@@ -118,12 +133,12 @@ paths:
   /kali/:
     post:
       parameters:
-      - description: User
+      - description: Guacamole User
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/api_endpoints.User'
+          $ref: '#/definitions/api_endpoints.GuacUser'
       produces:
       - application/json
       responses:
