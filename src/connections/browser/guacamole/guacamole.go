@@ -8,13 +8,14 @@ import (
 	"fmt"
 	"io"
 	"k8s-project/utils"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 func GetGuacamolePasswordSecret(clientSet kubernetes.Clientset) (string, error) {
@@ -74,56 +75,6 @@ func (guac *Guacamole) UpdateAuthToken() error {
 	authToken := responseMap["authToken"].(string)
 	guac.AuthToken = authToken
 	utils.InfoLogger.Printf("Updated Guacamole auth token")
-	return nil
-}
-
-func (guac *Guacamole) UpdateDefaultGuacAdminPassword(clientSet kubernetes.Clientset, oldPassword string) error {
-	err := guac.UpdateAuthToken()
-	if err != nil {
-		return err
-	}
-
-	guacPassword, err := GetGuacamolePasswordSecret(clientSet)
-	guac.Password = guacPassword
-	if err != nil {
-		return err
-	}
-
-	u := UpdateUser{
-		OldPassword: oldPassword,
-		NewPassword: guac.Password,
-	}
-
-	payload, err := json.Marshal(u)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest("PUT", guac.BaseUrl+"/api/session/data/postgresql/users/"+guac.Username+"/password?token="+guac.AuthToken, bytes.NewBuffer(payload))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 204 {
-		return errors.New("could not update Guacamole password for user " + guac.Username + ": " + string(body))
-	}
-
-	utils.InfoLogger.Printf("Updated Guacamole admin password for user" + guac.Username)
 	return nil
 }
 
