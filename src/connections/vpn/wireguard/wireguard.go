@@ -145,7 +145,6 @@ func configureWireGuardDeployment() *appsv1.Deployment {
 										"NET_ADMIN",
 									},
 								},
-								Privileged: utils.BoolPtr(true),
 							},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
