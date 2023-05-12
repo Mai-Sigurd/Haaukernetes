@@ -1,0 +1,77 @@
+@startuml Package
+
+left to right direction
+
+'how to text in package?
+'https://stackoverflow.com/questions/64036144/how-can-i-add-description-to-plantuml-object-that-contains-another-object
+'how to flere kolonner?
+'løst med usynlige pile
+
+package Haaukernetes {
+    package "install-guacamole" as guac {
+        note "Scripts for installing Apache Guacamole" as guacnote
+    }
+    package "install-k8s" as k8spackage{
+        note "Scripts for setting up K8s" as k8snote
+    }
+    package "install-monitoring"{
+        note "Scripts for setting up monitoring" as moninote
+
+    }
+    package src {
+        package "api_endpoints" as api {
+            note "API endpoints" as apinote
+        }
+        package "challenge" as challenge {
+            note "Haaukins challenges abstraction\nUses Kubernetes files" as chalnote
+        }
+        package "commandline_frontend" as cli {
+            note "CLI frontend for interacting with API" as clinote
+        }
+        package "configmap" as config {
+            note "Kubernetes ConfigMaps" as confignote
+        }
+        package "connections" as conn {
+            note "Kali Linux, Apache Guacamole and Wireguard" as connote
+        }
+        package "deployments" as deploy {
+            note "Kubernetes Deployments" as deploynote
+        }
+        package "docs" as docs{
+            note "Swagger API docs" as docsnote
+        }
+        package "logs" as logs {
+            note "Log files" as logsnote
+        }   
+        package "namespaces" as ns{
+            note "Kubernetes Namespaces" as nsnote
+        }
+        package "netpol" as netpol {
+            note "Kubernetes Network Policies" as netpolnote
+        }
+        package "secrets" as secret {
+            note "Kubernetes Secrets" as secretnote
+        }
+        package "services" as svc {
+            note "Kubernetes Services" as svcnote
+        }
+        package "tests" as tests {
+            note "Benchmarking as well as performance and functionality tests" as testnote
+        }
+        package "utils" as utils {
+            note "General utility functions and constants" as utilnote
+        }
+    }
+}
+
+api -[hidden]d-> logs
+challenge -[hidden]d-> ns
+cli -[hidden]d-> netpol
+config -[hidden]d-> secret
+conn -[hidden]d-> svc
+deploy -[hidden]d-> tests
+docs -[hidden]d-> utils
+guac -[hidden]d-> k8spackage
+
+
+@enduml

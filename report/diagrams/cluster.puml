@@ -1,0 +1,49 @@
+@startuml Kubernetes
+
+scale max 1024 width
+
+skinparam nodesep 10
+skinparam ranksep 10
+'skinparam linetype ortho
+
+' Kubernetes
+!define KubernetesPuml https://raw.githubusercontent.com/dcasati/kubernetes-PlantUML/master/dist
+
+!includeurl KubernetesPuml/kubernetes_Common.puml
+!includeurl KubernetesPuml/kubernetes_Context.puml
+!includeurl KubernetesPuml/kubernetes_Simplified.puml
+
+!includeurl KubernetesPuml/OSS/KubernetesSvc.puml
+!includeurl KubernetesPuml/OSS/KubernetesIng.puml
+!includeurl KubernetesPuml/OSS/KubernetesPod.puml
+!includeurl KubernetesPuml/OSS/KubernetesRs.puml
+!includeurl KubernetesPuml/OSS/KubernetesDeploy.puml
+!includeurl KubernetesPuml/OSS/KubernetesHpa.puml
+!includeurl KubernetesPuml/OSS/KubernetesNetpol.puml
+!includeurl KubernetesPuml/OSS/KubernetesNode.puml
+
+left to right direction
+
+Cluster_Boundary(cluster, "Haaukernetes Cluster") {
+    Node(N1, "Node 1") {
+        Namespace_Boundary(ns_A, "User A") {
+            KubernetesPod(wg_A, "Wireguard", "")
+            KubernetesPod(hb_A, "Heartbleed", "")
+            KubernetesPod(l_A, "admin-logon", "")
+        }
+        Namespace_Boundary(ns_B, "User B") {
+            KubernetesPod(hb_B, "Heartbleed", "")
+            KubernetesPod(l_B, "admin-logon", "")
+        }
+    }
+    Node(N2, "Node 2") {
+        Namespace_Boundary(ns_B2, "User B") {
+            KubernetesPod(kali_B, "Kali Linux", "")
+        }
+    }
+}
+
+N1 -[hidden]r-> N2
+ns_B -[hidden]d-> ns_A
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+
+skinparam linetype ortho
+
+rectangle "Our scope" {
+  rectangle "K8s" as k8s
+  rectangle "Haaukernetes (including API)" as api
+}
+
+rectangle "(Possibly existing) Haaukins code" {
+  rectangle "Haaukins business logic and API" as BL
+  rectangle "Haaukins frontend" as front
+
+}
+
+api -right0)- BL
+BL -right0)- front
+k8s <- api
+
+@enduml
