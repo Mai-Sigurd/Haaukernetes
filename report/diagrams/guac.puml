@@ -1,0 +1,80 @@
+@startuml Guacamole
+
+'skinparam nodesep 10
+'skinparam ranksep 10
+skinparam linetype ortho
+
+' Kubernetes
+!define KubernetesPuml https://raw.githubusercontent.com/dcasati/kubernetes-PlantUML/master/dist
+
+!includeurl KubernetesPuml/kubernetes_Common.puml
+!includeurl KubernetesPuml/kubernetes_Context.puml
+!includeurl KubernetesPuml/kubernetes_Simplified.puml
+
+!includeurl KubernetesPuml/OSS/KubernetesSvc.puml
+!includeurl KubernetesPuml/OSS/KubernetesIng.puml
+!includeurl KubernetesPuml/OSS/KubernetesPod.puml
+!includeurl KubernetesPuml/OSS/KubernetesRs.puml
+!includeurl KubernetesPuml/OSS/KubernetesDeploy.puml
+!includeurl KubernetesPuml/OSS/KubernetesHpa.puml
+!includeurl KubernetesPuml/OSS/KubernetesNetpol.puml
+!includeurl KubernetesPuml/OSS/KubernetesNode.puml
+!includeurl KubernetesPuml/OSS/KubernetesPv.puml
+!includeurl KubernetesPuml/OSS/KubernetesPvc.puml
+
+'docker
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/devicons/docker.puml
+
+'-----------------------------------------------
+
+actor "User A" as userA
+
+Cluster_Boundary(cluster, "Haaukernetes") {
+    Namespace_Boundary(guac, "Guacamole") {
+        Pod_Boundary(guacpodb, "Guacamole") {
+            KubernetesPod(guacpod, " ", " ") {
+                DEV_DOCKER(guacd, "guacd container", "rectangle", "dodgerblue") #white
+                DEV_DOCKER(guaca, "guacamole container", "rectangle", "dodgerblue") #white
+            }
+        }
+       
+        Pod_Boundary(postgrespodb, "Postgres") {
+            KubernetesPod(postgrespod, " ", " ") {
+                KubernetesPvc(pvc, "Postgres PVC", " ")
+                DEV_DOCKER(pgcont, "Postgres container", "rectangle", "dodgerblue") #white
+            }
+        }
+       
+        
+        KubernetesSvc(guacsvc, "Guacamole NodePort", " ")
+        KubernetesSvc(postgressvc, "Postgres ClusterIP", " ")
+
+    }
+    Namespace_Boundary(user, "User A") {
+        Pod_Boundary(kalipodb, "Kali Linux") {
+            KubernetesPod(kalipod, " ", " ") {
+                DEV_DOCKER(kalicont, "Kali Linux  container", "rectangle", "dodgerblue") #white
+            }
+        }
+        KubernetesSvc(kalisvc, "Kali Linux ClusterIP", " ")
+    }
+
+    KubernetesPv(pv, "Persistent Volume", " ")
+}
+
+'guac -[hidden]r-> user
+userA -> guacsvc
+'Rel(kalisvc, kalipod, " ") virker fint men layout er federe
+'med en "almindelig" pil
+Rel(postgressvc, postgrespod, " ")
+Rel(guacsvc, guacpod, " ")
+Rel(guacpod, postgressvc, " ")
+Rel(guacpod, kalisvc, " ")
+Rel(pvc, pv, " ")
+kalisvc -> kalipod
+postgrespod -[hidden]r-> guacpodb
+pv -[hidden]d-> user  
+
+@enduml

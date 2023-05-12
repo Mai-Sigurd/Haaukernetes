@@ -1,0 +1,121 @@
+@startuml Kubernetes
+
+scale max 1024 width
+
+skinparam nodesep 10
+skinparam ranksep 10
+skinparam linetype ortho
+
+' Kubernetes
+!define KubernetesPuml https://raw.githubusercontent.com/dcasati/kubernetes-PlantUML/master/dist
+
+!includeurl KubernetesPuml/kubernetes_Common.puml
+!includeurl KubernetesPuml/kubernetes_Context.puml
+!includeurl KubernetesPuml/kubernetes_Simplified.puml
+
+!includeurl KubernetesPuml/OSS/KubernetesSvc.puml
+!includeurl KubernetesPuml/OSS/KubernetesIng.puml
+!includeurl KubernetesPuml/OSS/KubernetesPod.puml
+!includeurl KubernetesPuml/OSS/KubernetesRs.puml
+!includeurl KubernetesPuml/OSS/KubernetesDeploy.puml
+!includeurl KubernetesPuml/OSS/KubernetesHpa.puml
+!includeurl KubernetesPuml/OSS/KubernetesNetpol.puml
+
+'https://stackoverflow.com/questions/75910709/plantuml-osapuml-how-to-change-standard-name-of-icon
+!define osaPuml https://raw.githubusercontent.com/Crashedmind/PlantUML-opensecurityarchitecture2-icons/master
+!include osaPuml/Common.puml
+!include osaPuml/Hardware/all.puml
+
+left to right direction
+
+actor "User A" as userA
+actor "User B" as userB
+
+
+Cluster_Boundary(cluster, "Haaukernetes Cluster") {
+    Namespace_Boundary(ns_A, "User A") #line:black {
+        KubernetesSvc(wg_np_A, "Wireguard NodePort", "")
+        KubernetesSvc(logon_A, "admin-logon\nClusterIP", "")
+        rectangle {
+            KubernetesNetpol(egress_A, "egress-policy", "")
+            KubernetesPod(wg_pod_A, "Wireguard Pod", "")
+
+        }
+        rectangle {
+            KubernetesNetpol(chal_egress_A, "challenge-egress-policy", "")
+            KubernetesNetpol(ingress_A, "ingress-policy", "")
+            KubernetesPod(logon_pod_A, "admin-logon", "")
+        }
+    }
+
+    Namespace_Boundary(ns_B, "User B") #line:black {
+        KubernetesSvc(wg_np_B, "Wireguard NodePort", "")
+        KubernetesSvc(logon_B, "admin-logon\nClusterIP", "")
+        rectangle {
+            KubernetesNetpol(egress_B, "egress-policy", "")
+            KubernetesPod(wg_pod_B, "Wireguard Pod", "")
+
+        }
+        rectangle {
+            KubernetesNetpol(chal_egress_B, "challenge-egress-policy", "")
+            KubernetesNetpol(ingress_B, "ingress-policy", "")
+            KubernetesPod(logon_pod_B, "admin-logon", "")
+        }
+    }
+}
+
+Rel(userA, wg_np_A, " ")
+Rel(wg_np_A, wg_pod_A, " ")
+Rel(wg_pod_A, logon_A, " ")
+Rel(logon_A, logon_pod_A, " ")
+
+Rel(userB, wg_np_B, " ")
+Rel(wg_np_B, wg_pod_B, " ")
+Rel(wg_pod_B, logon_B, " ")
+Rel(logon_B, logon_pod_B, " ")
+
+'router har default orange kant, fjernet via: https://plantuml.com/deployment-diagram
+osa_device_wireless_router(internet, " ", "Public Internet") #white;line.dashed;line:white
+
+cluster -[hidden]r-> internet
+wg_pod_B <..> internet
+wg_pod_B <..> logon_pod_A
+logon_pod_B <.u.> internet
+ns_A -[hidden]l-> ns_B
+
+
+
+skinparam legendBackgroundColor #FFFFFF
+' remove box around legend
+skinparam legendBorderColor #FFFFFF
+' remove the lines between the legend items
+skinparam legendEntrySeparator #FFFFFF
+
+
+'brug af map: https://www.plantuml.com/plantuml/uml/NL11QiD03Bph5Oh9eJcalPVK9Fr6jmVPgpWcQybePLem_dljE6qXB2oQ6GdDw9YTp8SkGUA69S8u0cnwqvhZO8nRCjElfwtpj-yWoE6iug-TYkQUvfxdIbCiR_BXPT5AV2ino3W6INnsT4LhcujZR8rhRrM2v6ihFHbrM55zRKm7YRKcDNGZoRF4ua4ILPomc1zbF3tWzo0dlErTocaA0XkM-ESSeACUYzDYF-CQRfsabHhXdgtOxyjYzuy-8kKBnyz7Ljr_sGbWce0btezsdB-XIpy0
+'styling af map
+'https://forum.plantuml.net/14714/can-we-apply-style-to-map
+'styling er inde i legend fordi map er, hvis legend ikke bruges
+'kan styling bare være over map
+
+legend left
+{{
+
+ <style>
+    map {
+    FontColor Black
+   BackgroundColor white
+ }
+</style>
+
+!procedure $arrow($text)
+\n{{\nleft to right direction\nskinparam backgroundcolor transparent\nlabel " " as A\nlabel " " as B\nA $text B\n}}\n
+'\n<font:monospaced.bold>$text</font> => \n{{\nleft to right direction\nskinparam backgroundcolor transparent\nlabel " " as A\nlabel " " as B\nA $text B\n}}\n
+!endprocedure
+map "Legend" as arrows {
+$arrow("------>") => Communication possible
+$arrow("<.......>") => Communication not possible
+}
+}}
+endlegend
+@enduml
