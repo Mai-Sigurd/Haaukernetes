@@ -38,7 +38,7 @@ docker run \
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
 
-# Requirements
+# Swagger
 Go-Swagger: https://goswagger.io/install.html
 
 Install with:
@@ -47,7 +47,9 @@ Install with:
 
 ``go get github.com/go-openapi/runtime/middleware``
 
-# Generating New Swagger
+## Generating New Swagger
+- Is automatically done when using Docker
+
 ## Requirements
 ``go install github.com/swaggo/swag/cmd/swag@latest``
 
