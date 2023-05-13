@@ -1,3 +1,9 @@
+# Cluster specific, required constants
+- Needs to be set in ``utils/const.go``
+- ImageRepoUrl (url for the image repository to be used)
+- WireguardEndpoint (the public endpoint of the cluster)
+- WireguardSubnet (the K8s pod or service CIDR)
+
 # Running
 ## Without docker
 
