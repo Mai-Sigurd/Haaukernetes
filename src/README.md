@@ -39,19 +39,18 @@ OBS: this seems to cause issues with e.g. minikube as the k8s config contains se
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
 
 # Swagger
-Go-Swagger: https://goswagger.io/install.html
+Go-Swagger details: https://goswagger.io/install.html
 
-Install with:
+Install Swagger requirements with:
 
 ``go get github.com/gorilla/mux``
 
 ``go get github.com/go-openapi/runtime/middleware``
 
+``go install github.com/swaggo/swag/cmd/swag@latest``
+
 ## Generating New Swagger
 - Is automatically done when using Docker
-
-## Requirements
-``go install github.com/swaggo/swag/cmd/swag@latest``
 
 ## Initialize Swagger
 ``swag init ``
