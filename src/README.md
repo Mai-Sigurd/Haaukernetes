@@ -50,10 +50,7 @@ Install Swagger requirements with:
 ``go install github.com/swaggo/swag/cmd/swag@latest``
 
 ## Generating New Swagger
-- Is automatically done when using Docker
-
-## Initialize Swagger
-``swag init ``
+``swag init `` (automatically done when using Docker)
 
 The Swagger UI is available at: 
 
