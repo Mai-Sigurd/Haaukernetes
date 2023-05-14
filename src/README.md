@@ -1,4 +1,11 @@
 # Running
+ 
+ ## Cluster specific, required constants
+- Needs to be set in ``utils/const.go``
+- ImageRepoUrl (url for the image repository to be used)
+- WireguardEndpoint (the public endpoint of the cluster)
+- WireguardSubnet (the K8s pod or service CIDR)
+
 ## Without docker
 
 **Requirements** 
@@ -31,21 +38,19 @@ docker run \
 OBS: this seems to cause issues with e.g. minikube as the k8s config contains several other paths that can't 
 be resolved with the current ``docker run`` setup - consider just running it raw with minikube.
 
-# Requirements
-Go-Swagger: https://goswagger.io/install.html
+# Swagger
+Go-Swagger details: https://goswagger.io/install.html
 
-Install with:
+Install Swagger requirements with:
 
 ``go get github.com/gorilla/mux``
 
 ``go get github.com/go-openapi/runtime/middleware``
 
-# Generating New Swagger
-## Requirements
 ``go install github.com/swaggo/swag/cmd/swag@latest``
 
-## Initialize Swagger
-``swag init ``
+## Generating New Swagger
+``swag init `` (automatically done when using Docker)
 
 The Swagger UI is available at: 
 
