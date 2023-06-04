@@ -1,0 +1,126 @@
+@startuml Exam
+
+'skinparam nodesep 10
+'skinparam ranksep 10
+skinparam linetype ortho
+
+' Kubernetes
+!define KubernetesPuml https://raw.githubusercontent.com/dcasati/kubernetes-PlantUML/master/dist
+
+!includeurl KubernetesPuml/kubernetes_Common.puml
+!includeurl KubernetesPuml/kubernetes_Context.puml
+!includeurl KubernetesPuml/kubernetes_Simplified.puml
+
+!includeurl KubernetesPuml/OSS/KubernetesSvc.puml
+!includeurl KubernetesPuml/OSS/KubernetesIng.puml
+!includeurl KubernetesPuml/OSS/KubernetesPod.puml
+!includeurl KubernetesPuml/OSS/KubernetesRs.puml
+!includeurl KubernetesPuml/OSS/KubernetesDeploy.puml
+!includeurl KubernetesPuml/OSS/KubernetesHpa.puml
+!includeurl KubernetesPuml/OSS/KubernetesNetpol.puml
+!includeurl KubernetesPuml/OSS/KubernetesNode.puml
+!includeurl KubernetesPuml/OSS/KubernetesPv.puml
+!includeurl KubernetesPuml/OSS/KubernetesPvc.puml
+!includeurl KubernetesPuml/OSS/KubernetesNetpol.puml
+
+'docker
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/devicons/docker.puml
+
+'monitoring
+!define CLOUDOGUURL https://raw.githubusercontent.com/cloudogu/plantuml-cloudogu-sprites/master
+!includeurl CLOUDOGUURL/tools/prometheus.puml
+!includeurl CLOUDOGUURL/tools/grafana.puml
+
+!include ./guac_small.puml
+
+
+actor "User A" as userA
+actor "User B" as userB
+
+Cluster_Boundary(cluster, "Haaukernetes cluster") { 
+
+    Node(N1, "Control plane") {
+        Namespace_Boundary(moni, "Monitoring") {
+            TOOL_GRAFANA(graf, Grafana dashboards)
+            TOOL_PROMETHEUS(prom, Prometheus metrics)
+        }
+
+    }
+    Node(N2, "Worker node 1") {
+        Namespace_Boundary(guac_ns, "Guacamole") {
+            GUACA(guac, "Apache Guacamole")
+
+        }
+
+        Namespace_Boundary(ns_A, "User A") {
+        KubernetesSvc(wg_np_A, "Wireguard NodePort", "")
+        KubernetesSvc(logon_A, "admin-logon\nClusterIP", "")
+        KubernetesSvc(heartbleed_A, "heartbleed\nClusterIP", "")
+        rectangle {
+            KubernetesNetpol(egress_A, "egress-policy", "")
+            KubernetesPod(wg_pod_A, "Wireguard Pod", "")
+
+        }
+        rectangle {
+            KubernetesNetpol(chal_egress_A, "challenge-egress-policy", "")
+            KubernetesNetpol(ingress_A, "ingress-policy", "")
+            KubernetesPod(logon_pod_A, "admin-logon", "")
+            KubernetesPod(heartbleed_pod_A, "heartbleed", "")
+        }                
+        }   
+
+        Namespace_Boundary(ns_B, "User B") {
+            KubernetesSvc(logon_B, "admin-logon\nClusterIP", "")
+            KubernetesSvc(heartbleed_B, "heartbleed\nClusterIP", "")
+
+            rectangle {
+                KubernetesPod(kalipod, "Kali Linux Pod", "")
+                KubernetesNetpol(egress_B, "egress-policy", "")
+            }
+
+            'Pod_Boundary(kalipodb, "Kali Linux") {
+            'KubernetesPod(kalipod, " ", " ") {
+            '    DEV_DOCKER(kalicont, "Kali Linux  container", "rectangle", "dodgerblue") #white
+            '    }
+            '}
+            KubernetesSvc(kalisvc, "Kali Linux ClusterIP", " ")
+
+            rectangle {
+
+                KubernetesNetpol(chal_egress_B, "challenge-egress-policy", "")
+                KubernetesNetpol(ingress_B, "ingress-policy", "")
+                KubernetesPod(logon_pod_B, "admin-logon", "")
+                KubernetesPod(heartbleed_pod_B, "heartbleed", "")
+            }
+        }
+    }
+}
+
+'user A
+userA -down-> wg_np_A
+'Rel(userA, wg_np_A, " ")
+Rel(wg_np_A, wg_pod_A, " ")
+Rel(wg_pod_A, logon_A, " ")
+Rel(wg_pod_A, heartbleed_A, " ")
+Rel(logon_A, logon_pod_A, " ")
+Rel(heartbleed_A, heartbleed_pod_A, " ")
+
+
+'user B
+userB -down-> guac
+guac -down-> kalisvc 
+kalisvc -down-> kalipod
+kalipod -down-> logon_B
+logon_B -down-> logon_pod_B
+kalipod -down-> heartbleed_B
+heartbleed_B -down-> heartbleed_pod_B
+'kalipod -[hidden]down-> userbrect 
+'kalisvc -[hidden]down-> kali
+
+
+ns_A -[hidden]left-> ns_B
+
+
+@enduml
